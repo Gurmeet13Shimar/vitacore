@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "wouter";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Bot, Github, Mail } from "lucide-react";
 
 export default function Login() {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +15,7 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     login();
-    setLocation("/dashboard");
+    navigate("/dashboard");
   };
 
   return (

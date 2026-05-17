@@ -2,6 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const dns = require('dns');
+
+// Force Google DNS to bypass ISP blocking of MongoDB Atlas SRV records
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 dotenv.config();
 
