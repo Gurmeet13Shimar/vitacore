@@ -22,9 +22,15 @@ app.get('/api/health', (req, res) => {
 
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const healthRoutes = require('./routes/healthRoutes');
+const financeRoutes = require('./routes/financeRoutes');
+const careerRoutes = require('./routes/careerRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/finance', financeRoutes);
+app.use('/api/career', careerRoutes);
 
 if (process.env.MONGODB_URI) {
   mongoose.connect(process.env.MONGODB_URI)
