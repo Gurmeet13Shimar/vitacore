@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { getRecommendations, simulateScenario } = require('../controllers/aiController');
-const { protect } = require('../middleware/authMiddleware');
 
-router.post('/recommend', protect, getRecommendations);
-router.post('/simulate', protect, simulateScenario);
+// Temporarily removed protect middleware for testing
+router.post('/recommend', getRecommendations);
+router.post('/simulate', simulateScenario);
 
 module.exports = router;

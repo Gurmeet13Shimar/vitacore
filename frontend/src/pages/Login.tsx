@@ -8,14 +8,30 @@ import { Bot, Github, Mail } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, register } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login();
-    navigate("/dashboard");
+    setError("");
+    setIsLoading(true);
+    try {
+      if (isRegistering) {
+        await register(name, email, password);
+      } else {
+        await login(email, password);
+      }
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Authentication failed. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,12 +79,32 @@ export default function Login() {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl pointer-events-none" />
           
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-            <p className="text-muted-foreground">Enter your credentials to access the grid.</p>
+          <div className="text-center mb-8 relative z-20">
+            <h2 className="text-3xl font-bold text-white mb-2">{isRegistering ? "Create Profile" : "Welcome Back"}</h2>
+            <p className="text-muted-foreground">{isRegistering ? "Initialize your digital twin." : "Enter your credentials to access the grid."}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 relative z-20">
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+                {error}
+              </div>
+            )}
+            
+            {isRegistering && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Subject Name</label>
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="bg-black/50 border-white/10 focus-visible:ring-primary h-12 text-white"
+                  required
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300">Identity Identifier</label>
               <Input
@@ -83,8 +119,10 @@ export default function Login() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-300">Access Node</label>
-                <a href="#" className="text-xs text-primary hover:text-primary/80 transition-colors">Recover access</a>
+                <label className="text-sm font-medium text-gray-300">Access Node (Password)</label>
+                {!isRegistering && (
+                  <a href="#" className="text-xs text-primary hover:text-primary/80 transition-colors">Recover access</a>
+                )}
               </div>
               <Input
                 type="password"
@@ -99,28 +137,26 @@ export default function Login() {
 
             <Button 
               type="submit" 
-              className="w-full h-12 text-base font-bold bg-white text-black hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-6"
+              disabled={isLoading}
+              className="w-full h-12 text-base font-bold bg-white text-black hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-6 disabled:opacity-50"
               data-testid="button-submit-login"
             >
-              INITIALIZE UPLINK
+              {isLoading ? "PROCESSING..." : isRegistering ? "INITIALIZE UPLINK" : "ESTABLISH UPLINK"}
             </Button>
           </form>
 
-          <div className="mt-8 flex items-center gap-4">
-            <div className="h-px bg-white/10 flex-1" />
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Or connect via</span>
-            <div className="h-px bg-white/10 flex-1" />
-          </div>
-
-          <div className="mt-6 flex gap-4">
-            <Button variant="outline" className="flex-1 h-12 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all text-gray-300" onClick={handleSubmit}>
-              <Github className="mr-2" size={18} />
-              GitHub
-            </Button>
-            <Button variant="outline" className="flex-1 h-12 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all text-gray-300" onClick={handleSubmit}>
-              <Mail className="mr-2" size={18} />
-              Google
-            </Button>
+          <div className="mt-8 relative z-20 text-center text-sm text-gray-400">
+            {isRegistering ? "Already connected?" : "Don't have an access node?"}
+            <button 
+              type="button"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setError("");
+              }}
+              className="ml-2 font-bold text-white hover:text-primary transition-colors"
+            >
+              {isRegistering ? "Sign In" : "Request Access"}
+            </button>
           </div>
         </motion.div>
       </div>

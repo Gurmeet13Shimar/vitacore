@@ -1,10 +1,10 @@
 import React from "react";
 import { Sidebar } from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation } from "wouter";
+import { useLocation } from "react-router-dom";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const [location] = useLocation();
+  const location = useLocation();
 
   return (
     <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/30 text-foreground">
@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background -z-10 pointer-events-none" />
         <AnimatePresence mode="wait">
           <motion.div
-            key={location}
+            key={location.pathname}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}

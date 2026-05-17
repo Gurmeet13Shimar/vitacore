@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Beaker, Zap, TrendingUp, AlertTriangle } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
@@ -14,6 +15,22 @@ export default function Simulator() {
   });
 
   const [isSimulating, setIsSimulating] = useState(false);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  const fetchAiInsight = async () => {
+    setIsAiLoading(true);
+    try {
+      const scenario = `If I study ${params.study} hours a day, exercise ${params.exercise} days a week, save ${params.savings}% of my income, sleep ${params.sleep} hours a night, and dine out ${params.dining} times a week.`;
+      const response = await axios.post("http://localhost:5000/api/ai/simulate", { scenario });
+      setAiInsight(response.data.analysis);
+    } catch (error) {
+      console.error("Error fetching AI insight:", error);
+      setAiInsight("Failed to fetch AI insights. Please check if your backend is running.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   // Generate mock trajectory data based on params
   const generateData = () => {
@@ -176,6 +193,29 @@ export default function Simulator() {
                 <p className="text-xs text-gray-400 mt-2">End score: {Math.round(chartData[5].career)}/100</p>
               </div>
             </div>
+
+            {/* AI Insight Section */}
+            <div className="glass-card border-white/10 p-6 flex flex-col gap-4 mt-6 shrink-0">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-white uppercase tracking-widest text-sm flex items-center gap-2">
+                  <Zap size={16} className="text-yellow-400" /> Neural Engine Analysis
+                </h3>
+                <button 
+                  onClick={fetchAiInsight}
+                  disabled={isAiLoading}
+                  className="px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg text-sm font-bold tracking-wider transition-colors disabled:opacity-50"
+                >
+                  {isAiLoading ? "Analyzing..." : "Generate AI Insight"}
+                </button>
+              </div>
+              
+              {aiInsight && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                  {aiInsight}
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 

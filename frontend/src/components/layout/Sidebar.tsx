@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { mockUser } from "@/data/mockData";
@@ -32,8 +32,8 @@ const navItems = [
 ];
 
 export function Sidebar() {
-  const [location] = useLocation();
-  const { logout } = useAuth();
+  const location = useLocation();
+  const { logout, user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -69,9 +69,9 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2">
         {navItems.map((item) => {
-          const isActive = location === item.path;
+          const isActive = location.pathname === item.path;
           return (
-            <Link key={item.path} href={item.path}>
+            <Link key={item.path} to={item.path}>
               <div
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 group ${
                   isActive
@@ -97,12 +97,12 @@ export function Sidebar() {
         <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
           <Avatar className="h-10 w-10 shrink-0 border border-primary/30">
             <AvatarImage src={mockUser.avatar} />
-            <AvatarFallback>AX</AvatarFallback>
+            <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
           </Avatar>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{mockUser.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{mockUser.levelName}</p>
+              <p className="text-sm font-medium text-white truncate">{user?.name || mockUser.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email || "Level 1"}</p>
             </div>
           )}
         </div>

@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  login: () => void;
+  user: any;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -10,26 +13,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("vitacore_auth");
-    if (stored === "true") {
+    const storedUser = localStorage.getItem("vitacore_user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
       setIsLoggedIn(true);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${JSON.parse(storedUser).token}`;
     }
   }, []);
 
-  const login = () => {
+  const login = async (email: string, password: string) => {
+    const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+    setUser(res.data);
     setIsLoggedIn(true);
-    localStorage.setItem("vitacore_auth", "true");
+    localStorage.setItem("vitacore_user", JSON.stringify(res.data));
+    axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const res = await axios.post("http://localhost:5000/api/auth/register", { name, email, password });
+    setUser(res.data);
+    setIsLoggedIn(true);
+    localStorage.setItem("vitacore_user", JSON.stringify(res.data));
+    axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
   };
 
   const logout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem("vitacore_auth");
+    setUser(null);
+    localStorage.removeItem("vitacore_user");
+    delete axios.defaults.headers.common["Authorization"];
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
