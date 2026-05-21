@@ -41,16 +41,16 @@ export default function Login() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
       <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-pink-500/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
 
-      <div className="flex-1 flex flex-col justify-center px-12 md:px-24 z-10 hidden lg:flex border-r border-white/10 glass-card rounded-none border-y-0 border-l-0">
+      <div className="flex-1 flex flex-col justify-center px-12 md:px-24 z-10 hidden lg:flex border-r border-primary/20 glass-card rounded-none border-y-0 border-l-0">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold text-3xl shadow-[0_0_30px_rgba(109,40,217,0.5)] mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-foreground font-bold text-3xl shadow-[0_0_30px_rgba(109,40,217,0.5)] mb-8">
             VC
           </div>
-          <h1 className="text-6xl font-black text-white tracking-tight mb-6 leading-tight">
+          <h1 className="text-6xl font-black text-foreground tracking-tight mb-6 leading-tight">
             The Cockpit <br/>For Your Life.
           </h1>
           <p className="text-xl text-muted-foreground max-w-md">
@@ -80,7 +80,7 @@ export default function Login() {
           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl pointer-events-none" />
           
           <div className="text-center mb-8 relative z-20">
-            <h2 className="text-3xl font-bold text-white mb-2">{isRegistering ? "Create Profile" : "Welcome Back"}</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-2">{isRegistering ? "Create Profile" : "Welcome Back"}</h2>
             <p className="text-muted-foreground">{isRegistering ? "Initialize your digital twin." : "Enter your credentials to access the grid."}</p>
           </div>
 
@@ -99,7 +99,7 @@ export default function Login() {
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="bg-black/50 border-white/10 focus-visible:ring-primary h-12 text-white"
+                  className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
                   required
                 />
               </div>
@@ -112,7 +112,7 @@ export default function Login() {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-black/50 border-white/10 focus-visible:ring-primary h-12 text-white"
+                className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
                 data-testid="input-email"
                 required
               />
@@ -129,7 +129,7 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-black/50 border-white/10 focus-visible:ring-primary h-12 text-white"
+                className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
                 data-testid="input-password"
                 required
               />
@@ -153,7 +153,7 @@ export default function Login() {
                 setIsRegistering(!isRegistering);
                 setError("");
               }}
-              className="ml-2 font-bold text-white hover:text-primary transition-colors"
+              className="ml-2 font-bold text-foreground hover:text-primary transition-colors"
             >
               {isRegistering ? "Sign In" : "Request Access"}
             </button>

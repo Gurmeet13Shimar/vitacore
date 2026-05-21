@@ -120,7 +120,7 @@ export default function Career() {
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 flex items-center gap-3">
               <Briefcase className="text-pink-500" /> Career Module
             </h1>
             <p className="text-muted-foreground">Skill acquisition and professional trajectory.</p>
@@ -141,7 +141,7 @@ export default function Career() {
           <div className="flex items-center justify-between relative z-10">
             <div>
               <div className="text-sm text-muted-foreground uppercase tracking-widest mb-1">Current Node</div>
-              <div className="text-2xl font-bold text-white">Associate Engineer</div>
+              <div className="text-2xl font-bold text-foreground">Associate Engineer</div>
             </div>
             
             <div className="flex-1 px-8 flex items-center relative">
@@ -160,15 +160,15 @@ export default function Career() {
               <div className="text-sm text-pink-400 font-bold uppercase tracking-widest mb-1 flex items-center justify-end gap-2">
                 Target Node
               </div>
-              <div className="text-2xl font-bold text-white">Principal Architect</div>
+              <div className="text-2xl font-bold text-foreground">Principal Architect</div>
             </div>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Skills Radar */}
-          <div className="glass-card p-6 border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-6">Competency Matrix</h3>
+          <div className="glass-card p-6 border-primary/20">
+            <h3 className="text-lg font-semibold text-foreground mb-6">Competency Matrix</h3>
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillData}>
@@ -182,15 +182,15 @@ export default function Career() {
           </div>
 
           {/* Milestones */}
-          <div className="glass-card p-6 border-white/10 flex flex-col">
-            <h3 className="text-lg font-semibold text-white mb-6">Promotion Roadmap</h3>
+          <div className="glass-card p-6 border-primary/20 flex flex-col">
+            <h3 className="text-lg font-semibold text-foreground mb-6">Promotion Roadmap</h3>
             <div className="space-y-4 flex-1">
               {milestones.map((m) => (
-                <div key={m.id} className={`p-4 rounded-xl border ${m.completed ? 'bg-pink-500/10 border-pink-500/30' : 'bg-white/5 border-white/5'}`}>
+                <div key={m.id} className={`p-4 rounded-xl border ${m.completed ? 'bg-pink-500/10 border-pink-500/30' : 'bg-white/40 border-primary/10'}`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {m.completed ? <CheckCircle2 className="text-pink-500" size={20} /> : <Circle className="text-muted-foreground" size={20} />}
-                      <span className={`font-medium ${m.completed ? 'text-white' : 'text-gray-300'}`}>{m.title}</span>
+                      <span className={`font-medium ${m.completed ? 'text-foreground' : 'text-muted-foreground'}`}>{m.title}</span>
                     </div>
                     <span className="text-sm font-bold text-pink-400">{m.progress}%</span>
                   </div>
@@ -211,46 +211,46 @@ export default function Career() {
         {/* Heatmap & Deep Work Session Log */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add Study Log Form */}
-          <div className="glass-card p-6 border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+          <div className="glass-card p-6 border-primary/20">
+            <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
               <Plus className="text-pink-400" size={20} /> Log Deep Work Session
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Duration (Minutes)</label>
-                  <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})} className="bg-white/5 border-white/10 text-white" required />
+                  <label className="text-xs text-muted-foreground uppercase">Duration (Minutes)</label>
+                  <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})} className="bg-white/40 border-primary/20 text-foreground" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Topic</label>
-                  <select value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})} className="flex h-10 w-full rounded-md border border-white/10 bg-[#1e293b] px-3 py-2 text-sm text-white select-custom focus:outline-none">
-                    <option value="React" className="bg-[#1e293b] text-white">React</option>
-                    <option value="Node.js" className="bg-[#1e293b] text-white">Node.js</option>
-                    <option value="MongoDB" className="bg-[#1e293b] text-white">MongoDB</option>
-                    <option value="System Design" className="bg-[#1e293b] text-white">System Design</option>
-                    <option value="Security" className="bg-[#1e293b] text-white">Security</option>
-                    <option value="DevOps" className="bg-[#1e293b] text-white">DevOps</option>
+                  <label className="text-xs text-muted-foreground uppercase">Topic</label>
+                  <select value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})} className="flex h-10 w-full rounded-md border border-primary/20 bg-white/80 px-3 py-2 text-sm text-foreground select-custom focus:outline-none">
+                    <option value="React" className="bg-white/80 text-foreground">React</option>
+                    <option value="Node.js" className="bg-white/80 text-foreground">Node.js</option>
+                    <option value="MongoDB" className="bg-white/80 text-foreground">MongoDB</option>
+                    <option value="System Design" className="bg-white/80 text-foreground">System Design</option>
+                    <option value="Security" className="bg-white/80 text-foreground">Security</option>
+                    <option value="DevOps" className="bg-white/80 text-foreground">DevOps</option>
                   </select>
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-gray-400 uppercase">Study Notes</label>
-                <Input type="text" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="e.g. Mastered React concurrent rendering" className="bg-white/5 border-white/10 text-white" />
+                <label className="text-xs text-muted-foreground uppercase">Study Notes</label>
+                <Input type="text" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="e.g. Mastered React concurrent rendering" className="bg-white/40 border-primary/20 text-foreground" />
               </div>
-              <Button type="submit" className="w-full h-12 bg-pink-600 hover:bg-pink-700 text-white font-bold transition-colors">
+              <Button type="submit" className="w-full h-12 bg-pink-600 hover:bg-pink-700 text-foreground font-bold transition-colors">
                 RECORD WORK NODE
               </Button>
             </form>
           </div>
 
-          <div className="glass-card p-6 border-white/10 flex flex-col justify-between">
+          <div className="glass-card p-6 border-primary/20 flex flex-col justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
                 <Award size={20} className="text-pink-500" /> Deep Work Consistency (Last 60 Days)
               </h3>
               <div className="flex flex-wrap gap-1 max-h-40 overflow-y-auto">
                 {heatmapData.map((d, i) => {
-                  let bg = "bg-white/5";
+                  let bg = "bg-white/40";
                   if (d.intensity > 0.8) bg = "bg-pink-500";
                   else if (d.intensity > 0.5) bg = "bg-pink-500/60";
                   else if (d.intensity > 0.1) bg = "bg-pink-500/30";
@@ -270,7 +270,7 @@ export default function Career() {
               <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                 <span>Less</span>
                 <div className="flex gap-1">
-                  <div className="w-3 h-3 rounded-sm bg-white/5" />
+                  <div className="w-3 h-3 rounded-sm bg-white/40" />
                   <div className="w-3 h-3 rounded-sm bg-pink-500/30" />
                   <div className="w-3 h-3 rounded-sm bg-pink-500/60" />
                   <div className="w-3 h-3 rounded-sm bg-pink-500" />
@@ -278,9 +278,9 @@ export default function Career() {
                 <span>More</span>
               </div>
             </div>
-            <div className="mt-6 border-t border-white/5 pt-4 text-sm text-gray-400 flex justify-between">
+            <div className="mt-6 border-t border-primary/10 pt-4 text-sm text-muted-foreground flex justify-between">
               <span>Total Accrued Focus:</span>
-              <span className="font-bold text-white">{totalHours} Hours</span>
+              <span className="font-bold text-foreground">{totalHours} Hours</span>
             </div>
           </div>
         </div>

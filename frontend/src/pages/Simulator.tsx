@@ -64,7 +64,7 @@ export default function Simulator() {
         
         <div className="flex items-center justify-between shrink-0">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 flex items-center gap-3">
               <Beaker className="text-primary" /> AI Simulation Engine
             </h1>
             <p className="text-muted-foreground">Adjust parameters to predict future state trajectories.</p>
@@ -78,7 +78,7 @@ export default function Simulator() {
               Processing
             </motion.div>
           ) : (
-            <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-muted-foreground font-bold text-sm tracking-widest uppercase flex items-center gap-2">
+            <div className="px-4 py-2 rounded-full bg-white/40 border border-primary/20 text-muted-foreground font-bold text-sm tracking-widest uppercase flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
               Ready
             </div>
@@ -88,13 +88,13 @@ export default function Simulator() {
         <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
           
           {/* Controls */}
-          <div className="w-full lg:w-80 glass-card border-white/10 p-6 flex flex-col gap-6 overflow-y-auto">
-            <h3 className="font-bold text-white uppercase tracking-widest text-sm border-b border-white/10 pb-4">Control Variables</h3>
+          <div className="w-full lg:w-80 glass-card border-primary/20 p-6 flex flex-col gap-6 overflow-y-auto">
+            <h3 className="font-bold text-foreground uppercase tracking-widest text-sm border-b border-primary/20 pb-4">Control Variables</h3>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm text-gray-300">Study (hrs/day)</label>
+                  <label className="text-sm text-foreground">Study (hrs/day)</label>
                   <span className="text-sm font-bold text-pink-400">{params.study}h</span>
                 </div>
                 <input type="range" min="0" max="8" step="1" value={params.study} onChange={(e) => handleSliderChange('study', Number(e.target.value))} className="w-full accent-pink-500" />
@@ -102,7 +102,7 @@ export default function Simulator() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm text-gray-300">Exercise (days/wk)</label>
+                  <label className="text-sm text-foreground">Exercise (days/wk)</label>
                   <span className="text-sm font-bold text-purple-400">{params.exercise}d</span>
                 </div>
                 <input type="range" min="0" max="7" step="1" value={params.exercise} onChange={(e) => handleSliderChange('exercise', Number(e.target.value))} className="w-full accent-purple-500" />
@@ -110,7 +110,7 @@ export default function Simulator() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm text-gray-300">Savings Rate (%)</label>
+                  <label className="text-sm text-foreground">Savings Rate (%)</label>
                   <span className="text-sm font-bold text-blue-400">{params.savings}%</span>
                 </div>
                 <input type="range" min="0" max="80" step="5" value={params.savings} onChange={(e) => handleSliderChange('savings', Number(e.target.value))} className="w-full accent-blue-500" />
@@ -118,7 +118,7 @@ export default function Simulator() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm text-gray-300">Sleep (hrs/night)</label>
+                  <label className="text-sm text-foreground">Sleep (hrs/night)</label>
                   <span className="text-sm font-bold text-green-400">{params.sleep}h</span>
                 </div>
                 <input type="range" min="4" max="10" step="0.5" value={params.sleep} onChange={(e) => handleSliderChange('sleep', Number(e.target.value))} className="w-full accent-green-500" />
@@ -126,7 +126,7 @@ export default function Simulator() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm text-gray-300">Dining Out (meals/wk)</label>
+                  <label className="text-sm text-foreground">Dining Out (meals/wk)</label>
                   <span className="text-sm font-bold text-red-400">{params.dining}</span>
                 </div>
                 <input type="range" min="0" max="14" step="1" value={params.dining} onChange={(e) => handleSliderChange('dining', Number(e.target.value))} className="w-full accent-red-500" />
@@ -136,8 +136,8 @@ export default function Simulator() {
 
           {/* Charts */}
           <div className="flex-1 flex flex-col gap-6 min-h-[600px]">
-            <div className="flex-1 glass-card border-white/10 p-6 flex flex-col">
-              <h3 className="font-bold text-white uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
+            <div className="flex-1 glass-card border-primary/20 p-6 flex flex-col">
+              <h3 className="font-bold text-foreground uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
                 <TrendingUp size={16} className="text-primary" /> Projected Vectors (6 Months)
               </h3>
               <div className="flex-1 w-full min-h-0 relative">
@@ -173,31 +173,31 @@ export default function Simulator() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
               <div className="glass-card p-4 border-purple-500/30 bg-purple-500/5">
                 <div className="text-xs text-purple-400 font-bold uppercase tracking-wider mb-2">Health Trajectory</div>
-                <div className="text-xl font-bold text-white">
+                <div className="text-xl font-bold text-foreground">
                   {chartData[5].health > chartData[0].health ? 'Optimizing' : 'Degrading'}
                 </div>
-                <p className="text-xs text-gray-400 mt-2">End score: {Math.round(chartData[5].health)}/100</p>
+                <p className="text-xs text-muted-foreground mt-2">End score: {Math.round(chartData[5].health)}/100</p>
               </div>
               <div className="glass-card p-4 border-blue-500/30 bg-blue-500/5">
                 <div className="text-xs text-blue-400 font-bold uppercase tracking-wider mb-2">Wealth Creation</div>
-                <div className="text-xl font-bold text-white">
+                <div className="text-xl font-bold text-foreground">
                   ${Math.round(chartData[5].finance).toLocaleString()}
                 </div>
-                <p className="text-xs text-gray-400 mt-2">Predicted net liquid capital</p>
+                <p className="text-xs text-muted-foreground mt-2">Predicted net liquid capital</p>
               </div>
               <div className="glass-card p-4 border-pink-500/30 bg-pink-500/5">
                 <div className="text-xs text-pink-400 font-bold uppercase tracking-wider mb-2">Career Velocity</div>
-                <div className="text-xl font-bold text-white">
+                <div className="text-xl font-bold text-foreground">
                   {chartData[5].career > 90 ? 'Promotion Ready' : 'Skill Deficit'}
                 </div>
-                <p className="text-xs text-gray-400 mt-2">End score: {Math.round(chartData[5].career)}/100</p>
+                <p className="text-xs text-muted-foreground mt-2">End score: {Math.round(chartData[5].career)}/100</p>
               </div>
             </div>
 
             {/* AI Insight Section */}
-            <div className="glass-card border-white/10 p-6 flex flex-col gap-4 mt-6 shrink-0">
+            <div className="glass-card border-primary/20 p-6 flex flex-col gap-4 mt-6 shrink-0">
               <div className="flex justify-between items-center">
-                <h3 className="font-bold text-white uppercase tracking-widest text-sm flex items-center gap-2">
+                <h3 className="font-bold text-foreground uppercase tracking-widest text-sm flex items-center gap-2">
                   <Zap size={16} className="text-yellow-400" /> Neural Engine Analysis
                 </h3>
                 <button 
@@ -210,7 +210,7 @@ export default function Simulator() {
               </div>
               
               {aiInsight && (
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                <div className="p-4 rounded-xl bg-white/40 border border-primary/20 text-foreground text-sm leading-relaxed whitespace-pre-wrap">
                   {aiInsight}
                 </div>
               )}

@@ -11,7 +11,7 @@ export default function Settings() {
     <AppLayout>
       <div className="p-8 max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 flex items-center gap-3">
             <SettingsIcon className="text-gray-400" /> System Preferences
           </h1>
           <p className="text-muted-foreground">Manage your VitaCore instance parameters.</p>
@@ -19,44 +19,44 @@ export default function Settings() {
 
         <div className="grid gap-6">
           {/* Profile */}
-          <div className="glass-card border-white/10 p-6 flex items-start gap-6">
-            <img src={mockUser.avatar} alt={mockUser.name} className="w-24 h-24 rounded-2xl border-2 border-white/10" />
+          <div className="glass-card border-primary/20 p-6 flex items-start gap-6">
+            <img src={mockUser.avatar} alt={mockUser.name} className="w-24 h-24 rounded-2xl border-2 border-primary/20" />
             <div className="flex-1 space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-white">{mockUser.name}</h3>
+                <h3 className="text-lg font-bold text-foreground">{mockUser.name}</h3>
                 <p className="text-sm text-primary">{mockUser.role}</p>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">Change Avatar</Button>
-                <Button variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">Edit Profile</Button>
+                <Button variant="outline" className="bg-white/40 border-primary/20 text-foreground hover:bg-white/10">Change Avatar</Button>
+                <Button variant="outline" className="bg-white/40 border-primary/20 text-foreground hover:bg-white/10">Edit Profile</Button>
               </div>
             </div>
           </div>
 
           {/* Preferences */}
-          <div className="glass-card border-white/10 p-6 space-y-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-white/10 pb-4">
+          <div className="glass-card border-primary/20 p-6 space-y-6">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2 border-b border-primary/20 pb-4">
               <Bell size={18} /> Telemetry & Notifications
             </h3>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base text-white">Daily Digest</Label>
+                  <Label className="text-base text-foreground">Daily Digest</Label>
                   <p className="text-sm text-muted-foreground">Receive a morning summary of your vectors.</p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base text-white">AI Intervention Alerts</Label>
+                  <Label className="text-base text-foreground">AI Intervention Alerts</Label>
                   <p className="text-sm text-muted-foreground">Real-time alerts when trajectory falls below baseline.</p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-base text-white">Achievement Pings</Label>
+                  <Label className="text-base text-foreground">Achievement Pings</Label>
                   <p className="text-sm text-muted-foreground">Celebrate unlocks instantly.</p>
                 </div>
                 <Switch defaultChecked />
@@ -65,17 +65,17 @@ export default function Settings() {
           </div>
 
           {/* Data */}
-          <div className="glass-card border-white/10 p-6 space-y-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-white/10 pb-4">
+          <div className="glass-card border-primary/20 p-6 space-y-6">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2 border-b border-primary/20 pb-4">
               <Lock size={18} /> Data & Privacy
             </h3>
             
-            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/40 border border-white/5">
               <div>
-                <h4 className="font-bold text-white mb-1">Export Telemetry Data</h4>
+                <h4 className="font-bold text-foreground mb-1">Export Telemetry Data</h4>
                 <p className="text-sm text-muted-foreground">Download all your metrics in CSV/JSON format.</p>
               </div>
-              <Button variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10 gap-2">
+              <Button variant="outline" className="bg-white/40 border-primary/20 text-foreground hover:bg-white/10 gap-2">
                 <Download size={16} /> Export
               </Button>
             </div>

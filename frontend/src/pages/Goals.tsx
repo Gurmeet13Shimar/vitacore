@@ -15,12 +15,12 @@ export default function Goals() {
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 flex items-center gap-3">
               <Target className="text-primary" /> Active Directives
             </h1>
             <p className="text-muted-foreground">Track and manage your primary objectives.</p>
           </div>
-          <Button className="bg-primary text-white hover:bg-primary/80 gap-2">
+          <Button className="bg-primary text-foreground hover:bg-primary/80 gap-2">
             <Plus size={16} /> Add Directive
           </Button>
         </div>
@@ -33,7 +33,7 @@ export default function Goals() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 filter === tab 
                   ? "bg-white text-black" 
-                  : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                  : "bg-white/40 text-muted-foreground hover:text-foreground hover:bg-white/10"
               }`}
             >
               {tab}
@@ -52,7 +52,7 @@ export default function Goals() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   key={goal.id}
-                  className="glass-card p-6 border-white/10 group hover:border-white/20 transition-colors"
+                  className="glass-card p-6 border-primary/20 group hover:border-white/20 transition-colors"
                 >
                   <div className="flex justify-between items-start mb-6">
                     <div className={`px-3 py-1 rounded-full bg-${goal.color}-500/20 text-${goal.color}-400 text-xs font-bold uppercase tracking-wider`}>
@@ -63,11 +63,11 @@ export default function Goals() {
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-6">{goal.name}</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-6">{goal.name}</h3>
 
                   <div className="relative pt-2">
                     <div className="flex justify-between mb-2">
-                      <span className="text-2xl font-black text-white">{goal.current}</span>
+                      <span className="text-2xl font-black text-foreground">{goal.current}</span>
                       <span className="text-sm font-medium text-muted-foreground self-end mb-1">/ {goal.target}</span>
                     </div>
                     

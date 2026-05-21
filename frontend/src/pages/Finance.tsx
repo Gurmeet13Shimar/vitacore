@@ -75,26 +75,24 @@ export default function Finance() {
   });
 
   const COLORS_MAP: { [key: string]: string } = {
-    Food: "#EF4444",
-    Transport: "#3B82F6",
-    Entertainment: "#A855F7",
-    Housing: "#F59E0B",
-    Shopping: "#EC4899",
-    Other: "#6B7280"
+    Food: "#f87171",
+    Transport: "#60a5fa",
+    Entertainment: "#c084fc",
+    Housing: "#facc15",
+    Shopping: "#f472b6",
+    Other: "#a78bfa"
   };
 
   const pieData = Object.keys(categoryMap).map(cat => ({
     name: cat,
     value: categoryMap[cat],
-    color: COLORS_MAP[cat] || "#10B981"
+    color: COLORS_MAP[cat] || "#c084fc"
   }));
 
-  // Fallback for empty PieChart
   const displayPieData = pieData.length > 0 ? pieData : [
-    { name: "No expenses", value: 1, color: "#1F2937" }
+    { name: "No expenses", value: 1, color: "#e9d5ff" }
   ];
 
-  // Savings Trend: dynamic chart using last 7 logs or simple accumulation
   const sortedLogs = [...safeLogs].reverse();
   let currentSavings = 0;
   const savingsTrend = sortedLogs.map((l, index) => {
@@ -118,14 +116,14 @@ export default function Finance() {
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
-              <DollarSign className="text-blue-500" /> Finance Module
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground mb-1 flex items-center gap-3">
+              <DollarSign className="text-primary" /> Finance Module
             </h1>
-            <p className="text-muted-foreground">Capital allocation and wealth trajectory.</p>
+            <p className="text-muted-foreground font-medium">Capital allocation and wealth trajectory.</p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-black text-blue-400 tracking-tighter">{score}</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-widest">Financial Score</div>
+            <div className="text-4xl font-black text-primary tracking-tighter">{score}</div>
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Financial Score</div>
           </div>
         </div>
 
@@ -134,14 +132,14 @@ export default function Finance() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card p-6 border-white/10 relative overflow-hidden group"
+            className="glass-card p-6 border border-primary/10 bg-white/70 shadow-sm relative overflow-hidden group"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <TrendingUp size={64} className="text-green-500" />
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <TrendingUp size={64} className="text-primary" />
             </div>
-            <h3 className="text-sm text-muted-foreground uppercase tracking-wider mb-2">Monthly Income</h3>
-            <div className="text-4xl font-black text-white">${income.toLocaleString()}</div>
-            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-green-400">
+            <h3 className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-2">Monthly Income</h3>
+            <div className="text-4xl font-black text-foreground">${income.toLocaleString()}</div>
+            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-primary">
               <ArrowUpRight size={14} /> Dynamically computed
             </div>
           </motion.div>
@@ -150,14 +148,14 @@ export default function Finance() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card p-6 border-white/10 relative overflow-hidden group"
+            className="glass-card p-6 border border-primary/10 bg-white/70 shadow-sm relative overflow-hidden group"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <CreditCard size={64} className="text-red-500" />
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <CreditCard size={64} className="text-pink-500" />
             </div>
-            <h3 className="text-sm text-muted-foreground uppercase tracking-wider mb-2">Expenses</h3>
-            <div className="text-4xl font-black text-white">${expenses.toLocaleString()}</div>
-            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-red-400">
+            <h3 className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-2">Expenses</h3>
+            <div className="text-4xl font-black text-foreground">${expenses.toLocaleString()}</div>
+            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-pink-500">
               <ArrowDownRight size={14} /> Real database ledger
             </div>
           </motion.div>
@@ -166,14 +164,14 @@ export default function Finance() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card p-6 border-white/10 relative overflow-hidden group border-blue-500/30"
+            className="glass-card p-6 border border-primary/15 bg-white/80 shadow-sm relative overflow-hidden group"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <PiggyBank size={64} className="text-blue-500" />
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <PiggyBank size={64} className="text-indigo-500" />
             </div>
-            <h3 className="text-sm text-blue-400 uppercase tracking-wider mb-2">Net Savings</h3>
-            <div className="text-4xl font-black text-white">${savings.toLocaleString()}</div>
-            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-blue-400">
+            <h3 className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-2">Net Savings</h3>
+            <div className="text-4xl font-black text-primary">${savings.toLocaleString()}</div>
+            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500">
               Savings Rate: {savingsRate}%
             </div>
           </motion.div>
@@ -181,30 +179,30 @@ export default function Finance() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Savings Trend */}
-          <div className="glass-card p-6 border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-6">Capital Accumulation</h3>
+          <div className="glass-card p-6 border border-primary/10 bg-white/70 shadow-sm">
+            <h3 className="text-base font-bold text-foreground mb-6">Capital Accumulation</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={displaySavingsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
-                  <XAxis dataKey="month" stroke="#666" tickLine={false} axisLine={false} />
-                  <YAxis stroke="#666" tickLine={false} axisLine={false} />
-                  <RechartsTooltip contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#fff' }} />
-                  <Area type="monotone" dataKey="amount" stroke="#2563EB" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3e8ff" />
+                  <XAxis dataKey="month" stroke="#7c3aed" tickLine={false} axisLine={false} style={{ fontSize: '11px', fontWeight: 'bold' }} />
+                  <YAxis stroke="#7c3aed" tickLine={false} axisLine={false} style={{ fontSize: '11px', fontWeight: 'bold' }} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e9d5ff', borderRadius: '12px', color: '#1f2937', boxShadow: '0 4px 12px rgba(139,92,246,0.05)' }} />
+                  <Area type="monotone" dataKey="amount" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorSavings)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Allocation */}
-          <div className="glass-card p-6 border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-6">Expense Distribution</h3>
+          <div className="glass-card p-6 border border-primary/10 bg-white/70 shadow-sm">
+            <h3 className="text-base font-bold text-foreground mb-6">Expense Distribution</h3>
             <div className="flex h-64">
               <div className="flex-1">
                 <ResponsiveContainer width="100%" height="100%">
@@ -214,18 +212,18 @@ export default function Finance() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#fff' }} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e9d5ff', borderRadius: '12px', color: '#1f2937', boxShadow: '0 4px 12px rgba(139,92,246,0.05)' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex-1 flex flex-col justify-center gap-3 overflow-y-auto max-h-60">
+              <div className="flex-1 flex flex-col justify-center gap-3 overflow-y-auto max-h-60 pr-2">
                 {pieData.map(c => (
                   <div key={c.name} className="flex items-center justify-between pr-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
-                      <span className="text-sm text-gray-300">{c.name}</span>
+                      <span className="text-sm font-medium text-foreground">{c.name}</span>
                     </div>
-                    <span className="text-sm font-bold text-white">${c.value}</span>
+                    <span className="text-sm font-extrabold text-foreground">${c.value}</span>
                   </div>
                 ))}
               </div>
@@ -235,50 +233,50 @@ export default function Finance() {
 
         {/* Ledger & Add Transaction */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="glass-card p-6 border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-              <Plus className="text-blue-400" size={20} /> Log Today's Ledger
+          <div className="glass-card p-6 border border-primary/10 bg-white/70 shadow-sm">
+            <h3 className="text-base font-bold text-foreground mb-6 flex items-center gap-2">
+              <Plus className="text-primary" size={20} /> Log Today's Ledger
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Amount ($)</label>
-                  <Input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className="bg-white/5 border-white/10 text-white" required />
+                  <label className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Amount ($)</label>
+                  <Input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className="h-10 text-foreground border-input bg-white" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Type</label>
-                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-white/10 bg-[#1e293b] px-3 py-2 text-sm text-white select-custom focus:outline-none">
-                    <option value="Expense" className="bg-[#1e293b] text-white">Expense</option>
-                    <option value="Income" className="bg-[#1e293b] text-white">Income</option>
+                  <label className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Type</label>
+                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-xs">
+                    <option value="Expense">Expense</option>
+                    <option value="Income">Income</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Category</label>
-                  <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex h-10 w-full rounded-md border border-white/10 bg-[#1e293b] px-3 py-2 text-sm text-white select-custom focus:outline-none">
-                    <option value="Food" className="bg-[#1e293b] text-white">Food</option>
-                    <option value="Transport" className="bg-[#1e293b] text-white">Transport</option>
-                    <option value="Entertainment" className="bg-[#1e293b] text-white">Entertainment</option>
-                    <option value="Housing" className="bg-[#1e293b] text-white">Housing</option>
-                    <option value="Shopping" className="bg-[#1e293b] text-white">Shopping</option>
-                    <option value="Other" className="bg-[#1e293b] text-white">Other</option>
+                  <label className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Category</label>
+                  <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-xs">
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Housing">Housing</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs text-gray-400 uppercase">Description</label>
-                  <Input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="e.g. Grocery, Salary" className="bg-white/5 border-white/10 text-white" />
+                  <label className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Description</label>
+                  <Input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="e.g. Grocery, Salary" className="h-10 text-foreground border-input bg-white" />
                 </div>
               </div>
-              <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors">
+              <Button type="submit" className="w-full h-12 bg-primary hover:bg-primary/95 text-foreground font-bold transition-all rounded-full shadow-sm">
                 RECORD TRANSACTION
               </Button>
             </form>
           </div>
 
-          <div className="glass-card p-6 border-white/10 flex flex-col overflow-hidden">
-            <h3 className="text-lg font-semibold text-white mb-6">Recent Ledger Entries</h3>
+          <div className="glass-card p-6 border border-primary/10 flex flex-col overflow-hidden bg-white/70 shadow-sm">
+            <h3 className="text-base font-bold text-foreground mb-6">Recent Ledger Entries</h3>
             <div className="space-y-3 overflow-y-auto flex-1 pr-2 max-h-[300px]">
               {safeLogs.length === 0 ? (
-                <p className="text-gray-400 text-sm italic">No entries yet. Add your first transaction today.</p>
+                <p className="text-muted-foreground text-sm italic">No entries yet. Add your first transaction today.</p>
               ) : (
                 safeLogs.slice(0, 8).map((t: any) => {
                   const getIcon = () => {
@@ -290,17 +288,17 @@ export default function Finance() {
                     return <ShoppingBag size={16} />;
                   };
                   return (
-                    <div key={t._id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                    <div key={t._id} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border hover:bg-muted/70 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'Income' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === 'Income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                           {getIcon()}
                         </div>
                         <div>
-                          <div className="font-medium text-white text-sm">{t.description || t.category}</div>
-                          <div className="text-xs text-muted-foreground">{t.category} • {new Date(t.date || t.createdAt).toLocaleDateString()}</div>
+                          <div className="font-semibold text-foreground text-sm">{t.description || t.category}</div>
+                          <div className="text-xs text-muted-foreground font-medium">{t.category} • {new Date(t.date || t.createdAt).toLocaleDateString()}</div>
                         </div>
                       </div>
-                      <div className={`font-bold text-sm ${t.type === 'Income' ? 'text-green-400' : 'text-white'}`}>
+                      <div className={`font-extrabold text-sm ${t.type === 'Income' ? 'text-green-600' : 'text-foreground'}`}>
                         {t.type === 'Income' ? '+' : '-'}${t.amount.toFixed(2)}
                       </div>
                     </div>

@@ -20,7 +20,7 @@ export function ScoreCard({ title, score, trend, colorClass, icon }: ScoreCardPr
       </div>
       <h3 className="text-muted-foreground font-medium text-sm mb-4 uppercase tracking-wider">{title}</h3>
       <div className="flex items-end gap-3">
-        <span className="text-5xl font-black text-white tabular-nums tracking-tight">{score}</span>
+        <span className="text-5xl font-black text-foreground tabular-nums tracking-tight">{score}</span>
         <span className="text-sm font-medium mb-1.5 text-muted-foreground">/100</span>
       </div>
       

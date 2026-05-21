@@ -6,8 +6,14 @@ import { useLocation } from "react-router-dom";
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
+  let themeClass = "";
+  if (location.pathname === "/health") themeClass = "theme-health";
+  else if (location.pathname === "/finance") themeClass = "theme-finance";
+  else if (location.pathname === "/career") themeClass = "theme-career";
+  else if (location.pathname === "/simulator" || location.pathname === "/ai-assistant") themeClass = "theme-simulator";
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/30 text-foreground">
+    <div className={`flex h-screen bg-background overflow-hidden selection:bg-primary/30 text-foreground ${themeClass}`}>
       <Sidebar />
       <main className="flex-1 overflow-y-auto relative scroll-smooth">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background -z-10 pointer-events-none" />

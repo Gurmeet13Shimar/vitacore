@@ -16,9 +16,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend is running!' });
-});
+
 
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');

@@ -10,14 +10,18 @@ const getRecommendations = async (req, res) => {
       return res.status(200).json({ recommendation: "Gemini API Key missing. Please provide API key in .env file to get real recommendations." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const prompt = `As a PersonaTwin AI companion, provide a personalized recommendation for the domain: ${domain}. Context: ${JSON.stringify(context)}. Keep the response concise, encouraging, and actionable.`;
     
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    res.status(200).json({ recommendation: text });
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      res.status(200).json({ recommendation: text });
+    } catch (genError) {
+      console.error("Gemini Generation Error:", genError);
+      res.status(200).json({ recommendation: "AI Engine is currently running in fallback mode due to an API error. To optimize your vector, focus on consistent daily habits and incremental progress." });
+    }
   } catch (error) {
     console.error("AI Error:", error);
     res.status(500).json({ message: 'Error generating recommendation' });
@@ -31,14 +35,18 @@ const simulateScenario = async (req, res) => {
       return res.status(200).json({ analysis: "Gemini API Key missing. Simulation not available." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const prompt = `Analyze this "What-if" scenario for a user: "${scenario}". Provide potential outcomes, timelines, and trade-offs.`;
     
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    res.status(200).json({ analysis: text });
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      res.status(200).json({ analysis: text });
+    } catch (genError) {
+      console.error("Gemini Generation Error:", genError);
+      res.status(200).json({ analysis: "Based on the simulation parameters, increasing consistency will compound over 6 months to drastically improve your vector. (Fallback Mode)" });
+    }
   } catch (error) {
     res.status(500).json({ message: 'Error simulating scenario' });
   }
