@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { mockUser } from "@/data/mockData";
 import {
@@ -8,129 +7,231 @@ import {
   Heart,
   DollarSign,
   Briefcase,
-  Bot,
   Beaker,
-  Target,
   Trophy,
   Settings,
   LogOut,
-  ChevronLeft,
-  ChevronRight
+  Zap,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 
 const navItems = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/health", label: "Health", icon: Heart },
-  { path: "/finance", label: "Finance", icon: DollarSign },
-  { path: "/career", label: "Career", icon: Briefcase },
-  { path: "/ai-assistant", label: "AI Assistant", icon: Bot },
-  { path: "/simulator", label: "Simulator", icon: Beaker },
-  { path: "/goals", label: "Goals", icon: Target },
+  { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
+  { path: "/health",       label: "Health",       icon: Heart },
+  { path: "/finance",      label: "Finance",      icon: DollarSign },
+  { path: "/career",       label: "Career",       icon: Briefcase },
+  { path: "/simulator",    label: "Simulator",    icon: Beaker },
   { path: "/achievements", label: "Achievements", icon: Trophy },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/settings",     label: "Settings",     icon: Settings },
 ];
 
 export function Sidebar() {
   const location = useLocation();
   const { logout, user } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   return (
-    <motion.aside
-      initial={{ width: 280 }}
-      animate={{ width: collapsed ? 80 : 280 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="h-screen bg-sidebar border-r border-sidebar-border flex flex-col relative z-20"
+    <header
+      style={{
+        height: 68,
+        background: "rgba(10, 8, 28, 0.85)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(139, 92, 246, 0.14)",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 24px",
+        position: "relative",
+        zIndex: 50,
+        flexShrink: 0,
+      }}
     >
-      <div className="p-4 flex items-center gap-3 border-b border-sidebar-border h-16">
-        <div className="w-10 h-10 rounded-xl bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-lg shrink-0 shadow-sm">
+      {/* ── Brand ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            background: "linear-gradient(135deg, #7c3aed, #e91e8c)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 900,
+            fontSize: 14,
+            color: "#fff",
+            letterSpacing: "-0.02em",
+            boxShadow: "0 4px 14px rgba(124, 58, 237, 0.45)",
+            flexShrink: 0,
+          }}
+        >
           VC
         </div>
-        {!collapsed && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="font-extrabold text-xl tracking-tight text-sidebar-foreground"
-          >
-            VitaCore
-          </motion.span>
-        )}
+        <span
+          style={{
+            fontWeight: 800,
+            fontSize: 18,
+            letterSpacing: "-0.03em",
+            background: "linear-gradient(90deg, #c4b5fd, #f0abfc)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+          className="hidden md:block"
+        >
+          VitaCore
+        </span>
       </div>
 
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3.5 top-20 w-7 h-7 rounded-full bg-sidebar border border-sidebar-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shadow-sm"
-        data-testid="button-toggle-sidebar"
-      >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
-
-      <nav 
-        className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2"
-        onMouseLeave={() => setHoveredPath(null)}
+      {/* ── Navigation Pills ── */}
+      <nav
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 4,
+          padding: "0 24px",
+          overflowX: "auto",
+        }}
       >
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
-          const isHovered = hoveredPath === item.path;
-          const isAnyHovered = hoveredPath !== null;
-          const shouldFade = isAnyHovered && !isHovered;
-
           return (
-            <Link 
-              key={item.path} 
-              to={item.path}
-              onMouseEnter={() => setHoveredPath(item.path)}
-            >
-              <div
-                className={`flex items-center gap-3 px-4 py-3 rounded-full cursor-pointer transition-all duration-300 group ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border border-primary-border shadow-sm font-semibold"
-                    : "text-sidebar-foreground/80 hover:text-primary hover:bg-sidebar-accent"
-                } ${shouldFade ? "opacity-35 blur-[0.2px] scale-[0.98]" : "opacity-100 scale-100"}`}
-                data-testid={`link-nav-${item.label.toLowerCase().replace(' ', '-')}`}
+            <Link key={item.path} to={item.path}>
+              <motion.div
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  padding: "7px 14px",
+                  borderRadius: 999,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: 13.5,
+                  transition: "background 0.2s ease, color 0.2s ease",
+                  background: isActive
+                    ? "linear-gradient(135deg, rgba(124,58,237,0.85), rgba(233,30,140,0.6))"
+                    : "transparent",
+                  color: isActive ? "#ffffff" : "rgba(196, 181, 253, 0.65)",
+                  border: isActive
+                    ? "1px solid rgba(196, 181, 253, 0.2)"
+                    : "1px solid transparent",
+                  boxShadow: isActive
+                    ? "0 2px 12px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
+                    : "none",
+                }}
+                data-testid={`link-nav-${item.label.toLowerCase().replace(" ", "-")}`}
               >
                 <item.icon
-                  size={20}
-                  className={`shrink-0 transition-colors duration-300 ${
-                    isActive 
-                      ? "text-primary-foreground" 
-                      : "text-sidebar-foreground/60 group-hover:text-primary"
-                  }`}
+                  size={16}
+                  style={{
+                    color: isActive ? "#ffffff" : "rgba(196, 181, 253, 0.5)",
+                    flexShrink: 0,
+                  }}
                 />
-                {!collapsed && (
-                  <span className="font-medium whitespace-nowrap">{item.label}</span>
-                )}
-              </div>
+                <span className="hidden lg:block">{item.label}</span>
+              </motion.div>
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
-        <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-          <Avatar className="h-10 w-10 shrink-0 border border-primary/20 bg-white">
+      {/* ── Profile & Logout ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          paddingLeft: 20,
+          borderLeft: "1px solid rgba(139, 92, 246, 0.14)",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          className="hidden md:flex"
+          style={{ alignItems: "center", gap: 10 }}
+        >
+          <div style={{ textAlign: "right" }}>
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: "rgba(225,220,255,0.9)",
+                maxWidth: 120,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {user?.name || mockUser.name}
+            </p>
+            <p
+              style={{
+                fontSize: 11,
+                color: "rgba(196,181,253,0.5)",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                justifyContent: "flex-end",
+              }}
+            >
+              <Zap size={10} color="#f5c518" fill="#f5c518" />
+              Level {mockUser.level}
+            </p>
+          </div>
+          <Avatar
+            style={{
+              width: 36,
+              height: 36,
+              border: "2px solid rgba(139,92,246,0.4)",
+              boxShadow: "0 0 0 2px rgba(139,92,246,0.15)",
+              flexShrink: 0,
+            }}
+          >
             <AvatarImage src={mockUser.avatar} />
-            <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+            <AvatarFallback
+              style={{
+                background: "linear-gradient(135deg, #7c3aed, #e91e8c)",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 14,
+              }}
+            >
+              {user?.name?.charAt(0) || "U"}
+            </AvatarFallback>
           </Avatar>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{user?.name || mockUser.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email || "Level 1"}</p>
-            </div>
-          )}
         </div>
-        <button
+
+        <motion.button
           onClick={logout}
-          className={`mt-4 flex items-center gap-3 text-muted-foreground hover:text-red-500 transition-colors w-full px-4 py-2 rounded-full hover:bg-red-500/10 ${collapsed ? "justify-center" : ""}`}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            background: "transparent",
+            border: "1px solid rgba(239,68,68,0.15)",
+            color: "rgba(196,181,253,0.5)",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}
+          className="hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/40"
+          title="Disconnect"
           data-testid="button-logout"
         >
-          <LogOut size={20} />
-          {!collapsed && <span className="text-sm font-semibold">Disconnect</span>}
-        </button>
+          <LogOut size={16} />
+        </motion.button>
       </div>
-    </motion.aside>
+    </header>
   );
 }

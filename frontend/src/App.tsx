@@ -9,7 +9,8 @@ import Simulator from './pages/Simulator';
 import Goals from './pages/Goals';
 import Achievements from './pages/Achievements';
 import Settings from './pages/Settings';
-import AIAssistant from './pages/AIAssistant';
+import HomePage from './pages/HomePage';
+import NotFound from './pages/not-found';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <div className="min-h-screen bg-background text-foreground font-sans">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/health" element={<Health />} />
           <Route path="/finance" element={<Finance />} />
@@ -27,7 +29,7 @@ function App() {
           <Route path="/goals" element={<Goals />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/ai-assistant" element={<AIAssistant />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>

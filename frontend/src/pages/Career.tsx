@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Briefcase, Target, Award, Rocket, CheckCircle2, Circle, Plus } from "lucide-react";
+import { Briefcase, Target, Award, Rocket, CheckCircle2, Circle, Plus, Activity } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -117,174 +117,460 @@ export default function Career() {
 
   return (
     <AppLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 flex items-center gap-3">
-              <Briefcase className="text-pink-500" /> Career Module
-            </h1>
-            <p className="text-muted-foreground">Skill acquisition and professional trajectory.</p>
-          </div>
-          <div className="text-right">
-            <div className="text-4xl font-black text-pink-400 tracking-tighter">{score}</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-widest">Career Score</div>
-          </div>
-        </div>
+      {/* ── Page Wrapper with Ambient Dark Background ── */}
+      <div
+        style={{
+          minHeight: "100%",
+          background: "#030712",
+          padding: "36px 40px 60px",
+          fontFamily: "Inter, sans-serif",
+          position: "relative",
+        }}
+      >
+        {/* Ambient glow orbs */}
+        <div style={{ position: "absolute", top: "-10%", left: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+        <div style={{ position: "absolute", bottom: "-5%", right: "5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(233,30,140,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
-        {/* Current vs Target */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-8 border-pink-500/20 relative overflow-hidden"
-        >
-          <div className="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-pink-500/10 to-transparent pointer-events-none" />
-          <div className="flex items-center justify-between relative z-10">
+        {/* Subtle noise overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
+            opacity: 0.025,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 36, flexWrap: "wrap", justifyContent: "space-between" }}>
             <div>
-              <div className="text-sm text-muted-foreground uppercase tracking-widest mb-1">Current Node</div>
-              <div className="text-2xl font-bold text-foreground">Associate Engineer</div>
+              <h1 style={{ fontSize: 32, fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.02em" }}>
+                Career Module
+              </h1>
+              <p style={{ color: "rgba(233,221,255,0.75)", marginTop: 6, fontSize: 15, fontWeight: 500 }}>
+                Skill acquisition and professional trajectory.
+              </p>
             </div>
             
-            <div className="flex-1 px-8 flex items-center relative">
-              <div className="h-px bg-white/20 flex-1 relative">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, (totalHours / 50) * 100)}%` }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]"
-                />
+            {/* Career Score Shield */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.12)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 20,
+                padding: "12px 24px",
+                textAlign: "right",
+              }}
+            >
+              <div style={{ fontSize: 32, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{score}</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#f5c518", letterSpacing: "0.1em", marginTop: 4, textTransform: "uppercase" }}>
+                Career Score
               </div>
-              <Rocket className="text-pink-400 absolute bg-background p-1" style={{ left: `${Math.min(95, (totalHours / 50) * 100)}%`, transform: "translateX(-50%)" }} size={28} />
-            </div>
-
-            <div className="text-right">
-              <div className="text-sm text-pink-400 font-bold uppercase tracking-widest mb-1 flex items-center justify-end gap-2">
-                Target Node
-              </div>
-              <div className="text-2xl font-bold text-foreground">Principal Architect</div>
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Skills Radar */}
-          <div className="glass-card p-6 border-primary/20">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Competency Matrix</h3>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillData}>
-                  <PolarGrid stroke="#333" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Skills" dataKey="A" stroke="#EC4899" fill="#EC4899" fillOpacity={0.3} strokeWidth={2} />
-                </RadarChart>
-              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Milestones */}
-          <div className="glass-card p-6 border-primary/20 flex flex-col">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Promotion Roadmap</h3>
-            <div className="space-y-4 flex-1">
-              {milestones.map((m) => (
-                <div key={m.id} className={`p-4 rounded-xl border ${m.completed ? 'bg-pink-500/10 border-pink-500/30' : 'bg-white/40 border-primary/10'}`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      {m.completed ? <CheckCircle2 className="text-pink-500" size={20} /> : <Circle className="text-muted-foreground" size={20} />}
-                      <span className={`font-medium ${m.completed ? 'text-foreground' : 'text-muted-foreground'}`}>{m.title}</span>
+          {/* Top 3 Stats (3D Tilts) */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 20,
+              marginBottom: 24,
+            }}
+          >
+            {/* Study hours */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 100 }}
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+                rotateX: 5,
+                rotateY: -5,
+                boxShadow: "0 20px 48px rgba(0,0,0,0.5)",
+                borderColor: "rgba(139,92,246,0.25)",
+              }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: "24px 28px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                display: "flex",
+                alignItems: "center",
+                gap: 20,
+                transformStyle: "preserve-3d",
+                perspective: 1000,
+                transition: "all 0.3s ease",
+                cursor: "default",
+              }}
+            >
+              <div style={{ width: 50, height: 50, borderRadius: 16, background: "rgba(139,92,246,0.1)", display: "flex", alignItems: "center", flexShrink: 0, transform: "translateZ(15px)", justifyContent: "center" }}>
+                <Activity size={22} color="#8b5cf6" strokeWidth={2.5} />
+              </div>
+              <div style={{ transform: "translateZ(25px)" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
+                  Total Study
+                </span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{totalHours}</span>
+                  <span style={{ fontSize: 13, color: "rgba(196,181,253,0.45)", fontWeight: 600 }}>hrs</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Competency Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+                rotateX: 5,
+                rotateY: -5,
+                boxShadow: "0 20px 48px rgba(0,0,0,0.5)",
+                borderColor: "rgba(139,92,246,0.25)",
+              }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: "24px 28px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                display: "flex",
+                alignItems: "center",
+                gap: 20,
+                transformStyle: "preserve-3d",
+                perspective: 1000,
+                transition: "all 0.3s ease",
+                cursor: "default",
+              }}
+            >
+              <div style={{ width: 50, height: 50, borderRadius: 16, background: "rgba(233,30,140,0.1)", display: "flex", alignItems: "center", flexShrink: 0, transform: "translateZ(15px)", justifyContent: "center" }}>
+                <Briefcase size={22} color="#e91e8c" strokeWidth={2.5} />
+              </div>
+              <div style={{ transform: "translateZ(25px)" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
+                  Skills Mapped
+                </span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{Object.keys(topicMap).length}</span>
+                  <span style={{ fontSize: 13, color: "rgba(196,181,253,0.45)", fontWeight: 600 }}>topics</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Milestones Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+                rotateX: 5,
+                rotateY: -5,
+                boxShadow: "0 20px 48px rgba(0,0,0,0.5)",
+                borderColor: "rgba(139,92,246,0.25)",
+              }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: "24px 28px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                display: "flex",
+                alignItems: "center",
+                gap: 20,
+                transformStyle: "preserve-3d",
+                perspective: 1000,
+                transition: "all 0.3s ease",
+                cursor: "default",
+              }}
+            >
+              <div style={{ width: 50, height: 50, borderRadius: 16, background: "rgba(245,197,24,0.1)", display: "flex", alignItems: "center", flexShrink: 0, transform: "translateZ(15px)", justifyContent: "center" }}>
+                <Rocket size={22} color="#f5c518" strokeWidth={2.5} />
+              </div>
+              <div style={{ transform: "translateZ(25px)" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
+                  Milestones
+                </span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{milestones.filter(m => m.completed).length}</span>
+                  <span style={{ fontSize: 13, color: "rgba(196,181,253,0.45)", fontWeight: 600 }}>/ {milestones.length}</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Dynamic Interactive Trajectory Timeline Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+            style={{
+              background: "rgba(16,12,38,0.82)",
+              backdropFilter: "blur(16px)",
+              border: "1px solid rgba(139,92,246,0.14)",
+              borderRadius: 22,
+              padding: "28px 32px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+              position: "relative",
+              overflow: "hidden",
+              marginBottom: 24,
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 16, justifyContent: "space-between" }}>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Current Node</span>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#e2d9ff", marginTop: 4 }}>Associate Engineer</div>
+              </div>
+
+              {/* Trajectory Timeline Bar */}
+              <div style={{ flex: 1, margin: "0 32px", position: "relative", minWidth: 200 }}>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 99, width: "100%", position: "relative" }}>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (totalHours / 50) * 100)}%` }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    style={{
+                      height: "100%",
+                      borderRadius: 99,
+                      background: "linear-gradient(90deg, #e91e8c, #8b5cf6)",
+                      boxShadow: "0 0 12px rgba(233,30,140,0.5)",
+                    }}
+                  />
+                  <motion.div 
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: `${Math.min(95, (totalHours / 50) * 100)}%`,
+                      transform: "translate(-50%, -50%)",
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "#100c26",
+                      border: "1px solid rgba(139,92,246,0.3)",
+                      boxShadow: "0 4px 10px rgba(0,0,0,0.40)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Rocket size={16} color="#e91e8c" />
+                  </motion.div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: "right" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#e91e8c", textTransform: "uppercase", letterSpacing: "0.08em" }}>Target Node</span>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#e2d9ff", marginTop: 4 }}>Principal Architect</div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Competency & Milestones Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+            
+            {/* Competency Matrix Radar */}
+            <motion.div 
+              whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: 28,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>Competency Matrix</h3>
+              <div style={{ height: 280, width: "100%" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="75%" data={skillData}>
+                    <PolarGrid stroke="rgba(139,92,246,0.08)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(196,181,253,0.5)", fontSize: 12, fontWeight: 700 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar name="Skills" dataKey="A" stroke="#e91e8c" fill="#e91e8c" fillOpacity={0.15} strokeWidth={2.5} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+
+            {/* Promotion Roadmap */}
+            <motion.div 
+              whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: 28,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                display: "flex",
+                flexDirection: "column",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>Promotion Roadmap</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+                {milestones.map((m) => (
+                  <div 
+                    key={m.id} 
+                    style={{ 
+                      padding: 16, 
+                      borderRadius: 16, 
+                      background: m.completed ? "rgba(233,30,140,0.06)" : "rgba(107,92,231,0.03)", 
+                      border: m.completed ? "1px solid rgba(233,30,140,0.15)" : "1px solid rgba(107,92,231,0.08)" 
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        {m.completed ? <CheckCircle2 className="text-pink-500" size={18} /> : <Circle className="text-slate-500" size={18} />}
+                        <span style={{ fontWeight: 700, fontSize: 13, color: m.completed ? "#e2d9ff" : "rgba(196,181,253,0.5)" }}>{m.title}</span>
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "#e91e8c" }}>{m.progress}%</span>
                     </div>
-                    <span className="text-sm font-bold text-pink-400">{m.progress}%</span>
+                    <div style={{ width: "100%", height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${m.progress}%` }}
+                        transition={{ duration: 1 }}
+                        style={{ height: "100%", background: m.completed ? "#e91e8c" : "rgba(233,30,140,0.4)", borderRadius: 99 }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${m.progress}%` }}
-                      transition={{ duration: 1 }}
-                      className={`h-full rounded-full ${m.completed ? 'bg-pink-500' : 'bg-pink-500/50'}`}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Heatmap & Deep Work Session Log */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Add Study Log Form */}
-          <div className="glass-card p-6 border-primary/20">
-            <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
-              <Plus className="text-pink-400" size={20} /> Log Deep Work Session
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground uppercase">Duration (Minutes)</label>
-                  <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})} className="bg-white/40 border-primary/20 text-foreground" required />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground uppercase">Topic</label>
-                  <select value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})} className="flex h-10 w-full rounded-md border border-primary/20 bg-white/80 px-3 py-2 text-sm text-foreground select-custom focus:outline-none">
-                    <option value="React" className="bg-white/80 text-foreground">React</option>
-                    <option value="Node.js" className="bg-white/80 text-foreground">Node.js</option>
-                    <option value="MongoDB" className="bg-white/80 text-foreground">MongoDB</option>
-                    <option value="System Design" className="bg-white/80 text-foreground">System Design</option>
-                    <option value="Security" className="bg-white/80 text-foreground">Security</option>
-                    <option value="DevOps" className="bg-white/80 text-foreground">DevOps</option>
-                  </select>
-                </div>
+                ))}
               </div>
-              <div className="space-y-2">
-                <label className="text-xs text-muted-foreground uppercase">Study Notes</label>
-                <Input type="text" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="e.g. Mastered React concurrent rendering" className="bg-white/40 border-primary/20 text-foreground" />
-              </div>
-              <Button type="submit" className="w-full h-12 bg-pink-600 hover:bg-pink-700 text-foreground font-bold transition-colors">
-                RECORD WORK NODE
-              </Button>
-            </form>
+            </motion.div>
           </div>
 
-          <div className="glass-card p-6 border-primary/20 flex flex-col justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
-                <Award size={20} className="text-pink-500" /> Deep Work Consistency (Last 60 Days)
+          {/* Form and Consistency Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 20 }}>
+            
+            {/* Study Log Form */}
+            <motion.div 
+              whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: 28,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <h3 style={{ fontSize: 17, fontWeight: 900, color: "#e2d9ff", margin: "0 0 20px", display: "flex", alignItems: "center", gap: 8 }}>
+                <Plus size={18} color="#e91e8c" strokeWidth={3} /> Log Deep Work Session
               </h3>
-              <div className="flex flex-wrap gap-1 max-h-40 overflow-y-auto">
-                {heatmapData.map((d, i) => {
-                  let bg = "bg-white/40";
-                  if (d.intensity > 0.8) bg = "bg-pink-500";
-                  else if (d.intensity > 0.5) bg = "bg-pink-500/60";
-                  else if (d.intensity > 0.1) bg = "bg-pink-500/30";
-                  
-                  return (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.005 }}
-                      className={`w-5 h-5 rounded-sm ${bg} hover:ring-2 hover:ring-white/50 transition-all cursor-crosshair shrink-0`}
-                      title={`${d.date}: ${d.hours.toFixed(1)} hours`}
-                    />
-                  );
-                })}
-              </div>
-              <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                <span>Less</span>
-                <div className="flex gap-1">
-                  <div className="w-3 h-3 rounded-sm bg-white/40" />
-                  <div className="w-3 h-3 rounded-sm bg-pink-500/30" />
-                  <div className="w-3 h-3 rounded-sm bg-pink-500/60" />
-                  <div className="w-3 h-3 rounded-sm bg-pink-500" />
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Duration (Minutes)</label>
+                    <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Topic</label>
+                    <select value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", outline: "none", cursor: "pointer" }}>
+                      <option value="React" style={{ background: "#100c26", color: "#e2d9ff" }}>React</option>
+                      <option value="Node.js" style={{ background: "#100c26", color: "#e2d9ff" }}>Node.js</option>
+                      <option value="MongoDB" style={{ background: "#100c26", color: "#e2d9ff" }}>MongoDB</option>
+                      <option value="System Design" style={{ background: "#100c26", color: "#e2d9ff" }}>System Design</option>
+                      <option value="Security" style={{ background: "#100c26", color: "#e2d9ff" }}>Security</option>
+                      <option value="DevOps" style={{ background: "#100c26", color: "#e2d9ff" }}>DevOps</option>
+                    </select>
+                  </div>
                 </div>
-                <span>More</span>
-              </div>
-            </div>
-            <div className="mt-6 border-t border-primary/10 pt-4 text-sm text-muted-foreground flex justify-between">
-              <span>Total Accrued Focus:</span>
-              <span className="font-bold text-foreground">{totalHours} Hours</span>
-            </div>
-          </div>
-        </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Study Notes</label>
+                  <Input type="text" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="e.g. Mastered React concurrent rendering" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
+                </div>
+                <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)" }}>
+                  RECORD WORK NODE
+                </Button>
+              </form>
+            </motion.div>
 
+            {/* Consistency grid */}
+            <motion.div 
+              whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+              style={{
+                background: "rgba(16,12,38,0.82)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(139,92,246,0.14)",
+                borderRadius: 22,
+                padding: 28,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Award size={18} color="#e91e8c" /> Deep Work Consistency (Last 60 Days)
+                </h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 150, overflowY: "auto", paddingRight: 4 }}>
+                  {heatmapData.map((d, i) => {
+                    let bg = "rgba(107,92,231,0.06)";
+                    if (d.intensity > 0.8) bg = "#e91e8c";
+                    else if (d.intensity > 0.5) bg = "rgba(233,30,140,0.6)";
+                    else if (d.intensity > 0.1) bg = "rgba(233,30,140,0.25)";
+                    
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.003 }}
+                        style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: 4,
+                          background: bg,
+                          cursor: "crosshair",
+                          flexShrink: 0,
+                          border: "1px solid rgba(139,92,246,0.1)",
+                        }}
+                        whileHover={{ scale: 1.15, borderColor: "rgba(139,92,246,0.3)" }}
+                        title={`${d.date}: ${d.hours.toFixed(1)} hours`}
+                      />
+                    );
+                  })}
+                </div>
+                <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 12, fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)" }}>
+                  <span>Less</span>
+                  <div style={{ display: "flex", gap: 3 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: "rgba(107,92,231,0.06)" }} />
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: "rgba(233,30,140,0.25)" }} />
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: "rgba(233,30,140,0.6)" }} />
+                    <div style={{ width: 12, height: 12, borderRadius: 3, background: "#e91e8c" }} />
+                  </div>
+                  <span>More</span>
+                </div>
+              </div>
+              <div style={{ borderTop: "1px solid rgba(139,92,246,0.1)", paddingTop: 16, marginTop: 16, display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>
+                <span>Total Accrued Focus:</span>
+                <span style={{ fontWeight: 800, color: "#e2d9ff" }}>{totalHours} Hours</span>
+              </div>
+            </motion.div>
+          </div>
+
+        </div>
       </div>
     </AppLayout>
   );

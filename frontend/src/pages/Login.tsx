@@ -4,7 +4,17 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Bot, Github, Mail } from "lucide-react";
+import { Bot, Zap, Circle } from "lucide-react";
+import { HeroGeometric } from "@/components/ui/hero-geometric";
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (custom: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, delay: 0.3 + custom * 0.12, ease: [0.25, 0.4, 0.25, 1] },
+  }),
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,138 +38,197 @@ export default function Login() {
       }
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Authentication failed. Please check your credentials.");
+      setError(err.response?.data?.message || "Authentication failed. Check your credentials.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex text-foreground relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-pink-500/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+    <div className="min-h-screen bg-[#030303] flex relative overflow-hidden">
 
-      <div className="flex-1 flex flex-col justify-center px-12 md:px-24 z-10 hidden lg:flex border-r border-primary/20 glass-card rounded-none border-y-0 border-l-0">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+      {/* ── Left Panel: Hero with floating shapes ── */}
+      <div className="hidden lg:flex flex-1 relative">
+        <HeroGeometric
+          badge="Digital Twin Platform"
+          title1="The Cockpit For"
+          title2="Your Life System."
+          subtitle="Optimize your Health, Finance, and Career vectors through AI-powered analytics and real-time simulations."
+          className="w-full"
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-foreground font-bold text-3xl shadow-[0_0_30px_rgba(109,40,217,0.5)] mb-8">
-            VC
-          </div>
-          <h1 className="text-6xl font-black text-foreground tracking-tight mb-6 leading-tight">
-            The Cockpit <br/>For Your Life.
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-md">
-            Optimize your Health, Finance, and Career through AI analytics and real-time simulations.
-          </p>
-          
-          <div className="mt-12 flex gap-4">
-            <div className="glass-card p-4 flex items-center gap-3 rounded-xl border-primary/20">
-              <Bot className="text-primary" />
-              <span className="text-sm font-medium">Neural Engine Active</span>
+          {/* Status pills inside hero */}
+          <motion.div
+            custom={3}
+            variants={fadeUpVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex gap-4 mt-2"
+          >
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/[0.10]">
+              <Bot size={14} className="text-violet-400" />
+              <span className="text-white/60 text-xs font-medium">Neural Engine Active</span>
             </div>
-            <div className="glass-card p-4 flex items-center gap-3 rounded-xl border-blue-500/20">
-              <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-              <span className="text-sm font-medium">Systems Nominal</span>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/[0.10]">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-white/60 text-xs font-medium">Systems Nominal</span>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </HeroGeometric>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 z-10">
+      {/* Right edge divider on desktop */}
+      <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-white/10 to-transparent z-20" />
+
+      {/* ── Right Panel: Auth Form ── */}
+      <div className="flex flex-1 items-center justify-center p-8 z-10 relative">
+        {/* Background ambient orbs */}
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-rose-500/8 rounded-full blur-3xl pointer-events-none" />
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="w-full max-w-md glass-card p-8 shadow-2xl relative"
+          transition={{ duration: 0.7, delay: 0.2 }}
+          style={{
+            width: "100%",
+            maxWidth: 420,
+            background: "rgba(14, 10, 36, 0.80)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            border: "1px solid rgba(139, 92, 246, 0.20)",
+            borderRadius: 28,
+            padding: "40px 36px",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.60), inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl pointer-events-none" />
-          
-          <div className="text-center mb-8 relative z-20">
-            <h2 className="text-3xl font-bold text-foreground mb-2">{isRegistering ? "Create Profile" : "Welcome Back"}</h2>
-            <p className="text-muted-foreground">{isRegistering ? "Initialize your digital twin." : "Enter your credentials to access the grid."}</p>
+          {/* Inner top gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-violet-500/5 to-transparent rounded-[28px] pointer-events-none" />
+
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-8 relative z-10">
+            <div style={{
+              width: 44, height: 44, borderRadius: 14,
+              background: "linear-gradient(135deg, #7c3aed, #e91e8c)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 900, fontSize: 15, color: "#fff",
+              boxShadow: "0 6px 20px rgba(124,58,237,0.5)",
+            }}>
+              VC
+            </div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 17, color: "#f0ecff", letterSpacing: "-0.02em", lineHeight: 1.2 }}>VitaCore</p>
+              <p style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>Digital Twin OS</p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 relative z-20">
+          {/* Heading */}
+          <div className="mb-8 relative z-10">
+            <h2 style={{ fontSize: 26, fontWeight: 900, color: "#f0ecff", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
+              {isRegistering ? "Create Profile" : "Welcome Back"}
+            </h2>
+            <p style={{ fontSize: 14, color: "rgba(196,181,253,0.5)", fontWeight: 500 }}>
+              {isRegistering ? "Initialize your digital twin instance." : "Enter credentials to access the grid."}
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
             {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+              <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5", fontSize: 13, fontWeight: 500 }}>
                 {error}
               </div>
             )}
-            
+
             {isRegistering && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Subject Name</label>
+              <div className="space-y-1.5">
+                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Subject Name
+                </label>
                 <Input
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
-                  required
+                  type="text" placeholder="John Doe" value={name}
+                  onChange={(e) => setName(e.target.value)} required
+                  style={{ height: 46, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, color: "#f0ecff", fontWeight: 600 }}
                 />
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Identity Identifier</label>
+            <div className="space-y-1.5">
+              <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Identity Identifier
+              </label>
               <Input
-                type="email"
-                placeholder="name@example.com"
-                value={email}
+                type="email" placeholder="name@example.com" value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
-                data-testid="input-email"
-                required
+                data-testid="input-email" required
+                style={{ height: 46, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, color: "#f0ecff", fontWeight: 600 }}
               />
             </div>
-            <div className="space-y-2">
+
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-300">Access Node (Password)</label>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Access Node
+                </label>
                 {!isRegistering && (
-                  <a href="#" className="text-xs text-primary hover:text-primary/80 transition-colors">Recover access</a>
+                  <a href="#" style={{ fontSize: 11, color: "#a78bfa", fontWeight: 600 }} className="hover:text-violet-300 transition-colors">
+                    Recover access
+                  </a>
                 )}
               </div>
               <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
+                type="password" placeholder="••••••••" value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-black/50 border-primary/20 focus-visible:ring-primary h-12 text-foreground"
-                data-testid="input-password"
-                required
+                data-testid="input-password" required
+                style={{ height: 46, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 12, color: "#f0ecff", fontWeight: 600 }}
               />
             </div>
 
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full h-12 text-base font-bold bg-white text-black hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-6 disabled:opacity-50"
+            <motion.button
+              type="submit" disabled={isLoading}
+              whileHover={{ scale: 1.02, boxShadow: "0 8px 28px rgba(124,58,237,0.5)" }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: "100%", height: 50, marginTop: 8,
+                background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                color: "#fff", border: "none", borderRadius: 14,
+                fontWeight: 800, fontSize: 14, cursor: isLoading ? "not-allowed" : "pointer",
+                opacity: isLoading ? 0.7 : 1,
+                boxShadow: "0 4px 16px rgba(124,58,237,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}
               data-testid="button-submit-login"
             >
-              {isLoading ? "PROCESSING..." : isRegistering ? "INITIALIZE UPLINK" : "ESTABLISH UPLINK"}
-            </Button>
+              {isLoading ? (
+                <>
+                  <div style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTop: "2px solid #fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  PROCESSING...
+                </>
+              ) : (
+                <>
+                  <Zap size={15} fill="#f5c518" color="#f5c518" />
+                  {isRegistering ? "INITIALIZE UPLINK" : "ESTABLISH UPLINK"}
+                </>
+              )}
+            </motion.button>
           </form>
 
-          <div className="mt-8 relative z-20 text-center text-sm text-gray-400">
+          {/* Toggle register/login */}
+          <div className="mt-6 text-center relative z-10" style={{ fontSize: 13, color: "rgba(196,181,253,0.45)" }}>
             {isRegistering ? "Already connected?" : "Don't have an access node?"}
-            <button 
+            <button
               type="button"
-              onClick={() => {
-                setIsRegistering(!isRegistering);
-                setError("");
-              }}
-              className="ml-2 font-bold text-foreground hover:text-primary transition-colors"
+              onClick={() => { setIsRegistering(!isRegistering); setError(""); }}
+              style={{ marginLeft: 6, fontWeight: 700, color: "#a78bfa", background: "none", border: "none", cursor: "pointer", fontSize: 13 }}
+              className="hover:text-violet-300 transition-colors"
             >
               {isRegistering ? "Sign In" : "Request Access"}
             </button>
           </div>
         </motion.div>
       </div>
+
+      {/* Spin keyframe */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
