@@ -16,7 +16,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-      <div className="min-h-screen bg-slate-900 text-white font-sans">
+      <div className="min-h-screen bg-background text-foreground font-sans">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />

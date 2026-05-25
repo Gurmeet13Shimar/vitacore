@@ -1,109 +1,263 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, TrendingUp, BookOpen, BrainCircuit } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  Activity,
+  TrendingUp,
+  BookOpen,
+  BrainCircuit,
+  Bell,
+  ArrowUpRight,
+} from 'lucide-react';
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 
 const data = [
-  { name: 'Mon', health: 60, finance: 40, career: 30 },
-  { name: 'Tue', health: 65, finance: 50, career: 45 },
-  { name: 'Wed', health: 70, finance: 55, career: 60 },
-  { name: 'Thu', health: 75, finance: 60, career: 65 },
-  { name: 'Fri', health: 80, finance: 70, career: 80 },
-  { name: 'Sat', health: 85, finance: 75, career: 90 },
-  { name: 'Sun', health: 90, finance: 80, career: 100 },
+  { name: 'Mon', health: 48, finance: 25, career: 10 },
+  { name: 'Tue', health: 63, finance: 37, career: 21 },
+  { name: 'Wed', health: 62, finance: 45, career: 33 },
+  { name: 'Thu', health: 77, finance: 49, career: 37 },
+  { name: 'Fri', health: 78, finance: 62, career: 50 },
+  { name: 'Sat', health: 91, finance: 61, career: 77 },
+  { name: 'Sun', health: 92, finance: 76, career: 104 },
 ];
 
 export default function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <AppLayout>
-      <div className="p-6 md:p-10 max-w-7xl mx-auto h-full overflow-y-auto">
-        <header className="flex justify-between items-center mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back, {user?.name || 'Explorer'}</h2>
-            <p className="text-slate-400">Here's your digital twin's status today.</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="bg-slate-800 rounded-full px-4 py-2 border border-slate-700 flex items-center space-x-2">
-              <span className="text-sm text-slate-300">Level 1</span>
-              <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div className="w-2/3 h-full bg-green-500"></div>
+    <AppLayout theme="default">
+      {/* Light aesthetic wrapper container using the signature soft ambient gradient */}
+      <div className="w-full min-h-screen bg-gradient-to-tr from-[#F3EFF9] to-[#F8F5FC] text-[#1E293B] font-sans p-6 md:p-10">
+        <div className="max-w-[1400px] mx-auto space-y-8">
+          
+          {/* HEADER BLOCK */}
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#1E293B] mb-2">
+                Good evening, {user?.name || 'Alex'} 🌙
+              </h2>
+              <p className="text-slate-500 font-normal text-sm md:text-base">
+                Here's your digital twin's summary for today.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 self-stretch sm:self-auto justify-end">
+              {/* Level Progress Panel */}
+              <div className="bg-white border border-slate-100 rounded-[24px] px-6 py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.015)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[#1E293B] font-bold text-xs uppercase tracking-wider">
+                    Level 1
+                  </span>
+                  <span className="text-purple-600 text-xs font-semibold">
+                    • Explorer
+                  </span>
+                </div>
+                <div className="w-36 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="w-1/2 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" />
+                </div>
+              </div>
+
+              {/* Action Circle Buttons */}
+              <button className="w-12 h-12 rounded-full bg-white border border-slate-100 shadow-[0_4px_15px_rgba(0,0,0,0.015)] flex items-center justify-center hover:bg-slate-50 transition-colors">
+                <Bell className="w-5 h-5 text-slate-400" />
+              </button>
+
+              <div className="relative cursor-pointer group">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md transition-transform group-hover:scale-105">
+                  <img
+                    src="https://i.pravatar.cc/150?img=12"
+                    alt="profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full border-2 border-blue-500 flex items-center justify-center bg-slate-800 text-white font-bold">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Scores */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 p-4 opacity-10"><Activity className="w-24 h-24" /></div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">Health Score</h3>
-              <Activity className="text-green-400 w-6 h-6" />
-            </div>
-            <p className="text-4xl font-bold text-white">85<span className="text-lg text-green-400 ml-2">↑ 5%</span></p>
-          </motion.div>
+          {/* TRI-SCORE GRID PANELS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 p-4 opacity-10"><TrendingUp className="w-24 h-24" /></div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">Finance Score</h3>
-              <TrendingUp className="text-blue-400 w-6 h-6" />
-            </div>
-            <p className="text-4xl font-bold text-white">72<span className="text-lg text-blue-400 ml-2">↑ 2%</span></p>
-          </motion.div>
-
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 p-4 opacity-10"><BookOpen className="w-24 h-24" /></div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">Career Score</h3>
-              <BookOpen className="text-purple-400 w-6 h-6" />
-            </div>
-            <p className="text-4xl font-bold text-white">90<span className="text-lg text-purple-400 ml-2">↑ 10%</span></p>
-          </motion.div>
-        </div>
-
-        {/* Charts & AI */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-6 text-white">Weekly Progress</h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="name" stroke="#64748b" />
-                  <YAxis stroke="#64748b" />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }} />
-                  <Line type="monotone" dataKey="health" stroke="#4ade80" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="finance" stroke="#60a5fa" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="career" stroke="#c084fc" strokeWidth={3} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 border border-blue-500/30 rounded-2xl p-6 relative backdrop-blur-md">
-            <div className="flex items-center space-x-3 mb-6">
-              <BrainCircuit className="text-blue-400 w-6 h-6" />
-              <h3 className="text-xl font-semibold text-white">AI Insights</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 p-4 rounded-xl">
-                <p className="text-sm text-blue-200">"Your reduced sleep quality correlates with lower study consistency today. Try getting 8 hours tonight."</p>
+            {/* Health Score Panel */}
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="w-14 h-14 rounded-[20px] bg-emerald-50 flex items-center justify-center">
+                  <Activity className="w-6 h-6 text-emerald-500" />
+                </div>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full flex items-center gap-0.5">
+                  ↑ 5%
+                </span>
               </div>
-              <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 p-4 rounded-xl">
-                <p className="text-sm text-purple-200">"To become a frontend developer in 6 months, increase React practice by 5 hours weekly."</p>
+              
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Health Score</p>
+              <h3 className="text-5xl font-black text-[#1E293B] tracking-tight mb-2">85</h3>
+              <p className="text-slate-500 text-sm font-medium">Great job! Keep it up.</p>
+            </motion.div>
+
+            {/* Finance Score Panel */}
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="w-14 h-14 rounded-[20px] bg-blue-50 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-blue-500" />
+                </div>
+                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full flex items-center gap-0.5">
+                  ↑ 2%
+                </span>
               </div>
-              <button className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition-colors">
+              
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Finance Score</p>
+              <h3 className="text-5xl font-black text-[#1E293B] tracking-tight mb-2">72</h3>
+              <p className="text-slate-500 text-sm font-medium">Good financial habits!</p>
+            </motion.div>
+
+            {/* Career Score Panel */}
+            <motion.div
+              whileHover={{ y: -4 }}
+              className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="w-14 h-14 rounded-[20px] bg-purple-50 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-purple-500" />
+                </div>
+                <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full flex items-center gap-0.5">
+                  ↑ 10%
+                </span>
+              </div>
+              
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Career Score</p>
+              <h3 className="text-5xl font-black text-[#1E293B] tracking-tight mb-2">90</h3>
+              <p className="text-slate-500 text-sm font-medium">Amazing progress!</p>
+            </motion.div>
+          </div>
+
+          {/* LOWER ANALYTICS & INSIGHTS SEGMENT */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            {/* Main Analytical Chart Panel */}
+            <div className="lg:col-span-2 bg-white border border-slate-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex flex-col justify-between">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-lg font-bold text-[#1E293B]">Weekly Progress</h3>
+                  <p className="text-xs text-slate-400 font-medium">Across all metric nodes</p>
+                </div>
+                <div className="px-4 py-1.5 rounded-full border border-slate-100 bg-slate-50 text-xs font-semibold text-slate-600">
+                  This Week
+                </div>
+              </div>
+
+              <div className="h-[360px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="6 6" stroke="#F1F5F9" vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="#94A3B8" 
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 12, fontWeight: 500 }}
+                    />
+                    <YAxis 
+                      stroke="#94A3B8" 
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 12, fontWeight: 500 }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #F1F5F9',
+                        borderRadius: '16px',
+                        boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)',
+                        color: '#1E293B'
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="health"
+                      stroke="#10B981"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="finance"
+                      stroke="#3B82F6"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="career"
+                      stroke="#8B5CF6"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* AI Insights Sidebar */}
+            <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                      <BrainCircuit className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <h3 className="text-base font-bold text-[#1E293B]">AI Insights</h3>
+                  </div>
+                  <span className="text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-0.5 cursor-pointer">
+                    View all <ArrowUpRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+
+                <div className="space-y-3.5">
+                  <div className="bg-slate-50/60 border border-slate-100/70 p-4 rounded-2xl">
+                    <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-medium">
+                      Your reduced sleep quality correlates with lower study consistency today. Try getting 8 hours tonight.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50/60 border border-slate-100/70 p-4 rounded-2xl">
+                    <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-medium">
+                      To become a frontend developer in 6 months, increase React practice by 5 hours weekly.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50/60 border border-slate-100/70 p-4 rounded-2xl">
+                    <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-medium">
+                      Your expenses are 12% higher this week. Consider reviewing subscription costs.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3.5 rounded-2xl shadow-sm transition-all text-sm mt-6">
                 Run 'What-if' Simulation
               </button>
             </div>
+
           </div>
         </div>
       </div>

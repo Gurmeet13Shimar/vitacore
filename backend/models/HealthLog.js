@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const healthLogSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   date: { type: Date, default: Date.now },
   workoutMinutes: { type: Number, default: 0 },
   caloriesBurned: { type: Number, default: 0 },
