@@ -9,8 +9,37 @@ export const ContainerScroll = ({
   titleComponent: string | React.ReactNode;
   children: React.ReactNode;
 }) => {
+  const [scrollContainer, setScrollContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    setScrollContainer(document.querySelector('main'));
+  }, []);
+
+  if (!scrollContainer) {
+    return <div className="h-[60rem] md:h-[80rem]" />;
+  }
+
+  return (
+    <ContainerScrollInner scrollContainer={scrollContainer} titleComponent={titleComponent}>
+      {children}
+    </ContainerScrollInner>
+  );
+};
+
+const ContainerScrollInner = ({
+  scrollContainer,
+  titleComponent,
+  children,
+}: {
+  scrollContainer: HTMLElement;
+  titleComponent: string | React.ReactNode;
+  children: React.ReactNode;
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const containerRefObject = React.useMemo(() => ({ current: scrollContainer }), [scrollContainer]);
+
   const { scrollYProgress } = useScroll({
+    container: containerRefObject,
     target: containerRef,
   });
   const [isMobile, setIsMobile] = React.useState(false);

@@ -8,6 +8,7 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { SplineScene } from '@/components/ui/splite';
 import { Spotlight } from '@/components/ui/spotlight';
 import { Card } from '@/components/ui/card';
+import { ParallaxScrollFeatureSection } from '@/components/ui/parallax-scroll-feature-section';
 import {
   Heart,
   DollarSign,
@@ -22,6 +23,37 @@ import {
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const features = [
+    {
+      id: 1,
+      title: "Health & Vitality",
+      description: "Monitor your physical and mental well-being in real-time. Our digital twin algorithms analyze your sleep patterns, exercise, and nutrition to predict the best interventions for peak vitality.",
+      imageUrl: "https://i.pinimg.com/1200x/d2/73/e9/d273e9dcc92886bd6175dc868b3bf307.jpg",
+      reverse: false,
+    },
+    {
+      id: 2,
+      title: "Career Trajectory",
+      description: "Map out your professional future. Set ambitious goals, track skill acquisitions, and let AI simulate potential career paths so you always make the optimal next move.",
+      imageUrl: "https://i.pinimg.com/736x/d9/3f/de/d93fdee3f500c2620ad71b8c3fcb69fe.jpg",
+      reverse: true,
+    },
+    {
+      id: 3,
+      title: "Financial Optimization",
+      description: "Synchronize your assets and liabilities to model your wealth growth. The simulator actively monitors market trends alongside your spending habits to ensure you hit financial independence.",
+      imageUrl: "https://i.pinimg.com/736x/a6/c5/8c/a6c58c8f90b48522eaaa052252e7e14a.jpg",
+      reverse: false,
+    },
+    {
+      id: 4,
+      title: "Achievements & Milestones",
+      description: "Gamify your life progression. Unlock achievements across all pillars as you hit your targets, and earn exclusive rewards that signify your mastery over your digital twin.",
+      imageUrl: "https://i.pinimg.com/1200x/0b/75/d5/0b75d5eec848cf109676e9744b97524e.jpg",
+      reverse: true,
+    },
+  ];
 
   const dockItems = [
     { icon: LayoutDashboard, label: 'Dashboard', onClick: () => navigate('/dashboard') },
@@ -89,6 +121,9 @@ export default function Dashboard() {
             </Card>
           </ContainerScroll>
         </div>
+
+        {/* Feature Scroll Section */}
+        <ParallaxScrollFeatureSection features={features} />
 
         {/* Floating Dock */}
         <div style={{
