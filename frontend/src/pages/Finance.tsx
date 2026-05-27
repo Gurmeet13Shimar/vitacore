@@ -44,6 +44,25 @@ export default function Finance() {
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/finance", formData);
+      localStorage.setItem(
+        "income",
+        income.toString()
+      );
+
+      localStorage.setItem(
+        "expenses",
+        expenses.toString()
+      );
+
+      localStorage.setItem(
+        "savings",
+        savings.toString()
+      );
+
+      localStorage.setItem(
+        "savingsRate",
+        savingsRate.toString()
+      );
       fetchLogs(); // Refresh
       setFormData({ amount: 0, category: "Food", description: "", type: "Expense", date: "" });
     } catch (error) {
@@ -151,7 +170,7 @@ export default function Finance() {
                 Capital allocation and wealth trajectory.
               </p>
             </div>
-            
+
             {/* Financial score */}
             <div
               style={{
@@ -180,7 +199,7 @@ export default function Finance() {
             }}
           >
             {/* Income Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 100 }}
@@ -222,7 +241,7 @@ export default function Finance() {
             </motion.div>
 
             {/* Expenses Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
@@ -264,7 +283,7 @@ export default function Finance() {
             </motion.div>
 
             {/* Savings Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
@@ -310,7 +329,7 @@ export default function Finance() {
           {/* Charts Rows */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
             {/* Capital Accumulation */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -330,8 +349,8 @@ export default function Finance() {
                   <AreaChart data={displaySavingsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(139,92,246,0.08)" />
@@ -345,7 +364,7 @@ export default function Finance() {
             </motion.div>
 
             {/* Expense Distribution */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -390,7 +409,7 @@ export default function Finance() {
           {/* Form and Ledger Rows */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 20 }}>
             {/* Form */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -409,18 +428,18 @@ export default function Finance() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Amount ($)</label>
-                    <Input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Type</label>
-                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", cursor: "pointer", outline: "none" }}>
+                    <select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", cursor: "pointer", outline: "none" }}>
                       <option value="Expense" style={{ background: "#100c26", color: "#e2d9ff" }}>Expense</option>
                       <option value="Income" style={{ background: "#100c26", color: "#e2d9ff" }}>Income</option>
                     </select>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Category</label>
-                    <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", cursor: "pointer", outline: "none" }}>
+                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", cursor: "pointer", outline: "none" }}>
                       <option value="Food" style={{ background: "#100c26", color: "#e2d9ff" }}>Food</option>
                       <option value="Transport" style={{ background: "#100c26", color: "#e2d9ff" }}>Transport</option>
                       <option value="Entertainment" style={{ background: "#100c26", color: "#e2d9ff" }}>Entertainment</option>
@@ -431,7 +450,7 @@ export default function Finance() {
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Description</label>
-                    <Input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="e.g. Grocery, Salary" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
+                    <Input type="text" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="e.g. Grocery, Salary" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
                   </div>
                 </div>
                 <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)" }}>
@@ -441,7 +460,7 @@ export default function Finance() {
             </motion.div>
 
             {/* Ledger List */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -476,16 +495,16 @@ export default function Finance() {
                     const colorAccent = t.type === 'Income' ? "#22c55e" : "#ef4444";
                     const colorBg = t.type === 'Income' ? "rgba(34,197,94,0.10)" : "rgba(239,68,68,0.10)";
                     return (
-                      <div 
-                        key={t._id || i} 
-                        style={{ 
-                          display: "flex", 
-                          alignItems: "center", 
-                          justifyContent: "space-between", 
-                          padding: "12px 16px", 
-                          borderRadius: 14, 
-                          background: "rgba(139,92,246,0.05)", 
-                          border: "1px solid rgba(139,92,246,0.10)" 
+                      <div
+                        key={t._id || i}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "12px 16px",
+                          borderRadius: 14,
+                          background: "rgba(139,92,246,0.05)",
+                          border: "1px solid rgba(139,92,246,0.10)"
                         }}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

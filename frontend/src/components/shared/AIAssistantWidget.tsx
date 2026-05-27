@@ -31,9 +31,33 @@ export function AIAssistantWidget() {
     try {
       const response = await axios.post("http://localhost:5000/api/ai/recommend", {
         domain: "General",
-        context: { query: input }
+        context: {
+          query: input,
+
+          health: {
+            sleepHours: localStorage.getItem("sleepHours"),
+            waterGlasses: localStorage.getItem("waterGlasses"),
+            caloriesConsumed: localStorage.getItem("caloriesConsumed"),
+            workoutMinutes: localStorage.getItem("workoutMinutes"),
+            mood: localStorage.getItem("mood"),
+          },
+
+          finance: {
+            income: localStorage.getItem("income"),
+            expenses: localStorage.getItem("expenses"),
+            savings: localStorage.getItem("savings"),
+            savingsRate: localStorage.getItem("savingsRate"),
+          },
+
+          career: {
+            studyHours: localStorage.getItem("studyHours"),
+            completedTasks: localStorage.getItem("completedTasks"),
+            focusScore: localStorage.getItem("focusScore"),
+            skills: localStorage.getItem("skills"),
+          }
+        }
       });
-      
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: "ai",
@@ -87,21 +111,19 @@ export function AIAssistantWidget() {
                   key={msg.id}
                   className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
                 >
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                    msg.sender === 'user' ? 'bg-primary/20 text-foreground' : 'bg-primary/20 text-primary'
-                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.sender === 'user' ? 'bg-primary/20 text-foreground' : 'bg-primary/20 text-primary'
+                    }`}>
                     {msg.sender === 'user' ? <User size={12} /> : <Bot size={12} />}
                   </div>
-                  <div className={`p-3 rounded-xl text-sm ${
-                    msg.sender === 'user' 
-                      ? 'bg-primary text-foreground rounded-tr-sm' 
-                      : 'bg-white/10 border border-primary/20 text-foreground rounded-tl-sm'
-                  }`}>
+                  <div className={`p-3 rounded-xl text-sm ${msg.sender === 'user'
+                    ? 'bg-primary text-foreground rounded-tr-sm'
+                    : 'bg-white/10 border border-primary/20 text-foreground rounded-tl-sm'
+                    }`}>
                     {msg.text}
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex gap-3 max-w-[85%]">
                   <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0">
