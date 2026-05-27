@@ -42,6 +42,25 @@ export default function Career() {
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/career", formData);
+      localStorage.setItem(
+        "studyHours",
+        studyHours.toString()
+      );
+
+      localStorage.setItem(
+        "completedTasks",
+        completedTasks.toString()
+      );
+
+      localStorage.setItem(
+        "focusScore",
+        focusScore.toString()
+      );
+
+      localStorage.setItem(
+        "skills",
+        skills.join(", ")
+      );
       fetchLogs(); // Refresh
       setFormData({ topic: "React", durationMinutes: 0, notes: "" });
     } catch (error) {
@@ -102,7 +121,7 @@ export default function Career() {
 
     const sumMinutes = dayLogs.reduce((sum, l) => sum + l.durationMinutes, 0);
     const hours = sumMinutes / 60;
-    
+
     let intensity = 0;
     if (hours > 4) intensity = 1.0;
     else if (hours > 2) intensity = 0.7;
@@ -155,7 +174,7 @@ export default function Career() {
                 Skill acquisition and professional trajectory.
               </p>
             </div>
-            
+
             {/* Career Score Shield */}
             <div
               style={{
@@ -184,7 +203,7 @@ export default function Career() {
             }}
           >
             {/* Study hours */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 100 }}
@@ -227,7 +246,7 @@ export default function Career() {
             </motion.div>
 
             {/* Competency Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
@@ -270,7 +289,7 @@ export default function Career() {
             </motion.div>
 
             {/* Milestones Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
@@ -314,7 +333,7 @@ export default function Career() {
           </div>
 
           {/* Dynamic Interactive Trajectory Timeline Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
@@ -340,7 +359,7 @@ export default function Career() {
               {/* Trajectory Timeline Bar */}
               <div style={{ flex: 1, margin: "0 32px", position: "relative", minWidth: 200 }}>
                 <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 99, width: "100%", position: "relative" }}>
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(100, (totalHours / 50) * 100)}%` }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
@@ -351,7 +370,7 @@ export default function Career() {
                       boxShadow: "0 0 12px rgba(233,30,140,0.5)",
                     }}
                   />
-                  <motion.div 
+                  <motion.div
                     style={{
                       position: "absolute",
                       top: "50%",
@@ -382,9 +401,9 @@ export default function Career() {
 
           {/* Competency & Milestones Grid */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
-            
+
             {/* Competency Matrix Radar */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -410,7 +429,7 @@ export default function Career() {
             </motion.div>
 
             {/* Promotion Roadmap */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -427,13 +446,13 @@ export default function Career() {
               <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>Promotion Roadmap</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
                 {milestones.map((m) => (
-                  <div 
-                    key={m.id} 
-                    style={{ 
-                      padding: 16, 
-                      borderRadius: 16, 
-                      background: m.completed ? "rgba(233,30,140,0.06)" : "rgba(107,92,231,0.03)", 
-                      border: m.completed ? "1px solid rgba(233,30,140,0.15)" : "1px solid rgba(107,92,231,0.08)" 
+                  <div
+                    key={m.id}
+                    style={{
+                      padding: 16,
+                      borderRadius: 16,
+                      background: m.completed ? "rgba(233,30,140,0.06)" : "rgba(107,92,231,0.03)",
+                      border: m.completed ? "1px solid rgba(233,30,140,0.15)" : "1px solid rgba(107,92,231,0.08)"
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -444,7 +463,7 @@ export default function Career() {
                       <span style={{ fontSize: 12, fontWeight: 800, color: "#e91e8c" }}>{m.progress}%</span>
                     </div>
                     <div style={{ width: "100%", height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${m.progress}%` }}
                         transition={{ duration: 1 }}
@@ -459,9 +478,9 @@ export default function Career() {
 
           {/* Form and Consistency Grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 20 }}>
-            
+
             {/* Study Log Form */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -480,11 +499,11 @@ export default function Career() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Duration (Minutes)</label>
-                    <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({ ...formData, durationMinutes: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Topic</label>
-                    <select value={formData.topic} onChange={e => setFormData({...formData, topic: e.target.value})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", outline: "none", cursor: "pointer" }}>
+                    <select value={formData.topic} onChange={e => setFormData({ ...formData, topic: e.target.value })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", outline: "none", cursor: "pointer" }}>
                       <option value="React" style={{ background: "#100c26", color: "#e2d9ff" }}>React</option>
                       <option value="Node.js" style={{ background: "#100c26", color: "#e2d9ff" }}>Node.js</option>
                       <option value="MongoDB" style={{ background: "#100c26", color: "#e2d9ff" }}>MongoDB</option>
@@ -496,7 +515,7 @@ export default function Career() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Study Notes</label>
-                  <Input type="text" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="e.g. Mastered React concurrent rendering" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
+                  <Input type="text" value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} placeholder="e.g. Mastered React concurrent rendering" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
                 </div>
                 <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)" }}>
                   RECORD WORK NODE
@@ -505,7 +524,7 @@ export default function Career() {
             </motion.div>
 
             {/* Consistency grid */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -530,7 +549,7 @@ export default function Career() {
                     if (d.intensity > 0.8) bg = "#e91e8c";
                     else if (d.intensity > 0.5) bg = "rgba(233,30,140,0.6)";
                     else if (d.intensity > 0.1) bg = "rgba(233,30,140,0.25)";
-                    
+
                     return (
                       <motion.div
                         key={i}

@@ -1,55 +1,156 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
-
+const axios = require("axios");
+console.log("OPENROUTER KEY:", process.env.OPENROUTER_API_KEY);
 const getRecommendations = async (req, res) => {
   try {
     const { domain, context } = req.body;
-    
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(200).json({ recommendation: "Gemini API Key missing. Please provide API key in .env file to get real recommendations." });
+
+    const API_KEY = process.env.OPENROUTER_API_KEY;
+
+    if (!API_KEY) {
+      return res.status(200).json({
+        recommendation:
+          "OpenRouter API Key missing. Please provide API key in .env file.",
+      });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `As a PersonaTwin AI companion, provide a personalized recommendation for the domain: ${domain}. Context: ${JSON.stringify(context)}. Keep the response concise, encouraging, and actionable.`;
-    
+    const prompt = `
+You are VitaCore Neural AI — an advanced futuristic life assistant.
+
+Domain: ${domain}
+
+User Context:
+${JSON.stringify(context)}
+
+Instructions:
+- Give personalized and intelligent insights
+- Sound futuristic and analytical
+- Keep responses concise but impactful
+- Avoid generic motivation
+- Mention trends, predictions, improvements, or risks
+
+Domain-specific intelligence:
+- Finance → spending analysis, savings, budgeting, investments
+- Health → sleep quality, workouts, hydration, calories
+- Career → productivity, learning, focus, growth
+- Goals → consistency tracking and future projections
+
+Speak naturally like an advanced AI companion.
+`;
+
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      res.status(200).json({ recommendation: text });
+      const response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model:"openai/gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const text =
+        response.data.choices[0].message.content;
+
+      res.status(200).json({
+        recommendation: text,
+      });
     } catch (genError) {
-      console.error("Gemini Generation Error:", genError);
-      res.status(200).json({ recommendation: "AI Engine is currently running in fallback mode due to an API error. To optimize your vector, focus on consistent daily habits and incremental progress." });
+      console.error("OpenRouter Error:", genError.response?.data || genError);
+
+      res.status(200).json({
+        recommendation:
+          "AI Engine is currently running in fallback mode due to an API error.",
+      });
     }
   } catch (error) {
     console.error("AI Error:", error);
-    res.status(500).json({ message: 'Error generating recommendation' });
+
+    res.status(500).json({
+      message: "Error generating recommendation",
+    });
   }
 };
 
 const simulateScenario = async (req, res) => {
   try {
     const { scenario } = req.body;
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(200).json({ analysis: "Gemini API Key missing. Simulation not available." });
+
+    const API_KEY = process.env.OPENROUTER_API_KEY;
+
+    if (!API_KEY) {
+      return res.status(200).json({
+        analysis:
+          "OpenRouter API Key missing. Simulation not available.",
+      });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `Analyze this "What-if" scenario for a user: "${scenario}". Provide potential outcomes, timelines, and trade-offs.`;
-    
+    const prompt = `
+You are VitaCore Neural AI Simulation Engine.
+
+Scenario:
+"${scenario}"
+
+Instructions:
+- Predict realistic outcomes
+- Mention benefits and risks
+- Mention possible timelines if relevant
+- Sound futuristic and analytical
+- Keep response concise but smart
+`;
+
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      res.status(200).json({ analysis: text });
+      const response = await axios.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          model: "mistralai/mistral-7b-instruct",
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const text =
+        response.data.choices[0].message.content;
+
+      res.status(200).json({
+        analysis: text,
+      });
     } catch (genError) {
-      console.error("Gemini Generation Error:", genError);
-      res.status(200).json({ analysis: "Based on the simulation parameters, increasing consistency will compound over 6 months to drastically improve your vector. (Fallback Mode)" });
+      console.error("OpenRouter Error:", genError.response?.data || genError);
+
+      res.status(200).json({
+        analysis:
+          "Simulation currently unavailable due to AI API issue.",
+      });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error simulating scenario' });
-  }
-}
+    console.error(error);
 
-module.exports = { getRecommendations, simulateScenario };
+    res.status(500).json({
+      message: "Error simulating scenario",
+    });
+  }
+};
+
+module.exports = {
+  getRecommendations,
+  simulateScenario,
+};

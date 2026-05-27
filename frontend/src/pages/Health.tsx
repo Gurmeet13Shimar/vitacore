@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 export default function Health() {
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Form State
   const [formData, setFormData] = useState({
     workoutMinutes: 0,
@@ -46,6 +46,30 @@ export default function Health() {
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/health", formData);
+      localStorage.setItem(
+        "sleepHours",
+        formData.sleepHours.toString()
+      );
+
+      localStorage.setItem(
+        "waterGlasses",
+        formData.waterGlasses.toString()
+      );
+
+      localStorage.setItem(
+        "caloriesConsumed",
+        formData.caloriesConsumed.toString()
+      );
+
+      localStorage.setItem(
+        "workoutMinutes",
+        formData.workoutMinutes.toString()
+      );
+
+      localStorage.setItem(
+        "mood",
+        formData.mood
+      );
       fetchLogs(); // Refresh data
       setFormData({ workoutMinutes: 0, caloriesBurned: 0, caloriesConsumed: 0, sleepHours: 0, waterGlasses: 0, mood: "Good" });
     } catch (error) {
@@ -59,15 +83,15 @@ export default function Health() {
   const calories = latestLog.caloriesConsumed || 0;
   const sleep = latestLog.sleepHours || 0;
   const water = latestLog.waterGlasses || 0;
-  const score = safeLogs.length > 0 ? 85 + Math.min(10, safeLogs.length) : 0; 
+  const score = safeLogs.length > 0 ? 85 + Math.min(10, safeLogs.length) : 0;
 
   const sleepData = safeLogs.slice(0, 7).reverse().map((l: any, i: number) => ({
-    day: `Day ${i+1}`,
+    day: `Day ${i + 1}`,
     hours: l.sleepHours || 0
   }));
-  
+
   if (sleepData.length === 0) {
-    for(let i=0; i<7; i++) sleepData.push({ day: `Day ${i+1}`, hours: 0 });
+    for (let i = 0; i < 7; i++) sleepData.push({ day: `Day ${i + 1}`, hours: 0 });
   }
 
   const COLORS = ['#8b5cf6', '#e2e8f0'];
@@ -93,7 +117,7 @@ export default function Health() {
         <div style={{ position: "absolute", bottom: "-5%", right: "5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(233,30,140,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          
+
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36 }}>
             <div>
@@ -104,7 +128,7 @@ export default function Health() {
                 Biometric telemetry and physical optimization.
               </p>
             </div>
-            
+
             {/* Health Score Shield */}
             <div
               style={{
@@ -138,7 +162,7 @@ export default function Health() {
               { label: "Hydration", value: water, unit: "glasses", icon: Droplets, color: "#3b82f6", bgColor: "rgba(59,130,246,0.1)" },
               { label: "Logs", value: safeLogs.length, unit: "total", icon: Activity, color: "#8b5cf6", bgColor: "rgba(139,92,246,0.1)" },
             ].map((stat, i) => (
-              <motion.div 
+              <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -167,7 +191,7 @@ export default function Health() {
                   cursor: "default",
                 }}
               >
-                <div 
+                <div
                   style={{
                     width: 50,
                     height: 50,
@@ -198,7 +222,7 @@ export default function Health() {
           {/* Charts Row */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, marginBottom: 24, flexWrap: "wrap" }}>
             {/* Metabolic Load Pie */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -236,7 +260,7 @@ export default function Health() {
             </motion.div>
 
             {/* Sleep Area Chart */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -256,8 +280,8 @@ export default function Health() {
                   <AreaChart data={sleepData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorSleep" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(139,92,246,0.08)" />
@@ -274,7 +298,7 @@ export default function Health() {
           {/* Forms Row */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: 20 }}>
             {/* Form */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -293,19 +317,19 @@ export default function Health() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Calories Consumed</label>
-                    <Input type="number" value={formData.caloriesConsumed} onChange={e => setFormData({...formData, caloriesConsumed: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" value={formData.caloriesConsumed} onChange={e => setFormData({ ...formData, caloriesConsumed: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Sleep Hours</label>
-                    <Input type="number" step="0.5" value={formData.sleepHours} onChange={e => setFormData({...formData, sleepHours: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" step="0.5" value={formData.sleepHours} onChange={e => setFormData({ ...formData, sleepHours: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Water (Glasses)</label>
-                    <Input type="number" value={formData.waterGlasses} onChange={e => setFormData({...formData, waterGlasses: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" value={formData.waterGlasses} onChange={e => setFormData({ ...formData, waterGlasses: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Workout Mins</label>
-                    <Input type="number" value={formData.workoutMinutes} onChange={e => setFormData({...formData, workoutMinutes: Number(e.target.value)})} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
+                    <Input type="number" value={formData.workoutMinutes} onChange={e => setFormData({ ...formData, workoutMinutes: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                 </div>
                 <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #6b5ce7, #7c4ff0)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(107,92,231,0.25)" }}>
@@ -315,7 +339,7 @@ export default function Health() {
             </motion.div>
 
             {/* List */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
                 background: "rgba(16,12,38,0.82)",
@@ -339,16 +363,16 @@ export default function Health() {
                   </p>
                 ) : (
                   safeLogs.slice(0, 5).map((l: any, i: number) => (
-                    <div 
-                      key={l._id || i} 
-                      style={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: "space-between", 
-                        padding: "12px 16px", 
-                        borderRadius: 14, 
-                        background: "rgba(139,92,246,0.05)", 
-                        border: "1px solid rgba(139,92,246,0.10)" 
+                    <div
+                      key={l._id || i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px 16px",
+                        borderRadius: 14,
+                        background: "rgba(139,92,246,0.05)",
+                        border: "1px solid rgba(139,92,246,0.10)"
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
