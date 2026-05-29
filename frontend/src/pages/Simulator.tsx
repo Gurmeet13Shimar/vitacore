@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 
 export default function Simulator() {
+
   const [params, setParams] = useState({
     study: 2,
     exercise: 3,
@@ -17,46 +18,107 @@ export default function Simulator() {
   });
 
   const [isSimulating, setIsSimulating] = useState(false);
+
   const [aiInsight, setAiInsight] = useState<string | null>(null);
+
   const [isAiLoading, setIsAiLoading] = useState(false);
 
+  const [simulationResult, setSimulationResult] = useState<any>(null);
+
+  // =========================
+  // REAL AI BACKEND FUNCTION
+  // =========================
+
   const fetchAiInsight = async () => {
+
     setIsAiLoading(true);
+
     try {
-      const scenario = `If I study ${params.study} hours a day, exercise ${params.exercise} days a week, save ${params.savings}% of my income, sleep ${params.sleep} hours a night, and dine out ${params.dining} times a week.`;
-      const response = await axios.post("http://localhost:5000/api/ai/simulate", { scenario });
-      setAiInsight(response.data.analysis);
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/simulate",
+        {
+          sleep: params.sleep,
+          exercise: params.exercise,
+          water: 2,
+          expenses: params.dining * 2000,
+          income: 50000,
+          codingHours: params.study
+        }
+      );
+
+      setSimulationResult(response.data);
+
+      setAiInsight(response.data.insight);
+
     } catch (error) {
-      console.error("Error fetching AI insight:", error);
-      setAiInsight("Failed to fetch AI insights. Please check if your backend is running.");
+
+      console.error("Backend Error:", error);
+
+      setAiInsight(
+        "Failed to connect with AI backend. Make sure FastAPI server is running."
+      );
+
     } finally {
+
       setIsAiLoading(false);
+
     }
   };
 
-  // Generate mock trajectory data based on params
+  // =========================
+  // CHART DATA
+  // =========================
+
   const generateData = () => {
+
     const data = [];
-    let baseHealth = 70 + (params.exercise * 2) + ((params.sleep - 6) * 5) - (params.dining * 1);
-    let baseFinance = 5000 + (params.savings * 100) - (params.dining * 200);
-    let baseCareer = 60 + (params.study * 5) - (params.sleep < 6 ? 10 : 0);
+
+    let baseHealth =
+      70 +
+      (params.exercise * 2) +
+      ((params.sleep - 6) * 5) -
+      (params.dining * 1);
+
+    let baseFinance =
+      5000 +
+      (params.savings * 100) -
+      (params.dining * 200);
+
+    let baseCareer =
+      60 +
+      (params.study * 5) -
+      (params.sleep < 6 ? 10 : 0);
 
     for (let i = 0; i < 6; i++) {
       data.push({
         month: `Month ${i + 1}`,
         health: Math.min(100, Math.max(0, baseHealth + (i * (params.exercise * 0.5)))),
         finance: baseFinance + (i * params.savings * 50),
-        career: Math.min(100, Math.max(0, baseCareer + (i * params.study))),
+        career: Math.min(
+          100,
+          Math.max(0, baseCareer + (i * params.study))
+        ),
       });
     }
+
     return data;
   };
 
   const chartData = generateData();
 
-  const handleSliderChange = (key: keyof typeof params, value: number) => {
-    setParams(prev => ({ ...prev, [key]: value }));
+  const handleSliderChange = (
+    key: keyof typeof params,
+    value: number
+  ) => {
+
+    setParams((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+
     setIsSimulating(true);
+
     setTimeout(() => setIsSimulating(false), 500);
   };
 
@@ -342,10 +404,8 @@ export default function Simulator() {
                   </CardContent>
                 </Card>
               </motion.div>
-
             </div>
           </div>
-
         </div>
       </div>
     </AppLayout>
