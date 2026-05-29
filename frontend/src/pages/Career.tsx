@@ -38,36 +38,6 @@ export default function Career() {
     fetchLogs();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await axios.post("http://localhost:5000/api/career", formData);
-      localStorage.setItem(
-        "studyHours",
-        studyHours.toString()
-      );
-
-      localStorage.setItem(
-        "completedTasks",
-        completedTasks.toString()
-      );
-
-      localStorage.setItem(
-        "focusScore",
-        focusScore.toString()
-      );
-
-      localStorage.setItem(
-        "skills",
-        skills.join(", ")
-      );
-      fetchLogs(); // Refresh
-      setFormData({ topic: "React", durationMinutes: 0, notes: "" });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const safeLogs = Array.isArray(logs) ? logs : [];
 
   // Group study logs by topic to populate competency matrix
@@ -89,12 +59,6 @@ export default function Career() {
     }
   });
 
-  const skillData = Object.keys(topicMap).map(key => ({
-    subject: key,
-    A: topicMap[key],
-    fullMark: 100
-  }));
-
   // Calculate total study time
   const totalMinutes = safeLogs.reduce((sum, item) => sum + (item.durationMinutes || 0), 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
@@ -106,6 +70,44 @@ export default function Career() {
     { id: 2, title: "Deploy Production Subsystem (25 Hours)", progress: Math.min(100, Math.round((totalHours / 25) * 100)), completed: totalHours >= 25 },
     { id: 3, title: "Full Architecture Audit (50 Hours)", progress: Math.min(100, Math.round((totalHours / 50) * 100)), completed: totalHours >= 50 }
   ];
+
+  const skillData = Object.keys(topicMap).map(key => ({
+    subject: key,
+    A: topicMap[key],
+    fullMark: 100
+  }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+    try {
+      await axios.post("http://localhost:5000/api/career", formData);
+      localStorage.setItem(
+        "studyHours",
+        totalHours.toString()
+      );
+
+      localStorage.setItem(
+        "completedTasks",
+        milestones.filter(m => m.completed).length.toString()
+      );
+
+      localStorage.setItem(
+        "focusScore",
+        score.toString()
+      );
+
+      localStorage.setItem(
+        "skills",
+        Object.keys(topicMap).join(", ")
+      );
+      fetchLogs(); // Refresh
+      setFormData({ topic: "React", durationMinutes: 0, notes: "" });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   // Heatmap for the last 60 days
   const heatmapData = Array.from({ length: 60 }).map((_, i) => {

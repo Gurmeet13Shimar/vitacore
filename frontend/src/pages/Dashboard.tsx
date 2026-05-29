@@ -18,6 +18,8 @@ import {
   Settings,
   LayoutDashboard,
   MessageCircle,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -124,6 +126,64 @@ export default function Dashboard() {
 
         {/* Feature Scroll Section */}
         <ParallaxScrollFeatureSection features={features} />
+
+        {/* Digital Twin Today CTA Section */}
+        <div className="max-w-5xl mx-auto px-6 mb-12 relative z-20">
+          <motion.div
+            whileHover={{ y: -3 }}
+            className="glass-card border border-violet-500/25 bg-slate-950/85 backdrop-blur-xl p-8 rounded-3xl relative overflow-hidden shadow-2xl"
+          >
+            {/* Ambient glow in card background */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
+              <div className="flex-1 text-left">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-500/10 border border-violet-500/20 text-violet-400 mb-4">
+                  <Sparkles className="h-3 w-3 animate-pulse" /> Live Digital Twin OS
+                </span>
+                
+                <h2 className="text-3xl font-black text-white tracking-tight">
+                  Your Digital Twin Today
+                </h2>
+                
+                <p className="text-slate-400 mt-2 text-sm leading-relaxed">
+                  Step into the cockpit of your physical and virtual projection. Analyze your synchronized telemetry, explore personalized AI optimizations, and track goal completions in one beautiful command center.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                    <div className="w-2 h-2 rounded-full bg-violet-400" />
+                    <span>Multi-vector Health & Wealth Scores</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                    <div className="w-2 h-2 rounded-full bg-violet-400" />
+                    <span>Real-time Goal Progress Cards</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                    <div className="w-2 h-2 rounded-full bg-violet-400" />
+                    <span>Actionable AI Recommendations</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                    <div className="w-2 h-2 rounded-full bg-violet-400" />
+                    <span>Live Biometric Activity Ledger</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0 flex flex-col items-center justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/goals')}
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black px-8 py-4 rounded-2xl border-0 shadow-lg shadow-violet-500/25 flex items-center gap-2 text-sm cursor-pointer"
+                >
+                  <span>Launch Digital Twin</span>
+                  <ArrowRight size={16} />
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
 
         {/* Floating Dock */}
         <div style={{

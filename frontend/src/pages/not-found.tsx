@@ -4,106 +4,29 @@ import { motion } from "framer-motion";
 
 export default function NotFound() {
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
-      style={{
-        background: "#030712",
-        fontFamily: "'Inter', sans-serif",
-      }}
-    >
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#030712] font-sans">
+      
       {/* Background ambient glow orbs */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          left: "20%",
-          width: "350px",
-          height: "350px",
-          background: "radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)",
-          borderRadius: "50%",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20%",
-          right: "20%",
-          width: "350px",
-          height: "350px",
-          background: "radial-gradient(circle, rgba(233,30,140,0.12) 0%, transparent 70%)",
-          borderRadius: "50%",
-          pointerEvents: "none",
-        }}
-      />
+      <div className="absolute top-[20%] left-[20%] w-[350px] h-[350px] bg-radial-gradient from-violet-600/10 to-transparent rounded-full pointer-events-none z-0" />
+      <div className="absolute bottom-[20%] right-[20%] w-[350px] h-[350px] bg-radial-gradient from-pink-600/10 to-transparent rounded-full pointer-events-none z-0" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{
-          position: "relative",
-          zIndex: 10,
-          width: "100%",
-          maxWidth: "440px",
-          margin: "0 16px",
-        }}
+        className="relative z-10 w-full max-w-[440px] mx-4"
       >
-        <div
-          style={{
-            background: "rgba(16, 12, 38, 0.82)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            border: "1px solid rgba(139, 92, 246, 0.14)",
-            borderRadius: "24px",
-            padding: "32px",
-            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.40)",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "16px",
-              marginBottom: "24px",
-            }}
-          >
-            <div
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background: "rgba(239, 68, 68, 0.1)",
-                border: "1px solid rgba(239, 68, 68, 0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AlertCircle className="h-8 w-8 text-red-500" />
+        <div className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-8 text-center flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-md shadow-rose-950/20">
+              <AlertCircle className="h-8 w-8 text-rose-500" />
             </div>
             <div>
-              <h1
-                style={{
-                  fontSize: "26px",
-                  fontWeight: 800,
-                  color: "#e2d9ff",
-                  letterSpacing: "-0.025em",
-                }}
-              >
+              <h1 className="text-2xl font-black text-slate-200 tracking-tight">
                 404 Page Not Found
               </h1>
-              <p
-                style={{
-                  marginTop: "8px",
-                  fontSize: "14px",
-                  color: "rgba(196, 181, 253, 0.6)",
-                  lineHeight: "1.5",
-                }}
-              >
-                Did you forget to add the page to the router or is the path incorrect?
+              <p className="mt-2 text-sm text-slate-400 font-semibold leading-relaxed">
+                The requested coordinate vector does not exist or the link has been disconnected.
               </p>
             </div>
           </div>
@@ -112,20 +35,7 @@ export default function NotFound() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              style={{
-                display: "inline-block",
-                width: "100%",
-                padding: "12px",
-                background: "linear-gradient(135deg, #7c3aed, #e91e8c)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "12px",
-                color: "#ffffff",
-                fontWeight: 700,
-                fontSize: "14px",
-                textDecoration: "none",
-                cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(124, 58, 237, 0.4)",
-              }}
+              className="w-full py-3 bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-700 hover:to-pink-700 text-white font-extrabold text-sm rounded-xl cursor-pointer shadow-lg shadow-violet-950/20"
             >
               Back to Dashboard
             </motion.div>
@@ -135,4 +45,3 @@ export default function NotFound() {
     </div>
   );
 }
-

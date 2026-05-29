@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Beaker, Zap, TrendingUp, AlertTriangle } from "lucide-react";
+import { Beaker, Zap, TrendingUp, Sparkles, Brain } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function Simulator() {
   const [params, setParams] = useState({
@@ -39,9 +41,9 @@ export default function Simulator() {
     let baseFinance = 5000 + (params.savings * 100) - (params.dining * 200);
     let baseCareer = 60 + (params.study * 5) - (params.sleep < 6 ? 10 : 0);
 
-    for(let i=0; i<6; i++) {
+    for (let i = 0; i < 6; i++) {
       data.push({
-        month: `Month ${i+1}`,
+        month: `Month ${i + 1}`,
         health: Math.min(100, Math.max(0, baseHealth + (i * (params.exercise * 0.5)))),
         finance: baseFinance + (i * params.savings * 50),
         career: Math.min(100, Math.max(0, baseCareer + (i * params.study))),
@@ -60,286 +62,240 @@ export default function Simulator() {
 
   return (
     <AppLayout>
-      {/* ── Page Wrapper with Dark Background ── */}
-      <div
-        style={{
-          minHeight: "100%",
-          background: "#030712",
-          padding: "36px 40px 60px",
-          fontFamily: "Inter, sans-serif",
-          position: "relative",
-        }}
-      >
+      <div className="min-h-full bg-[#030712] py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans">
+        
         {/* Ambient glow orbs */}
-        <div style={{ position: "absolute", top: "-10%", left: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-        <div style={{ position: "absolute", bottom: "-5%", right: "5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(233,30,140,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+        <div className="absolute top-[-10%] left-[5%] w-[40vw] h-[40vw] rounded-full bg-radial-gradient from-violet-500/5 to-transparent pointer-events-none z-0" />
+        <div className="absolute bottom-[-5%] right-[5%] w-[30vw] h-[30vw] rounded-full bg-radial-gradient from-pink-500/5 to-transparent pointer-events-none z-0" />
 
-        {/* Subtle noise overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-            opacity: 0.025,
-            pointerEvents: "none",
-          }}
-        />
-
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col gap-6 md:gap-8">
+          
           {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: 36, flexWrap: "wrap", justifyContent: "space-between" }}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-violet-500/10 pb-6">
             <div>
-              <h1 style={{ fontSize: 32, fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.02em" }}>
+              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
                 AI Simulation Engine
               </h1>
-              <p style={{ color: "rgba(233,221,255,0.75)", marginTop: 6, fontSize: 15, fontWeight: 500 }}>
-                Adjust parameters to predict future state trajectories.
+              <p className="text-slate-400 mt-1.5 font-medium text-sm md:text-base">
+                Adjust control parameters to project future health, wealth, and career state vectors.
               </p>
             </div>
-            
+
             {/* Status indicator */}
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="flex items-center">
               {isSimulating ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }} 
                   animate={{ opacity: 1, scale: 1 }}
-                  style={{
-                    background: "rgba(139,92,246,0.15)",
-                    border: "1px solid rgba(139,92,246,0.3)",
-                    color: "#fff",
-                    borderRadius: 99,
-                    padding: "8px 18px",
-                    fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    boxShadow: "0 0 15px rgba(139,92,246,0.2)"
-                  }}
+                  className="bg-violet-500/15 border border-violet-500/30 text-white rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-violet-950/20"
                 >
-                  <div style={{ width: 8, height: 8, background: "#8b5cf6", borderRadius: "50%", animation: "pulse 1.5s infinite" }} />
-                  Processing
+                  <span className="w-2.5 h-2.5 bg-violet-400 rounded-full animate-ping" />
+                  <span>Processing...</span>
                 </motion.div>
               ) : (
-                <div 
-                  style={{
-                    background: "rgba(255,255,255,0.12)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    color: "#fff",
-                    borderRadius: 99,
-                    padding: "8px 18px",
-                    fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ width: 8, height: 8, background: "#22c55e", borderRadius: "50%" }} />
-                  Ready
+                <div className="bg-slate-900/85 border border-slate-800 text-slate-300 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
+                  <span>Simulation Idle</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Main simulator grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 20, alignItems: "start" }}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* Controls panel */}
+            {/* Controls panel - 4 Cols */}
             <motion.div 
-              whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-              style={{
-                background: "rgba(16,12,38,0.82)",
-                backdropFilter: "blur(16px)",
-                border: "1px solid rgba(139,92,246,0.14)",
-                borderRadius: 22,
-                padding: 28,
-                boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 24,
-                transition: "all 0.3s ease",
-              }}
+              whileHover={{ y: -4 }}
+              className="lg:col-span-4"
             >
-              <h3 style={{ fontSize: 13, fontWeight: 800, color: "#e2d9ff", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid rgba(139,92,246,0.1)", paddingBottom: 12 }}>
-                Control Variables
-              </h3>
-              
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {/* Study slider */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ fontWeight: 700, color: "rgba(196,181,253,0.8)" }}>Study hours</span>
-                    <span style={{ fontWeight: 800, color: "#e91e8c" }}>{params.study}h/day</span>
+              <Card className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl">
+                <CardHeader className="pb-4 border-b border-slate-800/60">
+                  <CardTitle className="text-sm font-bold text-slate-300 tracking-wide uppercase flex items-center gap-2">
+                    <Beaker className="h-4.5 w-4.5 text-violet-400" />
+                    Control Variables
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 flex flex-col gap-6">
+                  
+                  {/* Study slider */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-400">Study duration</span>
+                      <span className="font-extrabold text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded text-xs">{params.study} h/day</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="8" 
+                      step="1" 
+                      value={params.study} 
+                      onChange={(e) => handleSliderChange('study', Number(e.target.value))} 
+                      className="w-full h-1.5 rounded-lg bg-slate-950 appearance-none cursor-pointer accent-pink-500" 
+                    />
                   </div>
-                  <input type="range" min="0" max="8" step="1" value={params.study} onChange={(e) => handleSliderChange('study', Number(e.target.value))} style={{ cursor: "pointer", accentColor: "#e91e8c" }} />
-                </div>
 
-                {/* Exercise slider */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ fontWeight: 700, color: "rgba(196,181,253,0.8)" }}>Exercise days</span>
-                    <span style={{ fontWeight: 800, color: "#8b5cf6" }}>{params.exercise}d/wk</span>
+                  {/* Exercise slider */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-400">Exercise frequency</span>
+                      <span className="font-extrabold text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded text-xs">{params.exercise} days/wk</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="7" 
+                      step="1" 
+                      value={params.exercise} 
+                      onChange={(e) => handleSliderChange('exercise', Number(e.target.value))} 
+                      className="w-full h-1.5 rounded-lg bg-slate-950 appearance-none cursor-pointer accent-violet-500" 
+                    />
                   </div>
-                  <input type="range" min="0" max="7" step="1" value={params.exercise} onChange={(e) => handleSliderChange('exercise', Number(e.target.value))} style={{ cursor: "pointer", accentColor: "#8b5cf6" }} />
-                </div>
 
-                {/* Savings slider */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ fontWeight: 700, color: "rgba(196,181,253,0.8)" }}>Savings rate</span>
-                    <span style={{ fontWeight: 800, color: "#3b82f6" }}>{params.savings}%</span>
+                  {/* Savings slider */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-400">Savings Rate</span>
+                      <span className="font-extrabold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-xs">{params.savings}%</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="80" 
+                      step="5" 
+                      value={params.savings} 
+                      onChange={(e) => handleSliderChange('savings', Number(e.target.value))} 
+                      className="w-full h-1.5 rounded-lg bg-slate-950 appearance-none cursor-pointer accent-blue-500" 
+                    />
                   </div>
-                  <input type="range" min="0" max="80" step="5" value={params.savings} onChange={(e) => handleSliderChange('savings', Number(e.target.value))} style={{ cursor: "pointer", accentColor: "#3b82f6" }} />
-                </div>
 
-                {/* Sleep slider */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ fontWeight: 700, color: "rgba(196,181,253,0.8)" }}>Sleep hours</span>
-                    <span style={{ fontWeight: 800, color: "#22c55e" }}>{params.sleep}h/night</span>
+                  {/* Sleep slider */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-400">Sleep Allocation</span>
+                      <span className="font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-xs">{params.sleep} hrs/night</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="4" 
+                      max="10" 
+                      step="0.5" 
+                      value={params.sleep} 
+                      onChange={(e) => handleSliderChange('sleep', Number(e.target.value))} 
+                      className="w-full h-1.5 rounded-lg bg-slate-950 appearance-none cursor-pointer accent-emerald-500" 
+                    />
                   </div>
-                  <input type="range" min="4" max="10" step="0.5" value={params.sleep} onChange={(e) => handleSliderChange('sleep', Number(e.target.value))} style={{ cursor: "pointer", accentColor: "#22c55e" }} />
-                </div>
 
-                {/* Dining out slider */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ fontWeight: 700, color: "rgba(196,181,253,0.8)" }}>Dining out</span>
-                    <span style={{ fontWeight: 800, color: "#ef4444" }}>{params.dining} meals</span>
+                  {/* Dining out slider */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-slate-400">Dining Out frequency</span>
+                      <span className="font-extrabold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded text-xs">{params.dining} meals/wk</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="14" 
+                      step="1" 
+                      value={params.dining} 
+                      onChange={(e) => handleSliderChange('dining', Number(e.target.value))} 
+                      className="w-full h-1.5 rounded-lg bg-slate-950 appearance-none cursor-pointer accent-rose-500" 
+                    />
                   </div>
-                  <input type="range" min="0" max="14" step="1" value={params.dining} onChange={(e) => handleSliderChange('dining', Number(e.target.value))} style={{ cursor: "pointer", accentColor: "#ef4444" }} />
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </motion.div>
 
-            {/* Trajectory visualization area */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* Trajectory visualization area - 8 Cols */}
+            <div className="lg:col-span-8 flex flex-col gap-6">
               
               {/* Trajectory chart */}
               <motion.div 
-                whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                style={{
-                  background: "rgba(16,12,38,0.82)",
-                  backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(139,92,246,0.14)",
-                  borderRadius: 22,
-                  padding: 28,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                  transition: "all 0.3s ease",
-                }}
+                whileHover={{ y: -4 }}
               >
-                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#e2d9ff", margin: "0 0 24px", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 8 }}>
-                  <TrendingUp size={16} color="#8b5cf6" strokeWidth={2.5} /> Projected Vectors (6 Months)
-                </h3>
-                <div style={{ height: 260, width: "100%", position: "relative" }}>
-                  {isSimulating && (
-                    <div style={{ position: "absolute", inset: 0, zIndex: 10, background: "rgba(16,12,38,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 14 }}>
-                      <div style={{ width: 32, height: 32, border: "4px solid rgba(139,92,246,0.3)", borderTopColor: "#8b5cf6", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                <Card className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white text-lg font-bold flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-violet-400" />
+                      Projected Telemetry Trajectories (6 Months)
+                    </CardTitle>
+                    <CardDescription className="text-slate-400 text-xs">
+                      Predictive model showing monthly metrics progression.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    {isSimulating && (
+                      <div className="absolute inset-0 z-20 bg-slate-950/60 backdrop-blur-[3px] flex items-center justify-center rounded-xl">
+                        <div className="w-9 h-9 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
+                      </div>
+                    )}
+                    <div className="h-[280px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="simHealthGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/>
+                              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                            </linearGradient>
+                            <linearGradient id="simCareerGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#e91e8c" stopOpacity={0.25}/>
+                              <stop offset="95%" stopColor="#e91e8c" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                          <XAxis dataKey="month" stroke="rgba(255, 255, 255, 0.4)" tickLine={false} axisLine={false} style={{ fontSize: "10px", fontWeight: "bold" }} />
+                          <YAxis stroke="rgba(255, 255, 255, 0.4)" tickLine={false} axisLine={false} domain={[0, 100]} style={{ fontSize: "10px", fontWeight: "bold" }} />
+                          <RechartsTooltip contentStyle={{ backgroundColor: "rgba(15, 12, 38, 0.95)", border: "1px solid rgba(139, 92, 246, 0.2)", borderRadius: "12px", color: "#fff" }} />
+                          <Area type="monotone" dataKey="health" stroke="#8b5cf6" strokeWidth={3} fill="url(#simHealthGrad)" name="Health Vector" />
+                          <Area type="monotone" dataKey="career" stroke="#e91e8c" strokeWidth={3} fill="url(#simCareerGrad)" name="Career Vector" />
+                        </AreaChart>
+                      </ResponsiveContainer>
                     </div>
-                  )}
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="simHealth" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25}/>
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                        </linearGradient>
-                        <linearGradient id="simCareer" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#e91e8c" stopOpacity={0.25}/>
-                          <stop offset="95%" stopColor="#e91e8c" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(139,92,246,0.08)" />
-                      <XAxis dataKey="month" stroke="rgba(196,181,253,0.4)" tickLine={false} axisLine={false} style={{ fontSize: "11px", fontWeight: "bold" }} />
-                      <YAxis stroke="rgba(196,181,253,0.4)" tickLine={false} axisLine={false} domain={[0, 100]} style={{ fontSize: "11px", fontWeight: "bold" }} />
-                      <RechartsTooltip contentStyle={{ backgroundColor: "rgba(10,8,28,0.95)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: "12px", color: "#fff" }} />
-                      <Area type="monotone" dataKey="health" stroke="#8b5cf6" strokeWidth={3} fill="url(#simHealth)" name="Health Vector" />
-                      <Area type="monotone" dataKey="career" stroke="#e91e8c" strokeWidth={3} fill="url(#simCareer)" name="Career Vector" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+                  </CardContent>
+                </Card>
               </motion.div>
 
               {/* Projections outcome indicators */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
                 {/* Health Trajectory */}
                 <motion.div 
-                  whileHover={{ y: -6, rotateX: 4, rotateY: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                  style={{
-                    background: "rgba(16,12,38,0.82)",
-                    backdropFilter: "blur(16px)",
-                    border: "1px solid rgba(139,92,246,0.14)",
-                    borderRadius: 20,
-                    padding: 20,
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                    transformStyle: "preserve-3d",
-                    perspective: 1000,
-                    transition: "all 0.3s ease",
-                  }}
+                  whileHover={{ y: -4 }}
+                  className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#8b5cf6", letterSpacing: "0.08em", textTransform: "uppercase" }}>Health Trajectory</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#e2d9ff", marginTop: 8 }}>
+                  <span className="text-[10px] font-bold text-violet-400 uppercase tracking-wider block">Health Trajectory</span>
+                  <div className="text-xl font-black text-white mt-2">
                     {chartData[5].health > chartData[0].health ? 'Optimizing' : 'Degrading'}
                   </div>
-                  <p style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", margin: "6px 0 0", fontWeight: 600 }}>
+                  <p className="text-xs text-slate-400 mt-2 font-semibold">
                     End score: {Math.round(chartData[5].health)}/100
                   </p>
                 </motion.div>
 
                 {/* Wealth Creation */}
                 <motion.div 
-                  whileHover={{ y: -6, rotateX: 4, rotateY: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                  style={{
-                    background: "rgba(16,12,38,0.82)",
-                    backdropFilter: "blur(16px)",
-                    border: "1px solid rgba(139,92,246,0.14)",
-                    borderRadius: 20,
-                    padding: 20,
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                    transformStyle: "preserve-3d",
-                    perspective: 1000,
-                    transition: "all 0.3s ease",
-                  }}
+                  whileHover={{ y: -4 }}
+                  className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#3b82f6", letterSpacing: "0.08em", textTransform: "uppercase" }}>Wealth Creation</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#e2d9ff", marginTop: 8 }}>
+                  <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">Wealth Creation</span>
+                  <div className="text-xl font-black text-white mt-2">
                     ${Math.round(chartData[5].finance).toLocaleString()}
                   </div>
-                  <p style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", margin: "6px 0 0", fontWeight: 600 }}>
-                    Predicted net liquid capital
+                  <p className="text-xs text-slate-400 mt-2 font-semibold">
+                    Predicted net liquid assets
                   </p>
                 </motion.div>
 
                 {/* Career Velocity */}
                 <motion.div 
-                  whileHover={{ y: -6, rotateX: 4, rotateY: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                  style={{
-                    background: "rgba(16,12,38,0.82)",
-                    backdropFilter: "blur(16px)",
-                    border: "1px solid rgba(139,92,246,0.14)",
-                    borderRadius: 20,
-                    padding: 20,
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                    transformStyle: "preserve-3d",
-                    perspective: 1000,
-                    transition: "all 0.3s ease",
-                  }}
+                  whileHover={{ y: -4 }}
+                  className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#e91e8c", letterSpacing: "0.08em", textTransform: "uppercase" }}>Career Velocity</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#e2d9ff", marginTop: 8 }}>
+                  <span className="text-[10px] font-bold text-pink-400 uppercase tracking-wider block">Career Velocity</span>
+                  <div className="text-xl font-black text-white mt-2">
                     {chartData[5].career > 90 ? 'Promotion Ready' : 'Skill Deficit'}
                   </div>
-                  <p style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", margin: "6px 0 0", fontWeight: 600 }}>
+                  <p className="text-xs text-slate-400 mt-2 font-semibold">
                     End score: {Math.round(chartData[5].career)}/100
                   </p>
                 </motion.div>
@@ -347,45 +303,44 @@ export default function Simulator() {
 
               {/* Neural analysis insights */}
               <motion.div 
-                whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                style={{
-                  background: "rgba(16,12,38,0.82)",
-                  backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(139,92,246,0.14)",
-                  borderRadius: 22,
-                  padding: 28,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                  transition: "all 0.3s ease",
-                }}
+                whileHover={{ y: -2 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-                  <h3 style={{ fontSize: 14, fontWeight: 800, color: "#e2d9ff", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 8 }}>
-                    <Zap size={16} color="#f5c518" strokeWidth={2.5} /> Neural Engine Analysis
-                  </h3>
-                  <button 
-                    onClick={fetchAiInsight}
-                    disabled={isAiLoading}
-                    style={{
-                      padding: "8px 18px",
-                      background: "linear-gradient(135deg, #6b5ce7, #7c4ff0)",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: 12,
-                      fontWeight: 800,
-                      borderRadius: 99,
-                      cursor: "pointer",
-                      boxShadow: "0 4px 12px rgba(107,92,231,0.2)"
-                    }}
-                  >
-                    {isAiLoading ? "Analyzing..." : "Generate AI Insight"}
-                  </button>
-                </div>
-                
-                {aiInsight && (
-                  <div style={{ padding: 20, borderRadius: 16, background: "rgba(139,92,246,0.05)", border: "1px solid rgba(139,92,246,0.15)", fontSize: 13, color: "#e2d9ff", lineHeight: 1.7, fontWeight: 500, fontStyle: "italic" }}>
-                    {aiInsight}
-                  </div>
-                )}
+                <Card className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl">
+                  <CardHeader className="pb-3 flex flex-row items-center justify-between flex-wrap gap-4">
+                    <CardTitle className="text-white text-md font-bold flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-amber-400" />
+                      Neural Engine Projections
+                    </CardTitle>
+                    <Button 
+                      onClick={fetchAiInsight}
+                      disabled={isAiLoading}
+                      className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-violet-950/20 border-0"
+                    >
+                      {isAiLoading ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Generating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>Generate AI Insight</span>
+                        </>
+                      )}
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    {aiInsight ? (
+                      <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-slate-300 text-sm leading-relaxed font-medium italic">
+                        {aiInsight}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center rounded-xl bg-slate-950/40 border border-slate-800 text-slate-500 text-xs font-semibold">
+                        Click 'Generate AI Insight' to analyze this simulation scenario.
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </motion.div>
 
             </div>
@@ -393,15 +348,6 @@ export default function Simulator() {
 
         </div>
       </div>
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: .5; transform: scale(1.1); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </AppLayout>
   );
 }

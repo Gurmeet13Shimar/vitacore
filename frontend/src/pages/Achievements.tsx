@@ -3,6 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { mockUser, achievements } from "@/data/mockData";
 import { Trophy, Star, Shield, Flame, Medal, Target, PiggyBank, Moon, Sun, Code, Wind, Award } from "lucide-react";
 import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Achievements() {
   const nextLevelXp = 5000;
@@ -30,189 +31,121 @@ export default function Achievements() {
 
   return (
     <AppLayout>
-      {/* ── Page Wrapper with Deep Purple background ── */}
-      <div
-        style={{
-          minHeight: "100%",
-          background: "#030712",
-          padding: "36px 40px 60px",
-          fontFamily: "Inter, sans-serif",
-          position: "relative",
-        }}
-      >
+      <div className="min-h-full bg-[#030712] py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans">
+        
         {/* Ambient glow orbs */}
-        <div style={{ position: "absolute", top: "-10%", right: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(245,197,24,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-        <div style={{ position: "absolute", bottom: "-5%", left: "5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+        <div className="absolute top-[-10%] right-[5%] w-[40vw] h-[40vw] rounded-full bg-radial-gradient from-amber-500/5 to-transparent pointer-events-none z-0" />
+        <div className="absolute bottom-[-5%] left-[5%] w-[30vw] h-[30vw] rounded-full bg-radial-gradient from-violet-500/5 to-transparent pointer-events-none z-0" />
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col gap-6 md:gap-8">
 
           {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36 }}>
+          <div className="flex items-center justify-between gap-4 border-b border-violet-500/10 pb-6">
             <div>
-              <h1 style={{ fontSize: 32, fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.02em" }}>
+              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
                 Gamification Center
               </h1>
-              <p style={{ color: "rgba(233,221,255,0.75)", marginTop: 6, fontSize: 15, fontWeight: 500 }}>
-                Rewards for consistent systemic optimization.
+              <p className="text-slate-400 mt-1.5 font-medium text-sm md:text-base">
+                Systemic rewards and status vectors for consistent system optimization.
               </p>
             </div>
             
-            {/* trophy highlight */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
-              <Trophy size={24} color="#f5c518" />
+            <div className="w-12 h-12 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center shadow-lg shadow-violet-950/20">
+              <Trophy className="h-5 w-5 text-amber-400" />
             </div>
           </div>
 
           {/* Level Banner (3D Tilt Card) */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
-            whileHover={{
-              y: -8,
-              scale: 1.02,
-              rotateX: 4,
-              rotateY: -4,
-              boxShadow: "0 20px 40px rgba(107,92,231,0.2)",
-              borderColor: "rgba(245,197,24,0.3)"
-            }}
-            style={{
-              background: "rgba(16,12,38,0.85)",
-              backdropFilter: "blur(16px)",
-              border: "1px solid rgba(245,197,24,0.2)",
-              borderRadius: 24,
-              padding: 32,
-              boxShadow: "0 8px 40px rgba(0,0,0,0.45)",
-              position: "relative",
-              overflow: "hidden",
-              marginBottom: 36,
-              transformStyle: "preserve-3d",
-              perspective: 1000,
-              transition: "all 0.3s ease",
-            }}
+            transition={{ duration: 0.5 }}
+            whileHover={{ y: -4 }}
+            className="w-full relative overflow-hidden"
           >
-            {/* Shield watermark translated in 3D */}
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                right: 40,
-                transform: "translateY(-50%) translateZ(10px)",
-                opacity: 0.08,
-                color: "#f5c518",
-              }}
-            >
-              <Shield size={130} strokeWidth={1.5} />
-            </div>
-            
-            <div style={{ display: "flex", alignItems: "center", gap: 28, position: "relative", zIndex: 10, transform: "translateZ(30px)" }}>
-              <div 
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 20,
-                  background: "linear-gradient(135deg, #f5c518, #e91e8c)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 34,
-                  fontWeight: 900,
-                  color: "#fff",
-                  boxShadow: "0 10px 24px rgba(245,197,24,0.35)",
-                  flexShrink: 0,
-                }}
-              >
-                {mockUser.level}
+            <Card className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-8 relative overflow-hidden">
+              
+              {/* Shield watermark */}
+              <div className="absolute right-10 top-1/2 -translate-y-1/2 opacity-5 text-amber-400 pointer-events-none">
+                <Shield size={140} strokeWidth={1.5} />
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#f5c518", letterSpacing: "0.15em", textTransform: "uppercase" }}>Current Rank</div>
-                <h2 style={{ fontSize: 26, fontWeight: 900, color: "#f0ecff", margin: "4px 0 16px" }}>{mockUser.levelName}</h2>
-                
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, fontSize: 13, fontWeight: 700, color: "rgba(196,181,253,0.55)" }}>
-                  <span>{mockUser.xp.toLocaleString()} XP</span>
-                  <span style={{ color: "rgba(196,181,253,0.4)" }}>Next: {nextLevelXp.toLocaleString()} XP</span>
+              
+              <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                {/* Level avatar */}
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-400 to-pink-600 flex items-center justify-center text-white text-4xl font-black shadow-lg shadow-amber-500/20">
+                  {mockUser.level}
                 </div>
                 
-                {/* Level Progress Bar */}
-                <div style={{ width: "100%", height: 8, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    style={{
-                      height: "100%",
-                      background: "linear-gradient(90deg, #f5c518, #e91e8c)",
-                      borderRadius: 99,
-                    }}
-                  />
+                <div className="flex-1 w-full">
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">Current System Rank</span>
+                  <h2 className="text-white text-2xl font-black mt-1">{mockUser.levelName}</h2>
+                  
+                  <div className="flex justify-between items-center mt-6 mb-2 text-xs font-bold text-slate-400">
+                    <span>{mockUser.xp.toLocaleString()} XP</span>
+                    <span>Next level: {nextLevelXp.toLocaleString()} XP</span>
+                  </div>
+                  
+                  {/* Progress Meter */}
+                  <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 1.2, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-amber-400 to-pink-500 rounded-full"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </Card>
           </motion.div>
 
-          {/* Badges Grid (3D Tilts) */}
-          <div>
-            <h3 style={{ fontSize: 18, fontWeight: 900, color: "#ffffff", marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
-              <Medal size={20} color="#f5c518" strokeWidth={2.5} /> Unlocked Badges
+          {/* Badges Section */}
+          <div className="flex flex-col gap-6">
+            <h3 className="text-white text-lg font-bold flex items-center gap-2">
+              <Medal className="h-5 w-5 text-amber-400" />
+              Unlocked Badges & Milestones
             </h3>
             
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 16 }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {achievements.map((ach, i) => {
-                const colorAccent = ach.unlocked ? "#8b5cf6" : "#94a3b8";
-                const colorBg = ach.unlocked ? "rgba(139,92,246,0.1)" : "rgba(148,163,184,0.05)";
+                const colorAccent = ach.unlocked ? "#a78bfa" : "#64748b";
+                const colorBg = ach.unlocked ? "rgba(139, 92, 246, 0.1)" : "rgba(255, 255, 255, 0.02)";
+                
                 return (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.85 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.04, type: 'spring', stiffness: 120 }}
+                    transition={{ delay: i * 0.03 }}
                     whileHover={{
-                      y: ach.unlocked ? -8 : -3,
-                      scale: ach.unlocked ? 1.05 : 1.01,
-                      rotateX: ach.unlocked ? 5 : 2,
-                      rotateY: ach.unlocked ? -5 : -2,
-                      boxShadow: ach.unlocked ? "0 12px 24px rgba(107,92,231,0.15)" : "none",
-                      borderColor: ach.unlocked ? "rgba(139,92,246,0.25)" : "rgba(148,163,184,0.1)",
+                      y: ach.unlocked ? -6 : -2,
+                      scale: ach.unlocked ? 1.03 : 1.01,
                     }}
                     key={ach.id}
-                    style={{
-                      background: ach.unlocked ? "rgba(16,12,38,0.85)" : "rgba(10,8,24,0.60)",
-                      backdropFilter: "blur(14px)",
-                      border: ach.unlocked ? "1px solid rgba(139,92,246,0.2)" : "1px solid rgba(139,92,246,0.06)",
-                      borderRadius: 20,
-                      padding: 24,
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.35)",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                      gap: 12,
-                      opacity: ach.unlocked ? 1 : 0.5,
-                      filter: ach.unlocked ? "none" : "grayscale(80%)",
-                      cursor: "default",
-                      transformStyle: "preserve-3d",
-                      perspective: 1000,
-                      transition: "all 0.3s ease",
-                    }}
+                    className={`glass-card border-0 backdrop-blur-md p-5 flex flex-col items-center text-center gap-3.5 transition-all duration-300 relative overflow-hidden ${
+                      ach.unlocked 
+                        ? "bg-slate-900/60 neon-border border-violet-500/10" 
+                        : "bg-slate-950/40 border border-slate-900/30 opacity-40 grayscale"
+                    }`}
                   >
+                    {/* Badge Icon */}
                     <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center transition-transform duration-300 shadow-md"
                       style={{
-                        width: 52,
-                        height: 52,
-                        borderRadius: "50%",
                         background: colorBg,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: colorAccent,
-                        boxShadow: ach.unlocked ? "0 6px 14px rgba(139,92,246,0.2)" : "none",
-                        transform: "translateZ(15px)"
+                        border: ach.unlocked ? "1px solid rgba(167, 139, 250, 0.2)" : "1px solid rgba(255,255,255,0.03)",
+                        boxShadow: ach.unlocked ? "0 4px 10px rgba(167, 139, 250, 0.1)" : "none"
                       }}
                     >
                       {getBadgeIcon(ach.icon, colorAccent)}
                     </div>
-                    <div style={{ transform: "translateZ(25px)" }}>
-                      <div style={{ fontWeight: 800, fontSize: 13, color: "#e2d9ff", lineHeight: 1.25 }}>{ach.name}</div>
-                      <div style={{ fontSize: 10, color: "rgba(196,181,253,0.5)", marginTop: 4, lineHeight: 1.35, fontWeight: 500, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ach.desc}</div>
+                    
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="font-extrabold text-xs text-slate-200 leading-snug line-clamp-1">
+                        {ach.name}
+                      </div>
+                      <div className="text-[10px] text-slate-500 font-semibold leading-normal line-clamp-2 min-h-[30px]">
+                        {ach.desc}
+                      </div>
                     </div>
                   </motion.div>
                 );

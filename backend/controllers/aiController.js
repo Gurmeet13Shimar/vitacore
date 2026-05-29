@@ -37,38 +37,54 @@ Domain-specific intelligence:
 Speak naturally like an advanced AI companion.
 `;
 
-    try {
-      const response = await axios.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          model:"openai/gpt-3.5-turbo",
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
+    // Fallback list of models to ensure high availability
+    const modelsToTry = ["google/gemini-2.5-flash", "meta-llama/llama-3-8b-instruct:free", "openai/gpt-3.5-turbo"];
+    let responseText = "";
+    let success = false;
+    let lastError = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await axios.post(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            model: model,
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
           },
+          {
+            headers: {
+              Authorization: `Bearer ${API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            timeout: 10000 // 10s timeout per attempt
+          }
+        );
+
+        if (response.data?.choices?.[0]?.message?.content) {
+          responseText = response.data.choices[0].message.content;
+          success = true;
+          break;
         }
-      );
+      } catch (genError) {
+        console.warn(`OpenRouter model ${model} failed:`, genError.response?.data || genError.message);
+        lastError = genError;
+      }
+    }
 
-      const text =
-        response.data.choices[0].message.content;
-
+    if (success) {
       res.status(200).json({
-        recommendation: text,
+        recommendation: responseText,
       });
-    } catch (genError) {
-      console.error("OpenRouter Error:", genError.response?.data || genError);
-
+    } else {
+      console.error("All OpenRouter models failed. Last error:", lastError?.response?.data || lastError);
       res.status(200).json({
         recommendation:
-          "AI Engine is currently running in fallback mode due to an API error.",
+          "AI Engine is currently running in local telemetry preview mode due to an API error.",
       });
     }
   } catch (error) {
@@ -107,38 +123,54 @@ Instructions:
 - Keep response concise but smart
 `;
 
-    try {
-      const response = await axios.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          model: "mistralai/mistral-7b-instruct",
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
+    // Fallback list of models to ensure high availability
+    const modelsToTry = ["google/gemini-2.5-flash", "meta-llama/llama-3-8b-instruct:free", "openai/gpt-3.5-turbo"];
+    let responseText = "";
+    let success = false;
+    let lastError = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await axios.post(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            model: model,
+            messages: [
+              {
+                role: "user",
+                content: prompt,
+              },
+            ],
           },
+          {
+            headers: {
+              Authorization: `Bearer ${API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            timeout: 10000 // 10s timeout per attempt
+          }
+        );
+
+        if (response.data?.choices?.[0]?.message?.content) {
+          responseText = response.data.choices[0].message.content;
+          success = true;
+          break;
         }
-      );
+      } catch (genError) {
+        console.warn(`OpenRouter model ${model} failed:`, genError.response?.data || genError.message);
+        lastError = genError;
+      }
+    }
 
-      const text =
-        response.data.choices[0].message.content;
-
+    if (success) {
       res.status(200).json({
-        analysis: text,
+        analysis: responseText,
       });
-    } catch (genError) {
-      console.error("OpenRouter Error:", genError.response?.data || genError);
-
+    } else {
+      console.error("All OpenRouter simulation models failed. Last error:", lastError?.response?.data || lastError);
       res.status(200).json({
         analysis:
-          "Simulation currently unavailable due to AI API issue.",
+          "Simulation currently unavailable due to AI API issue. Please try adjusting your parameters.",
       });
     }
   } catch (error) {
