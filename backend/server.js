@@ -6,6 +6,7 @@ const dns = require('dns');
 
 // Load .env file
 dotenv.config({ path: './.env' });
+console.log("CALORIE_NINJAS_KEY =", process.env.CALORIE_NINJAS_KEY);
 console.log("Loaded OPENROUTER_API_KEY:", process.env.OPENROUTER_API_KEY);
 
 // Force Google DNS

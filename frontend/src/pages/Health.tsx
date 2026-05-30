@@ -169,7 +169,7 @@ export default function Health() {
     }
   };
 
-  // CalorieNinjas API Search handler
+  // Food Calorie Search handler
   const handleFoodSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!foodQuery.trim()) return;
@@ -182,16 +182,23 @@ export default function Health() {
       const res = await axios.get(`http://localhost:5000/api/health/nutrition?query=${encodeURIComponent(foodQuery)}`);
       if (res.data && Array.isArray(res.data.items)) {
         if (res.data.items.length === 0) {
-          setFoodError("We couldn't recognize those foods. Try typing something else like '2 bananas and a glass of milk'!");
+          const hint = res.data.hint || "";
+          setFoodError(
+            `We couldn't find those foods. ${hint || "Try names like 'oatmeal', 'banana', 'rice', 'dal', 'roti'."}`
+          );
         } else {
           setFoodResult(res.data.items);
         }
       } else {
-        setFoodError("Something went wrong while calculating. Please try again!");
+        setFoodError("Something went wrong. Please try again!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setFoodError("Could not connect to the food search service. Please try again!");
+      if (err?.response?.status === 401) {
+        setFoodError("Please log in first to use this feature.");
+      } else {
+        setFoodError("Could not connect. Please check your connection and try again.");
+      }
     } finally {
       setIsSearchingFood(false);
     }
