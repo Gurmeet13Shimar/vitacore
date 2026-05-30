@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { Eye, EyeOff, Mail, Lock, Chrome, Twitter, Github, User, Zap } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Zap } from "lucide-react";
 
 interface FormInputProps {
   icon: React.ReactNode;
@@ -277,21 +277,7 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Third-party Integrations Section */}
-        <div className="mt-6 relative z-10">
-          <div className="relative flex items-center justify-center mb-4">
-            <div className="border-t border-white/10 absolute w-full"></div>
-            <div className="bg-[#0e0a24]/95 px-3 relative text-white/40 text-[9px] uppercase font-black tracking-widest rounded-full border border-white/5 py-0.5">
-              quick access via
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <SocialButton icon={<Chrome size={14} />} name="Google" />
-            <SocialButton icon={<Github size={14} />} name="GitHub" />
-            <SocialButton icon={<Twitter size={14} />} name="Twitter" />
-          </div>
-        </div>
 
         {/* Toggle Register / Login */}
         <p className="mt-6 text-center text-xs text-white/50 relative z-10">

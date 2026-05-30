@@ -2,18 +2,15 @@ import React, { useState, useEffect, useMemo, FC } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
   PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
 import { 
-  Activity, Droplets, Moon, Zap, Flame, Plus, Clock, TrendingUp, Sparkles, 
-  Smile, Dumbbell, Coffee, HeartPulse, ShieldAlert, Heart, ClipboardCheck
+  Activity, Droplets, Moon, Flame, Plus, Clock, Search,
+  HeartPulse, ShieldAlert, ClipboardCheck, Apple
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -59,7 +56,7 @@ export default function Health() {
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form State - Utilizing simple numbers allowing clean direct typing without spin lockups
+  // Form State
   const [formData, setFormData] = useState({
     workoutMinutes: 0,
     caloriesBurned: 0,
@@ -68,6 +65,12 @@ export default function Health() {
     waterGlasses: 0,
     mood: "Good" as "Great" | "Good" | "Neutral" | "Bad" | "Terrible"
   });
+
+  // CalorieNinjas Search State
+  const [foodQuery, setFoodQuery] = useState("");
+  const [isSearchingFood, setIsSearchingFood] = useState(false);
+  const [foodResult, setFoodResult] = useState<any[] | null>(null);
+  const [foodError, setFoodError] = useState("");
 
   // Fetch Database Logs
   const fetchLogs = async () => {
@@ -111,6 +114,8 @@ export default function Health() {
         waterGlasses: 0, 
         mood: "Good" 
       });
+      setFoodResult(null);
+      setFoodQuery("");
     } catch (error) {
       console.error("Error submitting health log:", error);
     }
@@ -164,31 +169,44 @@ export default function Health() {
     }
   };
 
-  // Generate Typical Human Routine Log
-  const generateRandomHumanLog = () => {
-    const workoutOptions = [
-      { min: 30, burn: 280, cal: 400, water: 3, sleep: 7.5, mood: "Great" as const },
-      { min: 0, burn: 0, cal: 950, water: 1, sleep: 6.0, mood: "Good" as const },
-      { min: 20, burn: 150, cal: 320, water: 2, sleep: 8.0, mood: "Great" as const },
-      { min: 60, burn: 550, cal: 1200, water: 4, sleep: 7.0, mood: "Good" as const },
-      { min: 0, burn: 0, cal: 250, water: 2, sleep: 8.5, mood: "Neutral" as const }
-    ];
+  // CalorieNinjas API Search handler
+  const handleFoodSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!foodQuery.trim()) return;
 
-    const template = workoutOptions[Math.floor(Math.random() * workoutOptions.length)];
-    const finalWorkout = Math.max(0, template.min + Math.floor(Math.random() * 11) - 5);
-    const finalBurn = Math.max(0, template.burn + Math.floor(Math.random() * 51) - 25);
-    const finalCal = Math.max(0, template.cal + Math.floor(Math.random() * 101) - 50);
-    const finalWater = Math.max(0, template.water + Math.floor(Math.random() * 3) - 1);
-    const finalSleep = parseFloat(Math.max(4.0, template.sleep + (Math.random() * 1.5) - 0.75).toFixed(1));
+    setIsSearchingFood(true);
+    setFoodError("");
+    setFoodResult(null);
 
-    setFormData({
-      workoutMinutes: finalWorkout,
-      caloriesBurned: finalBurn,
-      caloriesConsumed: finalCal,
-      sleepHours: finalSleep,
-      waterGlasses: finalWater,
-      mood: template.mood
-    });
+    try {
+      const res = await axios.get(`http://localhost:5000/api/health/nutrition?query=${encodeURIComponent(foodQuery)}`);
+      if (res.data && Array.isArray(res.data.items)) {
+        if (res.data.items.length === 0) {
+          setFoodError("We couldn't recognize those foods. Try typing something else like '2 bananas and a glass of milk'!");
+        } else {
+          setFoodResult(res.data.items);
+        }
+      } else {
+        setFoodError("Something went wrong while calculating. Please try again!");
+      }
+    } catch (err) {
+      console.error(err);
+      setFoodError("Could not connect to the food search service. Please try again!");
+    } finally {
+      setIsSearchingFood(false);
+    }
+  };
+
+  const applyFoodToLog = () => {
+    if (!foodResult) return;
+    const totalCalories = foodResult.reduce((sum, item) => sum + (item.calories || 0), 0);
+    setFormData(prev => ({
+      ...prev,
+      caloriesConsumed: Math.round(totalCalories)
+    }));
+    // Clear search so it feels completed
+    setFoodResult(null);
+    setFoodQuery("");
   };
 
   // Derive status from logs
@@ -208,7 +226,7 @@ export default function Health() {
     { name: "Remaining", value: Math.max(0, 3000 - calories) }
   ];
 
-  // Sleep Architecture Chart (Static metric derived from logs)
+  // Sleep history calculation
   const sleepHistoryData = useMemo(() => {
     const historicalPoints = safeLogs.slice(0, 7).reverse().map((l: any, i: number) => ({
       day: l.date ? new Date(l.date).toLocaleDateString([], { weekday: 'short' }) : `Day ${i + 1}`,
@@ -225,10 +243,7 @@ export default function Health() {
 
   return (
     <AppLayout>
-      {/* ── Page Container with opacity-controlled subtle Background Image ── */}
       <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans bg-[#070513]">
-        
-        {/* Subtle, faint background pattern overlay (2% opacity) */}
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-[0.02] pointer-events-none"
           style={{ backgroundImage: "url('/health_bg.png')" }}
@@ -237,44 +252,96 @@ export default function Health() {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
             
-            {/* ── LEFT PANEL: Direct-Entry Form (25% / 1 Column) ── */}
+            {/* ── LEFT PANEL: Food Search & Logging ── */}
             <div className="xl:col-span-1 flex flex-col gap-6">
               
+              {/* CalorieNinjas Smart Logger */}
               <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <CardTitle className="text-white text-md font-bold flex items-center gap-2">
-                      <Plus className="h-5 w-5 text-violet-400" /> Log Biometrics
-                    </CardTitle>
-                    
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            type="button"
-                            variant="outline"
-                            onClick={generateRandomHumanLog}
-                            className="bg-violet-600 hover:bg-violet-700 text-white font-extrabold px-2.5 py-1 rounded-lg border-0 text-[10px] flex items-center gap-1 shadow-md shadow-violet-950/20"
-                          >
-                            <Sparkles className="h-3 w-3" />
-                            Auto-Gen
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-slate-900 border border-slate-700 text-white text-xs">
-                          <p>Quick fill form with a typical randomized human log.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-md font-bold flex items-center gap-2">
+                    <Apple className="h-5 w-5 text-violet-400" /> Food Calorie Lookup
+                  </CardTitle>
                   <CardDescription className="text-slate-400 text-xs">
-                    Directly type your biological telemetry metrics.
+                    Type what you ate (e.g., "2 bananas and 1 glass milk") to find the calories instantly.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="py-2">
+                  <form onSubmit={handleFoodSearch} className="flex gap-2">
+                    <Input 
+                      placeholder="e.g. 1 bowl oatmeal and 1 apple"
+                      value={foodQuery}
+                      onChange={e => setFoodQuery(e.target.value)}
+                      className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-medium text-xs h-9 flex-grow"
+                    />
+                    <Button 
+                      type="submit" 
+                      disabled={isSearchingFood}
+                      className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-9 px-3 shrink-0 flex items-center justify-center border-0"
+                    >
+                      <Search size={14} />
+                    </Button>
+                  </form>
+
+                  {/* Loading/Error/Results */}
+                  {isSearchingFood && (
+                    <div className="text-xs text-violet-400 font-semibold mt-3 animate-pulse text-center">
+                      Searching foods...
+                    </div>
+                  )}
+
+                  {foodError && (
+                    <div className="text-[11px] text-red-400 font-semibold mt-3 text-center leading-relaxed">
+                      {foodError}
+                    </div>
+                  )}
+
+                  {foodResult && (
+                    <div className="mt-3 p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl flex flex-col gap-2">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Foods Detected</div>
+                      <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-1">
+                        {foodResult.map((item, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs font-semibold text-slate-200">
+                            <span className="capitalize">{item.name}</span>
+                            <span className="text-slate-400 text-[11px]">{Math.round(item.calories)} kcal</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="border-t border-slate-800/60 pt-2 mt-1 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-bold text-slate-500 uppercase">Total Calories</span>
+                          <span className="text-sm font-black text-violet-300">
+                            {Math.round(foodResult.reduce((sum, item) => sum + (item.calories || 0), 0))} kcal
+                          </span>
+                        </div>
+                        <Button 
+                          type="button" 
+                          onClick={applyFoodToLog}
+                          className="bg-violet-500 hover:bg-violet-600 text-white font-black text-[10px] py-1 h-7 rounded-lg border-0 px-2.5"
+                        >
+                          Use this number
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Standard Health Form */}
+              <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-md font-bold flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-violet-400" /> Log Daily Health
+                  </CardTitle>
+                  <CardDescription className="text-slate-400 text-xs">
+                    Type in your daily numbers below to save them.
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="pt-2">
+                <CardContent className="pt-1">
                   {/* Presets Chips */}
                   <div className="mb-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">Quick Presets</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">Quick Suggestions</span>
                     <div className="grid grid-cols-2 gap-1.5">
                       <button
                         type="button"
@@ -288,21 +355,21 @@ export default function Health() {
                         onClick={() => applyPreset("cheat_breakfast")}
                         className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
                       >
-                        🥐 Cheat
+                        🥐 Cheat Meal
                       </button>
                       <button
                         type="button"
                         onClick={() => applyPreset("desk_focus")}
                         className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
                       >
-                        💻 Focus
+                        💻 Busy Day
                       </button>
                       <button
                         type="button"
                         onClick={() => applyPreset("deep_sleep")}
                         className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
                       >
-                        💤 Sleep
+                        💤 Sleep Day
                       </button>
                     </div>
                   </div>
@@ -311,7 +378,7 @@ export default function Health() {
                     <div className="flex flex-col gap-3.5">
                       
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Calories Consumed</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Calories Eaten</label>
                         <div className="relative">
                           <Input 
                             type="number" 
@@ -339,7 +406,7 @@ export default function Health() {
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Sleep Hours</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Hours Slept</label>
                         <div className="relative">
                           <Input 
                             type="number" 
@@ -354,7 +421,7 @@ export default function Health() {
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Water Intake</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Water Drunk</label>
                         <div className="relative">
                           <Input 
                             type="number" 
@@ -382,7 +449,7 @@ export default function Health() {
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">General Mood</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">My Mood</label>
                         <select 
                           value={formData.mood}
                           onChange={e => setFormData({ ...formData, mood: e.target.value as any })}
@@ -402,7 +469,7 @@ export default function Health() {
                       type="submit" 
                       className="w-full mt-2 h-10 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black rounded-xl border-0 shadow-lg shadow-violet-950/20"
                     >
-                      SYNC BIOMETRICS
+                      SAVE DAILY LOG
                     </Button>
                   </form>
                 </CardContent>
@@ -410,24 +477,24 @@ export default function Health() {
 
             </div>
 
-            {/* ── RIGHT PANEL: Gorgeous Health-Themed Console (75% / 3 Columns) ── */}
+            {/* ── RIGHT PANEL: Main Health Stats Hub ── */}
             <div className="xl:col-span-3 flex flex-col gap-6 md:gap-8">
               
-              {/* Header inside right panel */}
+              {/* Header */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">
-                    Health Console
+                    My Health Hub
                   </h1>
                   <p className="text-slate-200 mt-1 font-semibold text-xs md:text-sm">
-                    Futuristic biological twins telemetry and molecular tracking algorithms.
+                    Simple charts to track your energy, sleep, and workouts.
                   </p>
                 </div>
 
-                {/* System integrity score badge */}
+                {/* Score badge */}
                 <div className="glass-card border border-slate-800/80 bg-slate-900/85 backdrop-blur-md px-5 py-2.5 flex items-center gap-3">
                   <div className="text-right">
-                    <span className="text-[10px] font-bold text-violet-400 tracking-wider uppercase block">System Index</span>
+                    <span className="text-[10px] font-bold text-violet-400 tracking-wider uppercase block">Health Score</span>
                     <h3 className="text-white text-xl font-black">{score}%</h3>
                   </div>
                   <div className="w-9 h-9 rounded-full bg-violet-500/20 flex items-center justify-center border border-violet-500/30">
@@ -439,47 +506,47 @@ export default function Health() {
               {/* Glowing Metrics Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard
-                  title="Calories Consumed"
+                  title="Calories Eaten"
                   value={calories}
                   unit="kcal"
                   icon={<Flame className="h-4.5 w-4.5 text-orange-500" />}
-                  description="Target: 3000 kcal limit"
+                  description="Goal: Under 3000 kcal"
                   valueClassName="text-orange-400"
                 />
                 <MetricCard
-                  title="Sleep Architecture"
+                  title="Hours Slept"
                   value={sleep}
                   unit="hrs"
                   icon={<Moon className="h-4.5 w-4.5 text-indigo-500" />}
-                  description="Target: 8.0h restful REM"
+                  description="Goal: 8.0 hrs sleep"
                   valueClassName="text-indigo-400"
                 />
                 <MetricCard
-                  title="Fluid Intake"
+                  title="Water Drunk"
                   value={water}
                   unit="glasses"
                   icon={<Droplets className="h-4.5 w-4.5 text-cyan-500" />}
-                  description="Target: 8 daily glasses"
+                  description="Goal: 8 glasses daily"
                   valueClassName="text-cyan-400"
                 />
                 <MetricCard
-                  title="Sync Log cycles"
+                  title="Days Logged"
                   value={totalLogs}
-                  unit="cycles"
+                  unit="days"
                   icon={<ClipboardCheck className="h-4.5 w-4.5 text-emerald-500" />}
-                  description="Overall database entries"
+                  description="Total database entries"
                   valueClassName="text-emerald-400"
                 />
               </div>
 
-              {/* Sleep Area Chart & Pie chart section */}
+              {/* Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Balance Wheel */}
                 <Card className="glass-card border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between">
                   <CardHeader>
-                    <CardTitle className="text-white text-md font-bold">Metabolic Balance Wheel</CardTitle>
-                    <CardDescription className="text-slate-400 text-xs">Calorie limits loading allocation.</CardDescription>
+                    <CardTitle className="text-white text-md font-bold">Daily Calorie Tracker</CardTitle>
+                    <CardDescription className="text-slate-400 text-xs">Track how close you are to your daily calorie limit.</CardDescription>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center justify-center flex-grow pt-0 pb-4">
                     <div className="relative w-36 h-36">
@@ -500,11 +567,11 @@ export default function Health() {
                   </CardContent>
                 </Card>
 
-                {/* Area chart */}
+                {/* Sleep Area chart */}
                 <Card className="glass-card border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl lg:col-span-2">
                   <CardHeader>
-                    <CardTitle className="text-white text-md font-bold">Sleep Architecture History</CardTitle>
-                    <CardDescription className="text-slate-400 text-xs">Last 7 logged cycles (total sleep hours).</CardDescription>
+                    <CardTitle className="text-white text-md font-bold">Sleep History</CardTitle>
+                    <CardDescription className="text-slate-400 text-xs">Total hours slept over your last 7 logs.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-36 w-full">
@@ -527,14 +594,14 @@ export default function Health() {
 
               </div>
 
-              {/* Database Feed */}
+              {/* Activity Log */}
               <Card className="glass-card border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl max-h-[380px] overflow-hidden flex flex-col justify-between">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-white text-md font-bold flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-violet-400" /> Biometric Sync Ledger Feed
+                    <Clock className="h-5 w-5 text-violet-400" /> My Activity History
                   </CardTitle>
                   <CardDescription className="text-slate-400 text-xs">
-                    List of recently synchronized telemetry items.
+                    A list of your recently logged entries.
                   </CardDescription>
                 </CardHeader>
                 
@@ -544,7 +611,7 @@ export default function Health() {
                       {safeLogs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
                           <ShieldAlert className="text-slate-600 h-7 w-7" />
-                          <p className="text-slate-500 text-xs font-semibold">No sync cycles detected. Initiate telemetry.</p>
+                          <p className="text-slate-500 text-xs font-semibold">No entries logged yet. Type your details to get started!</p>
                         </div>
                       ) : (
                         safeLogs.map((l: any, i: number) => {
@@ -561,7 +628,7 @@ export default function Health() {
                                 <div className="flex flex-col">
                                   <span className="font-bold text-slate-200 text-xs">{dateStr}</span>
                                   <span className="text-[10px] text-slate-400 font-medium">
-                                    {l.workoutMinutes}m workout • {l.waterGlasses} glasses
+                                    {l.workoutMinutes}m workout • {l.waterGlasses} glasses water
                                   </span>
                                 </div>
                               </div>
@@ -578,7 +645,7 @@ export default function Health() {
                 </CardContent>
                 
                 <CardFooter className="pt-2 border-t border-slate-800/60 text-[10px] text-slate-400 font-semibold bg-slate-900/40">
-                  <p>Displaying localized biometric ledger streams.</p>
+                  <p>Showing your recent history entries.</p>
                 </CardFooter>
               </Card>
 

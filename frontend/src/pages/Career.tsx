@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Briefcase, Target, Award, Rocket, CheckCircle2, Circle, Plus, Activity } from "lucide-react";
+import { Briefcase, Target, Award, Rocket, CheckCircle2, Circle, Plus, Activity, ExternalLink, Flame } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,52 @@ export default function Career() {
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form State
+  // Coding platform streaks (saved locally)
+  const [platformStreaks, setPlatformStreaks] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem("vitacore_platform_streaks");
+      return saved ? JSON.parse(saved) : {
+        leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0
+      };
+    } catch { return { leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0 }; }
+  });
+  const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
+  const [editStreak, setEditStreak] = useState<string>("");
+
+  // Study Path State
+  const [selectedPath, setSelectedPath] = useState("all");
+
+  const codingPlatforms = [
+    { key: "leetcode",    name: "LeetCode",      url: "https://leetcode.com",                emoji: "⚡", accent: "#FFA116", bg: "rgba(255,161,22,0.08)",  border: "rgba(255,161,22,0.2)",  desc: "DSA & Interview Prep" },
+    { key: "codingninjas",name: "Coding Ninjas",  url: "https://www.naukri.com/code360",      emoji: "🥷", accent: "#FF4B45", bg: "rgba(255,75,69,0.08)",   border: "rgba(255,75,69,0.2)",   desc: "Courses & Contests" },
+    { key: "gfg",         name: "GeeksforGeeks",  url: "https://www.geeksforgeeks.org",        emoji: "🌿", accent: "#2F8D46", bg: "rgba(47,141,70,0.08)",   border: "rgba(47,141,70,0.2)",   desc: "CS Fundamentals" },
+    { key: "hackerrank",  name: "HackerRank",     url: "https://www.hackerrank.com",           emoji: "💻", accent: "#00EA64", bg: "rgba(0,234,100,0.08)",   border: "rgba(0,234,100,0.2)",   desc: "Skill Certifications" },
+    { key: "codechef",    name: "CodeChef",        url: "https://www.codechef.com",             emoji: "👨‍🍳", accent: "#F9A12E", bg: "rgba(249,161,46,0.08)",  border: "rgba(249,161,46,0.2)",  desc: "Competitive Coding" },
+    { key: "codeforces",  name: "Codeforces",      url: "https://codeforces.com",               emoji: "🏆", accent: "#3B82F6", bg: "rgba(59,130,246,0.08)",  border: "rgba(59,130,246,0.2)",  desc: "CP & Rounds" },
+  ];
+
+  // Filter coding platforms based on chosen study path
+  const filteredPlatforms = codingPlatforms.filter(p => {
+    if (selectedPath === "all") return true;
+    if (selectedPath === "competitive") {
+      return ["leetcode", "codingninjas", "codechef", "codeforces"].includes(p.key);
+    }
+    if (selectedPath === "fundamentals") {
+      return ["leetcode", "codingninjas", "gfg"].includes(p.key);
+    }
+    if (selectedPath === "software") {
+      return ["hackerrank", "leetcode", "codingninjas"].includes(p.key);
+    }
+    return true;
+  });
+
+  const updateStreak = (key: string, value: number) => {
+    const updated = { ...platformStreaks, [key]: value };
+    setPlatformStreaks(updated);
+    localStorage.setItem("vitacore_platform_streaks", JSON.stringify(updated));
+    setEditingPlatform(null);
+  };
+
   const [formData, setFormData] = useState({
     topic: "React",
     durationMinutes: 0,
@@ -64,11 +109,11 @@ export default function Career() {
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = Math.min(100, 80 + Math.round(totalHours / 2));
 
-  // Promotion Roadmap milestones
+  // Milestones
   const milestones = [
-    { id: 1, title: "Master Core Stack (10 Hours)", progress: Math.min(100, Math.round((totalHours / 10) * 100)), completed: totalHours >= 10 },
-    { id: 2, title: "Deploy Production Subsystem (25 Hours)", progress: Math.min(100, Math.round((totalHours / 25) * 100)), completed: totalHours >= 25 },
-    { id: 3, title: "Full Architecture Audit (50 Hours)", progress: Math.min(100, Math.round((totalHours / 50) * 100)), completed: totalHours >= 50 }
+    { id: 1, title: "Study Core Topics (10 Hours)", progress: Math.min(100, Math.round((totalHours / 10) * 100)), completed: totalHours >= 10 },
+    { id: 2, title: "Build Personal Project (25 Hours)", progress: Math.min(100, Math.round((totalHours / 25) * 100)), completed: totalHours >= 25 },
+    { id: 3, title: "Master Full-Stack App (50 Hours)", progress: Math.min(100, Math.round((totalHours / 50) * 100)), completed: totalHours >= 50 }
   ];
 
   const skillData = Object.keys(topicMap).map(key => ({
@@ -78,29 +123,13 @@ export default function Career() {
   }));
 
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/career", formData);
-      localStorage.setItem(
-        "studyHours",
-        totalHours.toString()
-      );
-
-      localStorage.setItem(
-        "completedTasks",
-        milestones.filter(m => m.completed).length.toString()
-      );
-
-      localStorage.setItem(
-        "focusScore",
-        score.toString()
-      );
-
-      localStorage.setItem(
-        "skills",
-        Object.keys(topicMap).join(", ")
-      );
+      localStorage.setItem("studyHours", totalHours.toString());
+      localStorage.setItem("completedTasks", milestones.filter(m => m.completed).length.toString());
+      localStorage.setItem("focusScore", score.toString());
+      localStorage.setItem("skills", Object.keys(topicMap).join(", "));
       fetchLogs(); // Refresh
       setFormData({ topic: "React", durationMinutes: 0, notes: "" });
     } catch (error) {
@@ -108,14 +137,12 @@ export default function Career() {
     }
   };
 
-
   // Heatmap for the last 60 days
   const heatmapData = Array.from({ length: 60 }).map((_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - i);
     const dateStr = date.toDateString();
 
-    // Check if any study logs occurred on this day
     const dayLogs = safeLogs.filter((l) => {
       const logDateStr = new Date(l.date || l.createdAt).toDateString();
       return logDateStr === dateStr;
@@ -138,7 +165,6 @@ export default function Career() {
 
   return (
     <AppLayout>
-      {/* ── Page Wrapper with Ambient Dark Background ── */}
       <div
         style={{
           minHeight: "100%",
@@ -148,11 +174,11 @@ export default function Career() {
           position: "relative",
         }}
       >
-        {/* Ambient glow orbs */}
+        {/* Glow effects */}
         <div style={{ position: "absolute", top: "-10%", left: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
         <div style={{ position: "absolute", bottom: "-5%", right: "5%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, rgba(233,30,140,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
-        {/* Subtle noise overlay */}
+        {/* Noise overlay */}
         <div
           style={{
             position: "absolute",
@@ -170,14 +196,14 @@ export default function Career() {
           <div style={{ display: "flex", alignItems: "center", marginBottom: 36, flexWrap: "wrap", justifyContent: "space-between" }}>
             <div>
               <h1 style={{ fontSize: 32, fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.02em" }}>
-                Career Module
+                Career Goals
               </h1>
               <p style={{ color: "rgba(233,221,255,0.75)", marginTop: 6, fontSize: 15, fontWeight: 500 }}>
-                Skill acquisition and professional trajectory.
+                Track your study sessions and build your skills.
               </p>
             </div>
 
-            {/* Career Score Shield */}
+            {/* Score Badge */}
             <div
               style={{
                 background: "rgba(255,255,255,0.12)",
@@ -195,7 +221,7 @@ export default function Career() {
             </div>
           </div>
 
-          {/* Top 3 Stats (3D Tilts) */}
+          {/* Top Stats */}
           <div
             style={{
               display: "grid",
@@ -238,11 +264,11 @@ export default function Career() {
               </div>
               <div style={{ transform: "translateZ(25px)" }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
-                  Total Study
+                  Total Study Time
                 </span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
                   <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{totalHours}</span>
-                  <span style={{ fontSize: 13, color: "rgba(196,181,253,0.45)", fontWeight: 600 }}>hrs</span>
+                  <span style={{ fontSize: 13, color: "rgba(196,181,253,0.45)", fontWeight: 600 }}>hours</span>
                 </div>
               </div>
             </motion.div>
@@ -281,7 +307,7 @@ export default function Career() {
               </div>
               <div style={{ transform: "translateZ(25px)" }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
-                  Skills Mapped
+                  Skills Tracked
                 </span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
                   <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{Object.keys(topicMap).length}</span>
@@ -324,7 +350,7 @@ export default function Career() {
               </div>
               <div style={{ transform: "translateZ(25px)" }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>
-                  Milestones
+                  Milestones Hit
                 </span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
                   <span style={{ fontSize: 26, fontWeight: 900, color: "#e2d9ff" }}>{milestones.filter(m => m.completed).length}</span>
@@ -334,7 +360,7 @@ export default function Career() {
             </motion.div>
           </div>
 
-          {/* Dynamic Interactive Trajectory Timeline Card */}
+          {/* Trajectory timeline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -354,7 +380,7 @@ export default function Career() {
           >
             <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 16, justifyContent: "space-between" }}>
               <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Current Node</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Current Level</span>
                 <div style={{ fontSize: 22, fontWeight: 900, color: "#e2d9ff", marginTop: 4 }}>Associate Engineer</div>
               </div>
 
@@ -395,16 +421,195 @@ export default function Career() {
               </div>
 
               <div style={{ textAlign: "right" }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#e91e8c", textTransform: "uppercase", letterSpacing: "0.08em" }}>Target Node</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#e91e8c", textTransform: "uppercase", letterSpacing: "0.08em" }}>Next Level</span>
                 <div style={{ fontSize: 22, fontWeight: 900, color: "#e2d9ff", marginTop: 4 }}>Principal Architect</div>
               </div>
+            </div>
+          </motion.div>
+
+          {/* Coding Platforms Hub */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ marginBottom: 24 }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                    <Flame size={18} color="#e91e8c" /> Recommended Coding Platforms
+                  </h3>
+                  <p style={{ color: "rgba(196,181,253,0.5)", fontSize: 12, marginTop: 4, fontWeight: 500 }}>
+                    Select a path below to see suitable study platforms. Click streak to update.
+                  </p>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Total Streak: {Object.values(platformStreaks).reduce((a, b) => a + b, 0)} Days
+                </div>
+              </div>
+
+              {/* Study Path Selection tabs */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, background: "rgba(16,12,38,0.6)", padding: 6, borderRadius: 12, border: "1px solid rgba(139,92,246,0.15)", width: "fit-content" }}>
+                {[
+                  { id: "all", label: "All Paths" },
+                  { id: "competitive", label: "Competitive Coding" },
+                  { id: "fundamentals", label: "DSA & CS Fundamentals" },
+                  { id: "software", label: "Web Dev & Certifications" }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSelectedPath(tab.id)}
+                    style={{
+                      background: selectedPath === tab.id ? "#8b5cf6" : "transparent",
+                      color: selectedPath === tab.id ? "#ffffff" : "#94a3b8",
+                      border: "none",
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+              {filteredPlatforms.map((p) => (
+                <motion.div
+                  key={p.key}
+                  whileHover={{ y: -5, boxShadow: `0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px ${p.border}` }}
+                  style={{
+                    background: "rgba(16,12,38,0.88)",
+                    backdropFilter: "blur(16px)",
+                    border: `1px solid ${p.border}`,
+                    borderRadius: 18,
+                    padding: "20px 22px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                    transition: "all 0.3s ease",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: p.bg, pointerEvents: "none" }} />
+
+                  {/* Top row: emoji + name + external link */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 24 }}>{p.emoji}</span>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: "#e2d9ff" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(196,181,253,0.45)", marginTop: 1 }}>{p.desc}</div>
+                      </div>
+                    </div>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 32,
+                        height: 32,
+                        borderRadius: 10,
+                        background: p.bg,
+                        border: `1px solid ${p.border}`,
+                        color: p.accent,
+                        textDecoration: "none",
+                        flexShrink: 0,
+                        transition: "all 0.2s ease",
+                      }}
+                      title={`Open ${p.name}`}
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  </div>
+
+                  {/* Streak row */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Flame size={14} color={p.accent} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        Streak
+                      </span>
+                    </div>
+                    {editingPlatform === p.key ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <input
+                          type="number"
+                          value={editStreak}
+                          onChange={(e) => setEditStreak(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") updateStreak(p.key, parseInt(editStreak) || 0);
+                            if (e.key === "Escape") setEditingPlatform(null);
+                          }}
+                          autoFocus
+                          style={{
+                            width: 60,
+                            padding: "4px 8px",
+                            background: "rgba(255,255,255,0.06)",
+                            border: `1px solid ${p.accent}`,
+                            borderRadius: 8,
+                            color: "#e2d9ff",
+                            fontSize: 13,
+                            fontWeight: 700,
+                            outline: "none",
+                            textAlign: "center",
+                          }}
+                        />
+                        <button
+                          onClick={() => updateStreak(p.key, parseInt(editStreak) || 0)}
+                          style={{ background: p.accent, border: "none", borderRadius: 6, color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 8px", cursor: "pointer" }}
+                        >
+                          ✓
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { setEditingPlatform(p.key); setEditStreak(String(platformStreaks[p.key] || 0)); }}
+                        title="Click to update streak"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: 0,
+                        }}
+                      >
+                        <span style={{ fontSize: 22, fontWeight: 900, color: p.accent, fontVariantNumeric: "tabular-nums" }}>
+                          {platformStreaks[p.key] || 0}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(196,181,253,0.4)", alignSelf: "flex-end", marginBottom: 2 }}>days</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Streak bar */}
+                  <div style={{ width: "100%", height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 99, overflow: "hidden" }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, ((platformStreaks[p.key] || 0) / 100) * 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      style={{ height: "100%", background: p.accent, borderRadius: 99 }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
 
           {/* Competency & Milestones Grid */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
 
-            {/* Competency Matrix Radar */}
+            {/* Skill Level Radar Chart */}
             <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
@@ -417,7 +622,7 @@ export default function Career() {
                 transition: "all 0.3s ease",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>Competency Matrix</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>My Skill Level</h3>
               <div style={{ height: 280, width: "100%" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="50%" outerRadius="75%" data={skillData}>
@@ -445,7 +650,7 @@ export default function Career() {
                 transition: "all 0.3s ease",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>Promotion Roadmap</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 20px" }}>My Growth Milestones</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
                 {milestones.map((m) => (
                   <div
@@ -495,12 +700,12 @@ export default function Career() {
               }}
             >
               <h3 style={{ fontSize: 17, fontWeight: 900, color: "#e2d9ff", margin: "0 0 20px", display: "flex", alignItems: "center", gap: 8 }}>
-                <Plus size={18} color="#e91e8c" strokeWidth={3} /> Log Deep Work Session
+                <Plus size={18} color="#e91e8c" strokeWidth={3} /> Log a Study Session
               </h3>
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Duration (Minutes)</label>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Study Time (Minutes)</label>
                     <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({ ...formData, durationMinutes: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -516,16 +721,16 @@ export default function Career() {
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Study Notes</label>
-                  <Input type="text" value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} placeholder="e.g. Mastered React concurrent rendering" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>What did you study?</label>
+                  <Input type="text" value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} placeholder="e.g. Practiced React context and customized hooks" style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} />
                 </div>
                 <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)" }}>
-                  RECORD WORK NODE
+                  SAVE STUDY SESSION
                 </Button>
               </form>
             </motion.div>
 
-            {/* Consistency grid */}
+            {/* Consistency Grid */}
             <motion.div
               whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
               style={{
@@ -543,7 +748,7 @@ export default function Career() {
             >
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8 }}>
-                  <Award size={18} color="#e91e8c" /> Deep Work Consistency (Last 60 Days)
+                  <Award size={18} color="#e91e8c" /> My Study Habit tracker (Last 60 Days)
                 </h3>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, maxHeight: 150, overflowY: "auto", paddingRight: 4 }}>
                   {heatmapData.map((d, i) => {
@@ -585,7 +790,7 @@ export default function Career() {
                 </div>
               </div>
               <div style={{ borderTop: "1px solid rgba(139,92,246,0.1)", paddingTop: 16, marginTop: 16, display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>
-                <span>Total Accrued Focus:</span>
+                <span>Total Study Time:</span>
                 <span style={{ fontWeight: 800, color: "#e2d9ff" }}>{totalHours} Hours</span>
               </div>
             </motion.div>

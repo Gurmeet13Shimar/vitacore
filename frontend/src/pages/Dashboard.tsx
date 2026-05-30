@@ -29,29 +29,29 @@ export default function Dashboard() {
   const features = [
     {
       id: 1,
-      title: "Health & Vitality",
-      description: "Monitor your physical and mental well-being in real-time. Our digital twin algorithms analyze your sleep patterns, exercise, and nutrition to predict the best interventions for peak vitality.",
+      title: "Health & Exercise",
+      description: "Keep track of your sleep, exercise, and calorie logs. Learn how your habits affect your energy levels so you can feel great every single day.",
       imageUrl: "https://i.pinimg.com/1200x/d2/73/e9/d273e9dcc92886bd6175dc868b3bf307.jpg",
       reverse: false,
     },
     {
       id: 2,
-      title: "Career Trajectory",
-      description: "Map out your professional future. Set ambitious goals, track skill acquisitions, and let AI simulate potential career paths so you always make the optimal next move.",
+      title: "Career & Coding Goals",
+      description: "Set study targets, log your practice hours on top platforms, and build a strong habit of daily learning to reach your professional milestones.",
       imageUrl: "https://i.pinimg.com/736x/d9/3f/de/d93fdee3f500c2620ad71b8c3fcb69fe.jpg",
       reverse: true,
     },
     {
       id: 3,
-      title: "Financial Optimization",
-      description: "Synchronize your assets and liabilities to model your wealth growth. The simulator actively monitors market trends alongside your spending habits to ensure you hit financial independence.",
+      title: "Simple Money Tracking",
+      description: "Log your income and daily expenses to see your savings grow. Plan ahead for your financial targets with simple, interactive calculators.",
       imageUrl: "https://i.pinimg.com/736x/a6/c5/8c/a6c58c8f90b48522eaaa052252e7e14a.jpg",
       reverse: false,
     },
     {
       id: 4,
-      title: "Achievements & Milestones",
-      description: "Gamify your life progression. Unlock achievements across all pillars as you hit your targets, and earn exclusive rewards that signify your mastery over your digital twin.",
+      title: "Fun Milestones & Badges",
+      description: "Stay excited by unlocking fun achievements as you build daily habits. Celebrate your consistency and track your logs in one simple list.",
       imageUrl: "https://i.pinimg.com/1200x/0b/75/d5/0b75d5eec848cf109676e9744b97524e.jpg",
       reverse: true,
     },
@@ -77,11 +77,11 @@ export default function Dashboard() {
                 <h1 className="text-4xl font-semibold text-white mb-4">
                   Welcome to Vitacore, {user?.name || 'Explorer'} <br />
                   <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-                    Your Digital Twin
+                    My Life Dashboard
                   </span>
                 </h1>
                 <p className="text-neutral-400 max-w-2xl mx-auto mb-8 text-lg">
-                  Optimize your life in real-time. Connect your health, wealth, and career data to simulate your future and achieve peak performance.
+                  Improve your daily routine. Track your sleep, wealth, and career study targets to stay on track and reach your goals.
                 </p>
               </>
             }
@@ -97,10 +97,10 @@ export default function Dashboard() {
                 {/* Left content inside Card */}
                 <div className="flex-1 p-8 relative z-10 flex flex-col justify-center">
                   <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-                    Real-time Optimization
+                    Track Your Progress
                   </h2>
                   <p className="mt-4 text-neutral-300 max-w-lg text-lg">
-                    Interact with your digital twin. Visualize your progress and let AI guide your next best action towards your goals.
+                    Check your numbers daily, visualize your trends, and let simple advice help you take your next steps.
                   </p>
                   <motion.button
                     whileHover={{ opacity: 0.9, y: -1 }}
@@ -108,7 +108,7 @@ export default function Dashboard() {
                     onClick={() => navigate('/simulator')}
                     className="mt-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none rounded-full py-3 px-6 font-bold text-sm cursor-pointer w-fit shadow-lg shadow-indigo-500/30"
                   >
-                    Run Simulation
+                    Try Simulator
                   </motion.button>
                 </div>
 
@@ -127,7 +127,7 @@ export default function Dashboard() {
         {/* Feature Scroll Section */}
         <ParallaxScrollFeatureSection features={features} />
 
-        {/* Digital Twin Today CTA Section */}
+        {/* Dashboard Summary Card */}
         <div className="max-w-5xl mx-auto px-6 mb-12 relative z-20">
           <motion.div
             whileHover={{ y: -3 }}
@@ -139,33 +139,33 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
               <div className="flex-1 text-left">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-500/10 border border-violet-500/20 text-violet-400 mb-4">
-                  <Sparkles className="h-3 w-3 animate-pulse" /> Live Digital Twin OS
+                  <Sparkles className="h-3 w-3 animate-pulse" /> Active Life Status
                 </span>
                 
                 <h2 className="text-3xl font-black text-white tracking-tight">
-                  Your Digital Twin Today
+                  My Dashboard Summary
                 </h2>
                 
                 <p className="text-slate-400 mt-2 text-sm leading-relaxed">
-                  Step into the cockpit of your physical and virtual projection. Analyze your synchronized telemetry, explore personalized AI optimizations, and track goal completions in one beautiful command center.
+                  See your healthy habits, wealth progress, and career milestones all together in one place. Keep an eye on your numbers, read easy daily tips, and hit your goals.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
                     <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Multi-vector Health & Wealth Scores</span>
+                    <span>Daily Health & Wealth Scores</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
                     <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Real-time Goal Progress Cards</span>
+                    <span>Simple Goal Tracking Cards</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
                     <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Actionable AI Recommendations</span>
+                    <span>Friendly Tips & Advice</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
                     <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Live Biometric Activity Ledger</span>
+                    <span>Your Daily Habits Log</span>
                   </div>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   onClick={() => navigate('/goals')}
                   className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black px-8 py-4 rounded-2xl border-0 shadow-lg shadow-violet-500/25 flex items-center gap-2 text-sm cursor-pointer"
                 >
-                  <span>Launch Digital Twin</span>
+                  <span>Open My Tracker</span>
                   <ArrowRight size={16} />
                 </motion.button>
               </div>

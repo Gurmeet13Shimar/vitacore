@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("vitacore_user");
     delete axios.defaults.headers.common["Authorization"];
+    window.location.href = "/";
   };
 
   return (

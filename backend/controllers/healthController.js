@@ -1,4 +1,5 @@
 const HealthLog = require('../models/HealthLog');
+const axios = require('axios');
 
 // @desc    Get user health logs
 // @route   GET /api/health
@@ -34,4 +35,30 @@ const addHealthLog = async (req, res) => {
   }
 };
 
-module.exports = { getHealthLogs, addHealthLog };
+// @desc    Get nutrition data from CalorieNinjas API
+// @route   GET /api/health/nutrition
+// @access  Private
+const getNutritionDetails = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    const response = await axios.get(
+      `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(query)}`,
+      {
+        headers: {
+          'X-Api-Key': process.env.CALORIE_NINJAS_KEY
+        }
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('CalorieNinjas proxy error:', error.message);
+    res.status(500).json({ message: 'Error fetching nutrition details from CalorieNinjas' });
+  }
+};
+
+module.exports = { getHealthLogs, addHealthLog, getNutritionDetails };

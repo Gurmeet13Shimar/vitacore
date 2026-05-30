@@ -9,9 +9,7 @@ import {
   Trash2, 
   Sparkles,
   Camera,
-  Edit2,
   CheckCircle,
-  Eye,
   Activity,
   Flame,
   ShieldCheck,
@@ -33,7 +31,7 @@ export default function Settings() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "info" | "error">("success");
 
-  // Show a premium auto-dismissing toast
+  // Show a toast
   const triggerToast = (msg: string, type: "success" | "info" | "error" = "success") => {
     setToastMessage(msg);
     setToastType(type);
@@ -48,23 +46,22 @@ export default function Settings() {
   };
 
   const handleExport = () => {
-    triggerToast("Generating telemetry report...", "info");
+    triggerToast("Preparing your data file...", "info");
     setTimeout(() => {
-      triggerToast("Telemetry data downloaded successfully! (vitacore-export.json)", "success");
+      triggerToast("Data downloaded successfully! (vitacore-export.json)", "success");
       // Trigger mock file download
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
         user: mockUser,
         timestamp: new Date().toISOString(),
         instanceStatus: "Active",
-        vectorBaselines: { health: 85, finance: 72, career: 92 },
-        telemetryFrequency: "Realtime",
+        baselines: { health: 85, finance: 72, career: 92 },
         digestEnabled: dailyDigest,
-        aiInterventionEnabled: aiAlerts,
+        remindersEnabled: aiAlerts,
         achievementsUnlocked: 6
       }, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `vitacore_telemetry_${mockUser.name.toLowerCase()}.json`);
+      downloadAnchor.setAttribute("download", `vitacore_data_${mockUser.name.toLowerCase()}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -72,12 +69,11 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = () => {
-    triggerToast("Self-destruct sequence aborted. User authorization required.", "error");
+    triggerToast("Account deletion requires password confirmation.", "error");
   };
 
   return (
     <AppLayout>
-      {/* ── Page Wrapper with Deep Purple Background ── */}
       <div
         style={{
           minHeight: "100%",
@@ -88,7 +84,7 @@ export default function Settings() {
           overflow: "hidden",
         }}
       >
-        {/* Elegant Subtle Noise Overlay */}
+        {/* Noise Overlay */}
         <div
           style={{
             position: "absolute",
@@ -101,7 +97,7 @@ export default function Settings() {
           }}
         />
 
-        {/* Shimmering Ambient Orbs */}
+        {/* Ambient Glows */}
         <div
           style={{
             position: "absolute",
@@ -131,7 +127,7 @@ export default function Settings() {
 
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
           
-          {/* ── Page Header ── */}
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -171,14 +167,14 @@ export default function Settings() {
                 >
                   <SettingsIcon size={24} color="#ffffff" className="animate-spin" style={{ animationDuration: "12s" }} />
                 </div>
-                System Preferences
+                Account Settings
               </h1>
               <p style={{ color: "rgba(233,221,255,0.75)", marginTop: 6, fontSize: 15, fontWeight: 500 }}>
-                Configure and calibrate your digital twin's telemetry baselines.
+                Manage your daily reminders, details, and personal account.
               </p>
             </div>
 
-            {/* Twin Connection Status */}
+            {/* Sync status */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               style={{
@@ -205,14 +201,14 @@ export default function Settings() {
                   boxShadow: "0 0 10px #22c55e",
                 }}
               />
-              Twin Sync: Online
+              Sync Status: Online
             </motion.div>
           </motion.div>
 
-          {/* ── Main Layout Grid ── */}
+          {/* Main Grid */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 32 }} className="md:grid-cols-3">
             
-            {/* ── Column 1: Profile & Core Metrics ── */}
+            {/* Left Column: Profile Card */}
             <div style={{ display: "flex", flexDirection: "column", gap: 32 }} className="md:col-span-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -240,7 +236,6 @@ export default function Settings() {
                   overflow: "hidden",
                 }}
               >
-                {/* Background Sparkle Symbol */}
                 <div
                   style={{
                     position: "absolute",
@@ -256,7 +251,7 @@ export default function Settings() {
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", transform: "translateZ(30px)" }}>
                   
-                  {/* Premium Avatar Container */}
+                  {/* Avatar */}
                   <div style={{ position: "relative", marginBottom: 20 }}>
                     <div
                       style={{
@@ -278,7 +273,6 @@ export default function Settings() {
                         }}
                       />
                     </div>
-                    {/* Camera Badge Hover Button */}
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -303,7 +297,7 @@ export default function Settings() {
                     </motion.button>
                   </div>
 
-                  {/* Profile info */}
+                  {/* Profile Info */}
                   <h3
                     style={{
                       fontSize: 22,
@@ -331,37 +325,36 @@ export default function Settings() {
                     {mockUser.role}
                   </span>
 
-                  {/* Divider */}
                   <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(107,92,231,0.08)", marginBottom: 20 }} />
 
-                  {/* Level & Streak Stats */}
+                  {/* Stats */}
                   <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>Instance Level:</span>
+                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>My Level:</span>
                       <span style={{ fontSize: 14, color: "#e2d9ff", fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
                         <ShieldCheck size={16} color="#f5c518" /> Level {mockUser.level}
                       </span>
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>Optimizing Streak:</span>
+                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>Daily Streak:</span>
                       <span style={{ fontSize: 14, color: "#e2d9ff", fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
                         <Flame size={16} color="#e91e8c" /> {mockUser.streak} Days
                       </span>
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>Focus Track:</span>
+                      <span style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>My Focus:</span>
                       <span style={{ fontSize: 13, color: "#6b5ce7", fontWeight: 700 }}>
                         {mockUser.targetRole}
                       </span>
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Actions */}
                   <div style={{ display: "flex", gap: 12, width: "100%", marginTop: 28 }}>
                     <Button
-                      onClick={() => triggerToast("Profile updates saved to cloud twin.", "success")}
+                      onClick={() => triggerToast("Profile details saved successfully.", "success")}
                       variant="outline"
                       style={{
                         flex: 1,
@@ -400,10 +393,10 @@ export default function Settings() {
               </motion.div>
             </div>
 
-            {/* ── Columns 2 & 3: Preferences & Security ── */}
+            {/* Right Column: Preferences & Security */}
             <div style={{ display: "flex", flexDirection: "column", gap: 32 }} className="md:col-span-2">
               
-              {/* Telemetry & Notifications Card */}
+              {/* Reminders & Notifications */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -429,7 +422,6 @@ export default function Settings() {
               >
                 <div style={{ transform: "translateZ(20px)" }}>
                   
-                  {/* Section Title */}
                   <h3
                     style={{
                       fontSize: 18,
@@ -443,26 +435,25 @@ export default function Settings() {
                       marginBottom: 24,
                     }}
                   >
-                    <Bell size={20} color="#6b5ce7" /> Telemetry & Alert Configurations
+                    <Bell size={20} color="#6b5ce7" /> Reminders & Notifications
                   </h3>
 
-                  {/* Preference Switches Grid */}
                   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                     
                     {/* Toggle 1: Daily Digest */}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, background: "rgba(107,92,231,0.01)", border: "1px solid rgba(107,92,231,0.04)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <Label style={{ fontSize: 15, fontWeight: 700, color: "#e2d9ff", cursor: "pointer" }} htmlFor="daily-digest">
-                          Daily Digest Dispatch
+                          Daily Morning Summary
                         </Label>
                         <p style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", margin: 0, fontWeight: 500 }}>
-                          Receive a curated morning brief summarizing your baseline optimizations.
+                          Get a clean morning email with your recent health, career, and wealth stats.
                         </p>
                       </div>
                       <Switch
                         id="daily-digest"
                         checked={dailyDigest}
-                        onCheckedChange={() => handleToggle("Daily Digest Briefing", setDailyDigest, dailyDigest)}
+                        onCheckedChange={() => handleToggle("Daily Morning Summary", setDailyDigest, dailyDigest)}
                       />
                     </div>
 
@@ -470,16 +461,16 @@ export default function Settings() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, background: "rgba(107,92,231,0.01)", border: "1px solid rgba(107,92,231,0.04)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <Label style={{ fontSize: 15, fontWeight: 700, color: "#e2d9ff", cursor: "pointer" }} htmlFor="ai-alerts">
-                          AI Intervention Warnings
+                          Smart Goal Reminders
                         </Label>
                         <p style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", margin: 0, fontWeight: 500 }}>
-                          Real-time alerts when trajectory forecasts project metric drops below threshold.
+                          Get a quick reminder when you fall behind on your targets.
                         </p>
                       </div>
                       <Switch
                         id="ai-alerts"
                         checked={aiAlerts}
-                        onCheckedChange={() => handleToggle("AI Intervention Alerts", setAiAlerts, aiAlerts)}
+                        onCheckedChange={() => handleToggle("Smart Goal Reminders", setAiAlerts, aiAlerts)}
                       />
                     </div>
 
@@ -487,16 +478,16 @@ export default function Settings() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, background: "rgba(107,92,231,0.01)", border: "1px solid rgba(107,92,231,0.04)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <Label style={{ fontSize: 15, fontWeight: 700, color: "#e2d9ff", cursor: "pointer" }} htmlFor="achievement-pings">
-                          Instant Achievement Pings
+                          Achievement Notifications
                         </Label>
                         <p style={{ fontSize: 13, color: "rgba(196,181,253,0.5)", margin: 0, fontWeight: 500 }}>
-                          Unlocks triggers instant visual fireworks and sonic micro-celebrations.
+                          Show celebratory popups immediately when you hit goals.
                         </p>
                       </div>
                       <Switch
                         id="achievement-pings"
                         checked={achievementPings}
-                        onCheckedChange={() => handleToggle("Gamification Pings", setAchievementPings, achievementPings)}
+                        onCheckedChange={() => handleToggle("Achievement Notifications", setAchievementPings, achievementPings)}
                       />
                     </div>
 
@@ -505,18 +496,18 @@ export default function Settings() {
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <Label style={{ fontSize: 15, fontWeight: 700, color: "#1e1040", cursor: "pointer" }} htmlFor="telemetry-sync">
-                            Realtime Vector Telemetry Sync
+                            Auto-save & Background Sync
                           </Label>
                           <Sparkles size={14} color="#f5c518" />
                         </div>
                         <p style={{ fontSize: 13, color: "#64748b", margin: 0, fontWeight: 500 }}>
-                          Constantly optimize algorithms on the fly via local Node telemetry streams.
+                          Keep your logs synchronized in the background automatically.
                         </p>
                       </div>
                       <Switch
                         id="telemetry-sync"
                         checked={telemetrySync}
-                        onCheckedChange={() => handleToggle("Realtime Telemetry Streaming", setTelemetrySync, telemetrySync)}
+                        onCheckedChange={() => handleToggle("Background Sync", setTelemetrySync, telemetrySync)}
                       />
                     </div>
 
@@ -524,7 +515,7 @@ export default function Settings() {
                 </div>
               </motion.div>
 
-              {/* Data & Privacy Card */}
+              {/* Data & Privacy */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -550,7 +541,6 @@ export default function Settings() {
               >
                 <div style={{ transform: "translateZ(20px)" }}>
                   
-                  {/* Section Title */}
                   <h3
                     style={{
                       fontSize: 18,
@@ -564,13 +554,12 @@ export default function Settings() {
                       marginBottom: 24,
                     }}
                   >
-                    <Lock size={20} color="#6b5ce7" /> Data Assets & Security
+                    <Lock size={20} color="#6b5ce7" /> My Data & Privacy
                   </h3>
 
-                  {/* Actions Area */}
                   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                     
-                    {/* Export Telemetry */}
+                    {/* Export */}
                     <div
                       style={{
                         display: "flex",
@@ -586,10 +575,10 @@ export default function Settings() {
                     >
                       <div style={{ flex: 1, minWidth: 200 }}>
                         <h4 style={{ fontSize: 15, fontWeight: 800, color: "#1e1040", margin: "0 0 4px" }}>
-                          Export Telemetry Ledger
+                          Export My Data
                         </h4>
                         <p style={{ fontSize: 13, color: "#64748b", margin: 0, fontWeight: 500 }}>
-                          Download complete profile indices, career progression data, and biometric tracks.
+                          Download your complete profile data and logged history as a JSON file.
                         </p>
                       </div>
                       <Button
@@ -613,7 +602,7 @@ export default function Settings() {
                       </Button>
                     </div>
 
-                    {/* Terminate Instance */}
+                    {/* Delete Account */}
                     <div
                       style={{
                         display: "flex",
@@ -629,10 +618,10 @@ export default function Settings() {
                     >
                       <div style={{ flex: 1, minWidth: 200 }}>
                         <h4 style={{ fontSize: 15, fontWeight: 800, color: "#ef4444", margin: "0 0 4px" }}>
-                          Purge Digital Twin Instance
+                          Delete My Account
                         </h4>
                         <p style={{ fontSize: 13, color: "rgba(239, 68, 68, 0.8)", margin: 0, fontWeight: 500 }}>
-                          Permanently delete all synced metrics, database logs, and optimization routines.
+                          Permanently erase your logged numbers, history, and account settings.
                         </p>
                       </div>
                       <Button
@@ -653,7 +642,7 @@ export default function Settings() {
                         }}
                         className="hover:bg-red-500 hover:text-white"
                       >
-                        <Trash2 size={16} /> Terminate Instance
+                        <Trash2 size={16} /> Delete Account
                       </Button>
                     </div>
 
@@ -667,7 +656,7 @@ export default function Settings() {
 
         </div>
 
-        {/* ── Dynamic Floating Notification Toast ── */}
+        {/* Dynamic Floating Toast */}
         <AnimatePresence>
           {toastMessage && (
             <motion.div
