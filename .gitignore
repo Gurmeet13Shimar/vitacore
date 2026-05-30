@@ -119,3 +119,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+backend/vitacore_model.pkl
+backend/__pycache__/
+*.pkl
+__pycache__/
