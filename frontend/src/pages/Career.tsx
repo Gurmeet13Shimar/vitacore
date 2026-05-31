@@ -22,6 +22,7 @@ export default function Career() {
   });
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
   const [editStreak, setEditStreak] = useState<string>("");
+  const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
 
   // Study Path State
   const [selectedPath, setSelectedPath] = useState("all");
@@ -477,132 +478,182 @@ export default function Career() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-              {filteredPlatforms.map((p) => (
-                <motion.div
-                  key={p.key}
-                  whileHover={{ y: -5, boxShadow: `0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px ${p.border}` }}
-                  style={{
-                    background: "rgba(16,12,38,0.88)",
-                    backdropFilter: "blur(16px)",
-                    border: `1px solid ${p.border}`,
-                    borderRadius: 18,
-                    padding: "20px 22px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
-                    transition: "all 0.3s ease",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: p.bg, pointerEvents: "none" }} />
+            <div style={{ overflowX: "auto", background: "rgba(16,12,38,0.82)", backdropFilter: "blur(16px)", border: "1px solid rgba(139,92,246,0.14)", borderRadius: 22, boxShadow: "0 4px 24px rgba(0,0,0,0.40)", overflow: "hidden" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontFamily: "Inter, sans-serif" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid rgba(139,92,246,0.15)", background: "rgba(139,92,246,0.03)" }}>
+                    <th style={{ padding: "16px 24px", fontSize: 12, fontWeight: 700, color: "rgba(196,181,253,0.6)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Platform</th>
+                    <th style={{ padding: "16px 24px", fontSize: 12, fontWeight: 700, color: "rgba(196,181,253,0.6)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Description</th>
+                    <th style={{ padding: "16px 24px", fontSize: 12, fontWeight: 700, color: "rgba(196,181,253,0.6)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Active Streak</th>
+                    <th style={{ padding: "16px 24px", fontSize: 12, fontWeight: 700, color: "rgba(196,181,253,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center" }}>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPlatforms.map((p) => {
+                    const isExpanded = expandedPlatform === p.key;
+                    const streak = platformStreaks[p.key] || 0;
+                    
+                    // Generate 60 day streak data based on current streak count
+                    const platformHeatmapData = Array.from({ length: 60 }).map((_, idx) => {
+                      // Highlight the last N days representing the current streak
+                      const isActive = idx >= (60 - streak);
+                      return { active: isActive };
+                    });
 
-                  {/* Top row: emoji + name + external link */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 24 }}>{p.emoji}</span>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: "#e2d9ff" }}>{p.name}</div>
-                        <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(196,181,253,0.45)", marginTop: 1 }}>{p.desc}</div>
-                      </div>
-                    </div>
-                    <a
-                      href={p.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 32,
-                        height: 32,
-                        borderRadius: 10,
-                        background: p.bg,
-                        border: `1px solid ${p.border}`,
-                        color: p.accent,
-                        textDecoration: "none",
-                        flexShrink: 0,
-                        transition: "all 0.2s ease",
-                      }}
-                      title={`Open ${p.name}`}
-                    >
-                      <ExternalLink size={14} />
-                    </a>
-                  </div>
-
-                  {/* Streak row */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <Flame size={14} color={p.accent} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                        Streak
-                      </span>
-                    </div>
-                    {editingPlatform === p.key ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <input
-                          type="number"
-                          value={editStreak}
-                          onChange={(e) => setEditStreak(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") updateStreak(p.key, parseInt(editStreak) || 0);
-                            if (e.key === "Escape") setEditingPlatform(null);
+                    return (
+                      <React.Fragment key={p.key}>
+                        <tr 
+                          onClick={() => setExpandedPlatform(isExpanded ? null : p.key)}
+                          style={{ 
+                            borderBottom: "1px solid rgba(255,255,255,0.05)", 
+                            cursor: "pointer", 
+                            background: isExpanded ? "rgba(139,92,246,0.05)" : "transparent",
+                            transition: "all 0.2s ease" 
                           }}
-                          autoFocus
-                          style={{
-                            width: 60,
-                            padding: "4px 8px",
-                            background: "rgba(255,255,255,0.06)",
-                            border: `1px solid ${p.accent}`,
-                            borderRadius: 8,
-                            color: "#e2d9ff",
-                            fontSize: 13,
-                            fontWeight: 700,
-                            outline: "none",
-                            textAlign: "center",
-                          }}
-                        />
-                        <button
-                          onClick={() => updateStreak(p.key, parseInt(editStreak) || 0)}
-                          style={{ background: p.accent, border: "none", borderRadius: 6, color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 8px", cursor: "pointer" }}
+                          onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
+                          onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.background = "transparent"; }}
                         >
-                          ✓
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => { setEditingPlatform(p.key); setEditStreak(String(platformStreaks[p.key] || 0)); }}
-                        title="Click to update streak"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                          background: "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: 0,
-                        }}
-                      >
-                        <span style={{ fontSize: 22, fontWeight: 900, color: p.accent, fontVariantNumeric: "tabular-nums" }}>
-                          {platformStreaks[p.key] || 0}
-                        </span>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(196,181,253,0.4)", alignSelf: "flex-end", marginBottom: 2 }}>days</span>
-                      </button>
-                    )}
-                  </div>
+                          {/* Platform Name column */}
+                          <td style={{ padding: "18px 24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <span style={{ fontSize: 24 }}>{p.emoji}</span>
+                              <span style={{ fontSize: 15, fontWeight: 800, color: "#e2d9ff" }}>{p.name}</span>
+                            </div>
+                          </td>
+                          {/* Description column */}
+                          <td style={{ padding: "18px 24px" }}>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(196,181,253,0.7)" }}>{p.desc}</span>
+                          </td>
+                          {/* Streak Badge column */}
+                          <td style={{ padding: "18px 24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <Flame size={16} color={p.accent} />
+                              <span style={{ fontSize: 14, fontWeight: 800, color: p.accent }}>{streak} Days</span>
+                              <span style={{ fontSize: 11, color: "rgba(196,181,253,0.4)" }}>
+                                ({isExpanded ? "click to hide" : "click to see streak"})
+                              </span>
+                            </div>
+                          </td>
+                          {/* Link column (simplified, no circle background, clean hover color) */}
+                          <td style={{ padding: "18px 24px", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+                            <a
+                              href={p.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: "rgba(196,181,253,0.6)",
+                                transition: "color 0.2s ease",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.color = p.accent}
+                              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(196,181,253,0.6)"}
+                              title={`Open ${p.name}`}
+                            >
+                              <ExternalLink size={16} />
+                            </a>
+                          </td>
+                        </tr>
+                        
+                        {/* Expanded Heatmap Row */}
+                        {isExpanded && (
+                          <tr style={{ background: "rgba(16,12,38,0.92)", borderBottom: "1px solid rgba(139,92,246,0.15)" }}>
+                            <td colSpan={4} style={{ padding: "24px 32px" }}>
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                transition={{ duration: 0.3 }}
+                                style={{ display: "flex", flexDirection: "column", gap: 16 }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                  <h4 style={{ fontSize: 13, fontWeight: 800, color: "#e2d9ff", margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                                    <Flame size={16} color={p.accent} /> {p.name} Study Streak tracker (Last 60 Days)
+                                  </h4>
+                                  
+                                  {/* Inline Streak Editor */}
+                                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Adjust Streak:</span>
+                                    <input
+                                      type="number"
+                                      value={editingPlatform === p.key ? editStreak : String(streak)}
+                                      onChange={(e) => {
+                                        setEditingPlatform(p.key);
+                                        setEditStreak(e.target.value);
+                                      }}
+                                      onFocus={() => {
+                                        setEditingPlatform(p.key);
+                                        setEditStreak(String(streak));
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") updateStreak(p.key, parseInt(editStreak) || 0);
+                                        if (e.key === "Escape") setEditingPlatform(null);
+                                      }}
+                                      style={{
+                                        width: 60,
+                                        padding: "4px 8px",
+                                        background: "rgba(255,255,255,0.06)",
+                                        border: `1px solid rgba(139,92,246,0.3)`,
+                                        borderRadius: 8,
+                                        color: "#e2d9ff",
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        outline: "none",
+                                        textAlign: "center",
+                                      }}
+                                    />
+                                    {editingPlatform === p.key && (
+                                      <button
+                                        onClick={() => updateStreak(p.key, parseInt(editStreak) || 0)}
+                                        style={{ background: p.accent, border: "none", borderRadius: 6, color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 8px", cursor: "pointer" }}
+                                      >
+                                        Save
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
 
-                  {/* Streak bar */}
-                  <div style={{ width: "100%", height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 99, overflow: "hidden" }}>
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, ((platformStreaks[p.key] || 0) / 100) * 100)}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                      style={{ height: "100%", background: p.accent, borderRadius: 99 }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
+                                {/* Dynamic Grid Heatmap */}
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: "4px 0" }}>
+                                  {platformHeatmapData.map((d, index) => {
+                                    // Highlight squares if they are active in the streak
+                                    const bg = d.active ? p.accent : "rgba(107,92,231,0.06)";
+                                    return (
+                                      <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: index * 0.002 }}
+                                        style={{
+                                          width: 18,
+                                          height: 18,
+                                          borderRadius: 4,
+                                          background: bg,
+                                          border: "1px solid rgba(255,255,255,0.03)",
+                                          boxShadow: d.active ? `0 0 6px ${p.accent}55` : "none"
+                                        }}
+                                        whileHover={{ scale: 1.2, border: `1px solid ${p.accent}` }}
+                                        title={d.active ? `Day ${index + 1}: Active streak` : `Day ${index + 1}: Inactive`}
+                                      />
+                                    );
+                                  })}
+                                </div>
+
+                                <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11, color: "rgba(196,181,253,0.5)" }}>
+                                  <span>Inactive</span>
+                                  <div style={{ width: 12, height: 12, borderRadius: 3, background: "rgba(107,92,231,0.06)" }} />
+                                  <div style={{ width: 12, height: 12, borderRadius: 3, background: p.accent }} />
+                                  <span>Active Streak</span>
+                                </div>
+                              </motion.div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </motion.div>
 

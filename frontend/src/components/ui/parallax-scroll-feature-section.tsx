@@ -66,11 +66,11 @@ const ParallaxScrollFeatureSectionInner = ({
 
   return (
     <div className="w-full relative z-10 bg-[#07071A] text-white">
-      <div className='min-h-[50vh] w-full flex flex-col items-center justify-center relative z-20'>
+      <div className='min-h-[25vh] py-8 w-full flex flex-col items-center justify-center relative z-20'>
         <h2 className='text-4xl md:text-6xl font-bold max-w-3xl text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400'>
           Core Optimization Pillars
         </h2>
-        <p className='mt-10 flex items-center gap-2 text-sm text-neutral-400 uppercase tracking-widest'>
+        <p className='mt-4 flex items-center gap-2 text-sm text-neutral-400 uppercase tracking-widest'>
           Explore Features <ArrowDown size={16} />
         </p>
       </div>
@@ -80,7 +80,7 @@ const ParallaxScrollFeatureSectionInner = ({
           <div 
             key={section.id}
             ref={sectionRefs[index]} 
-            className={`min-h-[80vh] flex flex-col md:flex-row items-center justify-center gap-12 md:gap-32 py-20 ${section.reverse ? 'md:flex-row-reverse' : ''}`}
+            className={`min-h-[45vh] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 py-10 ${section.reverse ? 'md:flex-row-reverse' : ''}`}
           >
             {/* Left text content: Translated as a cohesive unit */}
             <motion.div style={{ y: translateContents[index] }} className="flex-1">

@@ -71,6 +71,7 @@ export default function Health() {
   const [isSearchingFood, setIsSearchingFood] = useState(false);
   const [foodResult, setFoodResult] = useState<any[] | null>(null);
   const [foodError, setFoodError] = useState("");
+  const [showCalorieLookup, setShowCalorieLookup] = useState(false);
 
   // Fetch Database Logs
   const fetchLogs = async () => {
@@ -263,124 +264,119 @@ export default function Health() {
             <div className="xl:col-span-1 flex flex-col gap-6">
               
               {/* CalorieNinjas Smart Logger */}
-              <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-md font-bold flex items-center gap-2">
-                    <Apple className="h-5 w-5 text-violet-400" /> Food Calorie Lookup
-                  </CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">
-                    Type what you ate (e.g., "2 bananas and 1 glass milk") to find the calories instantly.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <form onSubmit={handleFoodSearch} className="flex gap-2">
-                    <Input 
-                      placeholder="e.g. 1 bowl oatmeal and 1 apple"
-                      value={foodQuery}
-                      onChange={e => setFoodQuery(e.target.value)}
-                      className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-medium text-xs h-9 flex-grow"
-                    />
-                    <Button 
-                      type="submit" 
-                      disabled={isSearchingFood}
-                      className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-9 px-3 shrink-0 flex items-center justify-center border-0"
+              <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl overflow-hidden">
+                {!showCalorieLookup ? (
+                  <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                      <Apple className="h-6 w-6 text-violet-400" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <h4 className="text-white text-sm font-bold tracking-tight">
+                        Excited to know how many calories you have consumed?
+                      </h4>
+                      <p className="text-slate-400 text-[11px] font-medium">
+                        Look up any food to check its calories instantly.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => setShowCalorieLookup(true)}
+                      className="bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs px-4 py-2 rounded-xl h-9 border-0 cursor-pointer shadow-lg shadow-violet-950/30"
                     >
-                      <Search size={14} />
+                      Check Food Calories
                     </Button>
-                  </form>
-
-                  {/* Loading/Error/Results */}
-                  {isSearchingFood && (
-                    <div className="text-xs text-violet-400 font-semibold mt-3 animate-pulse text-center">
-                      Searching foods...
-                    </div>
-                  )}
-
-                  {foodError && (
-                    <div className="text-[11px] text-red-400 font-semibold mt-3 text-center leading-relaxed">
-                      {foodError}
-                    </div>
-                  )}
-
-                  {foodResult && (
-                    <div className="mt-3 p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl flex flex-col gap-2">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Foods Detected</div>
-                      <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-1">
-                        {foodResult.map((item, i) => (
-                          <div key={i} className="flex items-center justify-between text-xs font-semibold text-slate-200">
-                            <span className="capitalize">{item.name}</span>
-                            <span className="text-slate-400 text-[11px]">{Math.round(item.calories)} kcal</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="border-t border-slate-800/60 pt-2 mt-1 flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase">Total Calories</span>
-                          <span className="text-sm font-black text-violet-300">
-                            {Math.round(foodResult.reduce((sum, item) => sum + (item.calories || 0), 0))} kcal
-                          </span>
-                        </div>
+                  </CardContent>
+                ) : (
+                  <>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-white text-md font-bold flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <Apple className="h-5 w-5 text-violet-400" /> Food Calorie Lookup
+                        </span>
                         <Button 
-                          type="button" 
-                          onClick={applyFoodToLog}
-                          className="bg-violet-500 hover:bg-violet-600 text-white font-black text-[10px] py-1 h-7 rounded-lg border-0 px-2.5"
+                          variant="ghost" 
+                          onClick={() => setShowCalorieLookup(false)}
+                          className="text-[10px] text-slate-400 hover:text-white h-6 px-2 hover:bg-slate-900 border-0"
                         >
-                          Use this number
+                          Back
                         </Button>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
+                      </CardTitle>
+                      <CardDescription className="text-slate-400 text-xs">
+                        Type what you ate (e.g., "2 bananas and 1 glass milk") to find the calories instantly.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="py-2 pb-4">
+                      <form onSubmit={handleFoodSearch} className="flex gap-2">
+                        <Input 
+                          placeholder="e.g. 1 bowl oatmeal and 1 apple"
+                          value={foodQuery}
+                          onChange={e => setFoodQuery(e.target.value)}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-medium text-xs h-9 flex-grow"
+                        />
+                        <Button 
+                          type="submit" 
+                          disabled={isSearchingFood}
+                          className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-9 px-3 shrink-0 flex items-center justify-center border-0"
+                        >
+                          <Search size={14} />
+                        </Button>
+                      </form>
+
+                      {/* Loading/Error/Results */}
+                      {isSearchingFood && (
+                        <div className="text-xs text-violet-400 font-semibold mt-3 animate-pulse text-center">
+                          Searching foods...
+                        </div>
+                      )}
+
+                      {foodError && (
+                        <div className="text-[11px] text-red-400 font-semibold mt-3 text-center leading-relaxed">
+                          {foodError}
+                        </div>
+                      )}
+
+                      {foodResult && (
+                        <div className="mt-3 p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl flex flex-col gap-2">
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Foods Detected</div>
+                          <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-1">
+                            {foodResult.map((item, i) => (
+                              <div key={i} className="flex items-center justify-between text-xs font-semibold text-slate-200">
+                                <span className="capitalize">{item.name}</span>
+                                <span className="text-slate-400 text-[11px]">{Math.round(item.calories)} kcal</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="border-t border-slate-800/60 pt-2 mt-1 flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[9px] font-bold text-slate-500 uppercase">Total Calories</span>
+                              <span className="text-sm font-black text-violet-300">
+                                {Math.round(foodResult.reduce((sum, item) => sum + (item.calories || 0), 0))} kcal
+                              </span>
+                            </div>
+                            <Button 
+                              type="button" 
+                              onClick={applyFoodToLog}
+                              className="bg-violet-500 hover:bg-violet-600 text-white font-black text-[10px] py-1 h-7 rounded-lg border-0 px-2.5"
+                            >
+                              Use this number
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
               </Card>
 
               {/* Standard Health Form */}
               <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-white text-md font-bold flex items-center gap-2">
-                    <Plus className="h-5 w-5 text-violet-400" /> Log Daily Health
+                    <Plus className="h-5 w-5 text-violet-400" /> Enter today's log
                   </CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">
-                    Type in your daily numbers below to save them.
-                  </CardDescription>
                 </CardHeader>
                 
                 <CardContent className="pt-1">
-                  {/* Presets Chips */}
-                  <div className="mb-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">Quick Suggestions</span>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("morning_run")}
-                        className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
-                      >
-                        🏃 Run
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("cheat_breakfast")}
-                        className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
-                      >
-                        🥐 Cheat Meal
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("desk_focus")}
-                        className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
-                      >
-                        💻 Busy Day
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("deep_sleep")}
-                        className="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-200 transition-all text-left flex items-center gap-1"
-                      >
-                        💤 Sleep Day
-                      </button>
-                    </div>
-                  </div>
-
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-3.5">
                       
@@ -391,20 +387,6 @@ export default function Health() {
                             type="number" 
                             value={formData.caloriesConsumed || ""} 
                             onChange={e => setFormData({ ...formData, caloriesConsumed: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
-                            required 
-                          />
-                          <span className="absolute right-3 top-2.5 text-[9px] font-bold text-slate-500">kcal</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Calories Burned</label>
-                        <div className="relative">
-                          <Input 
-                            type="number" 
-                            value={formData.caloriesBurned || ""} 
-                            onChange={e => setFormData({ ...formData, caloriesBurned: e.target.value === "" ? 0 : Number(e.target.value) })}
                             className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
                             required 
                           />
