@@ -19,11 +19,19 @@ export default function Simulator() {
 
   const [isSimulating, setIsSimulating] = useState(false);
 
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
+ const [aiInsight, setAiInsight] = useState<string | null>(
+  "Adjust sliders and click Generate AI Insight."
+);
 
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  const [simulationResult, setSimulationResult] = useState<any>(null);
+ const [simulationResult, setSimulationResult] = useState({
+  health_score: 0,
+  finance_score: 0,
+  career_score: 0,
+  overall_score: 0,
+  monthly_savings: 0,
+});
 
   // =========================
   // REAL AI BACKEND FUNCTION
@@ -47,9 +55,11 @@ export default function Simulator() {
         }
       );
 
-      setSimulationResult(response.data);
+     setSimulationResult(response.data);
 
-      setAiInsight(response.data.insight);
+console.log("ML Response:", response.data);
+
+setAiInsight(response.data.insight);
 
     } catch (error) {
 
@@ -326,23 +336,24 @@ export default function Simulator() {
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-violet-400 uppercase tracking-wider block">Health Trajectory</span>
-                  <div className="text-xl font-black text-white mt-2">
-                    {chartData[5].health > chartData[0].health ? 'Optimizing' : 'Degrading'}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-2 font-semibold">
-                    End score: {Math.round(chartData[5].health)}/100
-                  </p>
-                </motion.div>
+                 <div className="text-xl font-black text-white mt-2">
+  {simulationResult.health_score > 70 ? 'Optimizing' : 'Degrading'}
+</div>
 
+<p className="text-xs text-slate-400 mt-2 font-semibold">
+  End score: {simulationResult.health_score}/100
+</p>
+                </motion.div>
+ 
                 {/* Wealth Creation */}
                 <motion.div 
                   whileHover={{ y: -4 }}
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">Wealth Creation</span>
-                  <div className="text-xl font-black text-white mt-2">
-                    ${Math.round(chartData[5].finance).toLocaleString()}
-                  </div>
+                 <div className="text-xl font-black text-white mt-2">
+  ${simulationResult.monthly_savings.toLocaleString()}
+</div>
                   <p className="text-xs text-slate-400 mt-2 font-semibold">
                     Predicted net liquid assets
                   </p>
@@ -354,12 +365,13 @@ export default function Simulator() {
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-pink-400 uppercase tracking-wider block">Career Velocity</span>
-                  <div className="text-xl font-black text-white mt-2">
-                    {chartData[5].career > 90 ? 'Promotion Ready' : 'Skill Deficit'}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-2 font-semibold">
-                    End score: {Math.round(chartData[5].career)}/100
-                  </p>
+                 <div className="text-xl font-black text-white mt-2">
+  {simulationResult.career_score > 80 ? 'Promotion Ready' : 'Skill Deficit'}
+</div>
+
+<p className="text-xs text-slate-400 mt-2 font-semibold">
+  End score: {simulationResult.career_score}/100
+</p>
                 </motion.div>
               </div>
 
