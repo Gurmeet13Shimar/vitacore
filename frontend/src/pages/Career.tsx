@@ -51,11 +51,25 @@ export default function Career() {
     return true;
   });
 
-  const updateStreak = (key: string, value: number) => {
+  const updateStreak = async (key: string, value: number) => {
     const updated = { ...platformStreaks, [key]: value };
     setPlatformStreaks(updated);
     localStorage.setItem("vitacore_platform_streaks", JSON.stringify(updated));
     setEditingPlatform(null);
+
+    // Automatically trigger SMS streak celebration!
+    if (value > 0) {
+      try {
+        const platformName = codingPlatforms.find(p => p.key === key)?.name || key;
+        await axios.post("http://localhost:5000/api/notifications/streak-reminder", {
+          platform: platformName,
+          streakDays: value
+        });
+        console.log(`[StreakSMS] Automated streak celebration alert sent for ${platformName}`);
+      } catch (err) {
+        console.error("[StreakSMS] Failed to send automated streak alert:", err);
+      }
+    }
   };
 
   const [formData, setFormData] = useState({

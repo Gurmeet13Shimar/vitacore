@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { 
   Activity, Droplets, Moon, Flame, Plus, Clock, Search,
-  HeartPulse, ShieldAlert, ClipboardCheck, Apple
+  HeartPulse, ShieldAlert, ClipboardCheck, Apple, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,23 @@ const chartConfig = {
 export default function Health() {
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const handlePrevMonth = () => {
+    setCurrentDate(prev => {
+      const nextD = new Date(prev);
+      nextD.setMonth(nextD.getMonth() - 1);
+      return nextD;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(prev => {
+      const nextD = new Date(prev);
+      nextD.setMonth(nextD.getMonth() + 1);
+      return nextD;
+    });
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -248,6 +265,70 @@ export default function Health() {
     }
     return historicalPoints;
   }, [logs]);
+
+  // Calendar month calculation
+  const calendarData = useMemo(() => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth(); // 0-indexed
+
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // Monday = 0, Sunday = 6 index:
+    const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; 
+    const prevDaysInMonth = new Date(year, month, 0).getDate();
+
+    const cells = [];
+
+    // Previous month padding cells (faded)
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      cells.push({
+        day: prevDaysInMonth - i,
+        isCurrentMonth: false,
+        date: new Date(year, month - 1, prevDaysInMonth - i)
+      });
+    }
+
+    // Current month cells
+    for (let i = 1; i <= daysInMonth; i++) {
+      cells.push({
+        day: i,
+        isCurrentMonth: true,
+        date: new Date(year, month, i)
+      });
+    }
+
+    // Next month padding cells to fill grid (42 cells total)
+    const remainingCells = 42 - cells.length;
+    for (let i = 1; i <= remainingCells; i++) {
+      cells.push({
+        day: i,
+        isCurrentMonth: false,
+        date: new Date(year, month + 1, i)
+      });
+    }
+
+    // Map each cell to matched log in safeLogs
+    const matchedLogs = cells.map(cell => {
+      const cellDateStr = cell.date.toDateString();
+      const log = safeLogs.find(l => {
+        if (!l.date) return false;
+        return new Date(l.date).toDateString() === cellDateStr;
+      });
+      return { ...cell, log };
+    });
+
+    return {
+      year,
+      month,
+      monthName: monthNames[month],
+      matchedLogs
+    };
+  }, [logs, currentDate]);
+
 
   return (
     <AppLayout>
@@ -581,61 +662,159 @@ export default function Health() {
                   </CardContent>
                 </Card>
 
-              </div>
-
-              {/* Activity Log */}
-              <Card className="glass-card border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl max-h-[380px] overflow-hidden flex flex-col justify-between">
-                <CardHeader className="pb-2">
+                {/* Activity Log */}
+                <Card className="glass-card border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between overflow-visible p-4">
+                <CardHeader className="pb-4 px-2">
                   <CardTitle className="text-white text-md font-bold flex items-center gap-2">
                     <Clock className="h-5 w-5 text-violet-400" /> My Activity History
                   </CardTitle>
                   <CardDescription className="text-slate-400 text-xs">
-                    A list of your recently logged entries.
+                    Hover over active dates to see your logged metrics.
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="p-0 overflow-hidden flex-grow">
-                  <ScrollArea className="h-[200px] px-4 pb-2">
-                    <div className="flex flex-col gap-2">
-                      {safeLogs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
-                          <ShieldAlert className="text-slate-600 h-7 w-7" />
-                          <p className="text-slate-500 text-xs font-semibold">No entries logged yet. Type your details to get started!</p>
-                        </div>
-                      ) : (
-                        safeLogs.map((l: any, i: number) => {
-                          const dateStr = l.date ? new Date(l.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : "Today";
-                          return (
+                <CardContent className="p-0 overflow-visible flex-grow">
+                  {/* Calendar Container */}
+                  <div className="flex flex-col select-none overflow-visible">
+                    {/* Header Month Selector */}
+                    <div className="flex items-center justify-between mb-5 px-2">
+                      <button 
+                        onClick={handlePrevMonth}
+                        type="button"
+                        className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-800 bg-slate-950/40 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <h3 className="text-white font-extrabold text-sm tracking-wide">
+                        {calendarData.monthName} {calendarData.year}
+                      </h3>
+                      <button 
+                        onClick={handleNextMonth}
+                        type="button"
+                        className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-800 bg-slate-950/40 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+
+                    {/* Day Titles MON -> SUN */}
+                    <div className="grid grid-cols-7 gap-1 text-center mb-3">
+                      {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d) => (
+                        <span key={d} className="text-[10px] font-black text-slate-500 tracking-wider">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Grid Cells */}
+                    <div className="grid grid-cols-7 gap-y-2 gap-x-1 relative overflow-visible">
+                      {calendarData.matchedLogs.map((cell, idx) => {
+                        const isLogged = !!cell.log;
+                        const log = cell.log;
+
+                        // Get mood details
+                        let moodEmoji = "🙂 Good";
+                        let moodBadgeColor = "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30";
+                        if (log) {
+                          switch (log.mood) {
+                            case "Great":
+                              moodEmoji = "😄 Great";
+                              moodBadgeColor = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                              break;
+                            case "Good":
+                              moodEmoji = "🙂 Good";
+                              moodBadgeColor = "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30";
+                              break;
+                            case "Neutral":
+                              moodEmoji = "😐 Neutral";
+                              moodBadgeColor = "bg-slate-500/20 text-slate-300 border border-slate-500/30";
+                              break;
+                            case "Bad":
+                              moodEmoji = "🙁 Bad";
+                              moodBadgeColor = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                              break;
+                            case "Terrible":
+                              moodEmoji = "😫 Terrible";
+                              moodBadgeColor = "bg-red-500/20 text-red-400 border border-red-500/30";
+                              break;
+                          }
+                        }
+
+                        return (
+                          <div 
+                            key={idx}
+                            className="group relative flex items-center justify-center aspect-square overflow-visible"
+                          >
+                            {/* Cell circle */}
                             <div 
-                              key={l._id || i} 
-                              className="flex items-center justify-between p-3 bg-slate-950/40 border border-slate-800/40 rounded-xl hover:bg-slate-800/20 transition-colors"
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all relative ${
+                                !cell.isCurrentMonth 
+                                  ? "text-slate-700 font-medium" 
+                                  : isLogged 
+                                    ? "bg-violet-600 text-white font-extrabold shadow-md shadow-violet-600/30 cursor-pointer scale-105" 
+                                    : "text-slate-300 hover:bg-slate-800/30 cursor-pointer"
+                              }`}
                             >
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20">
-                                  <Activity size={14} />
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="font-bold text-slate-200 text-xs">{dateStr}</span>
-                                  <span className="text-[10px] text-slate-400 font-medium">
-                                    {l.workoutMinutes}m workout • {l.waterGlasses} glasses water
+                              {cell.day}
+                              
+                              {/* Small indicator dot for active day */}
+                              {isLogged && (
+                                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-white opacity-80" />
+                              )}
+                            </div>
+
+                            {/* Tooltip on Hover */}
+                            {isLogged && log && (
+                              <div 
+                                className="absolute bottom-10 left-1/2 -translate-x-1/2 w-48 bg-slate-950/95 border border-slate-800 rounded-2xl p-3.5 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50 flex flex-col gap-2"
+                                style={{ backdropFilter: "blur(12px)", transformOrigin: "bottom center" }}
+                              >
+                                {/* Mood on Top */}
+                                <div className="flex items-center justify-between border-b border-slate-850 pb-1.5 mb-1">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Mood</span>
+                                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${moodBadgeColor}`}>
+                                    {moodEmoji}
                                   </span>
                                 </div>
+
+                                {/* Metrics List */}
+                                <div className="flex flex-col gap-1.5 text-[11px] font-semibold text-slate-300">
+                                  <div className="flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5 text-slate-400">
+                                      <Flame size={12} className="text-orange-500" /> Calories:
+                                    </span>
+                                    <span className="font-extrabold text-white">{log.caloriesConsumed} kcal</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5 text-slate-400">
+                                      <Droplets size={12} className="text-cyan-500" /> Water:
+                                    </span>
+                                    <span className="font-extrabold text-white">{log.waterGlasses} glasses</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5 text-slate-400">
+                                      <Activity size={12} className="text-violet-400" /> Workout:
+                                    </span>
+                                    <span className="font-extrabold text-white">{log.workoutMinutes} mins</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5 text-slate-400">
+                                      <Moon size={12} className="text-indigo-400" /> Sleep:
+                                    </span>
+                                    <span className="font-extrabold text-white">{log.sleepHours} hrs</span>
+                                  </div>
+                                </div>
+
+                                {/* Small Arrow indicator for the tooltip */}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-950 border-r border-b border-slate-800 rotate-45 -mt-1" />
                               </div>
-                              <div className="text-right">
-                                <div className="font-extrabold text-xs text-white">{l.caloriesConsumed} kcal</div>
-                                <div className="text-[9px] text-slate-400 font-semibold">{l.sleepHours}h sleep • {l.mood || "Good"}</div>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </CardContent>
-                
-                <CardFooter className="pt-2 border-t border-slate-800/60 text-[10px] text-slate-400 font-semibold bg-slate-900/40">
-                  <p>Showing your recent history entries.</p>
-                </CardFooter>
               </Card>
 
             </div>

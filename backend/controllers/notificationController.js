@@ -1,4 +1,5 @@
 const twilio = require('twilio');
+const User = require('../models/User');
 
 // Initialize Twilio client
 const getTwilioClient = () => {
@@ -10,14 +11,29 @@ const getTwilioClient = () => {
   return twilio(accountSid, authToken);
 };
 
+// Helper to resolve phone number from request body or authenticated user
+const resolvePhoneNumber = async (req) => {
+  if (req.body.phoneNumber) {
+    return req.body.phoneNumber;
+  }
+  if (req.user && req.user.id) {
+    const user = await User.findById(req.user.id);
+    if (user && user.phoneNumber) {
+      return user.phoneNumber;
+    }
+  }
+  return null;
+};
+
 // @desc    Send an SMS notification to a phone number
 // @route   POST /api/notifications/send-sms
 // @access  Private
 const sendSMS = async (req, res) => {
-  const { phoneNumber, message } = req.body;
+  const { message } = req.body;
+  const phoneNumber = await resolvePhoneNumber(req);
 
   if (!phoneNumber || !message) {
-    return res.status(400).json({ error: 'phoneNumber and message are required.' });
+    return res.status(400).json({ error: 'Phone number and message are required.' });
   }
 
   // Normalize phone: ensure it has a country code
@@ -43,10 +59,10 @@ const sendSMS = async (req, res) => {
 // @route   POST /api/notifications/test
 // @access  Private
 const sendTestNotification = async (req, res) => {
-  const { phoneNumber } = req.body;
+  const phoneNumber = await resolvePhoneNumber(req);
 
   if (!phoneNumber) {
-    return res.status(400).json({ error: 'phoneNumber is required.' });
+    return res.status(400).json({ error: 'Phone number is required.' });
   }
 
   const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
@@ -71,10 +87,11 @@ const sendTestNotification = async (req, res) => {
 // @route   POST /api/notifications/health-reminder
 // @access  Private
 const sendHealthReminder = async (req, res) => {
-  const { phoneNumber, sleepHours, waterGlasses, caloriesConsumed } = req.body;
+  const { sleepHours, waterGlasses, caloriesConsumed } = req.body;
+  const phoneNumber = await resolvePhoneNumber(req);
 
   if (!phoneNumber) {
-    return res.status(400).json({ error: 'phoneNumber is required.' });
+    return res.status(400).json({ error: 'Phone number is required.' });
   }
 
   const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
@@ -109,10 +126,11 @@ const sendHealthReminder = async (req, res) => {
 // @route   POST /api/notifications/streak-reminder
 // @access  Private
 const sendStreakReminder = async (req, res) => {
-  const { phoneNumber, platform, streakDays } = req.body;
+  const { platform, streakDays } = req.body;
+  const phoneNumber = await resolvePhoneNumber(req);
 
   if (!phoneNumber || !platform) {
-    return res.status(400).json({ error: 'phoneNumber and platform are required.' });
+    return res.status(400).json({ error: 'Phone number and platform are required.' });
   }
 
   const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
@@ -140,10 +158,11 @@ const sendStreakReminder = async (req, res) => {
 // @route   POST /api/notifications/finance-alert
 // @access  Private
 const sendFinanceAlert = async (req, res) => {
-  const { phoneNumber, totalExpenses, budget } = req.body;
+  const { totalExpenses, budget } = req.body;
+  const phoneNumber = await resolvePhoneNumber(req);
 
   if (!phoneNumber) {
-    return res.status(400).json({ error: 'phoneNumber is required.' });
+    return res.status(400).json({ error: 'Phone number is required.' });
   }
 
   const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
@@ -177,3 +196,4 @@ module.exports = {
   sendStreakReminder,
   sendFinanceAlert,
 };
+

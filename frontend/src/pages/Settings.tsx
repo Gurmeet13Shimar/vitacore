@@ -101,6 +101,49 @@ export default function Settings() {
     sendNotification("send-sms", { phoneNumber, message: customMessage }, "custom");
   };
 
+  // Fetch phone number on mount
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        });
+        const data = await res.json();
+        if (data.phoneNumber) {
+          setPhoneNumber(data.phoneNumber);
+        }
+      } catch (err) {
+        console.error("Failed to load profile phone number:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({
+          phoneNumber
+        }),
+      });
+      const data = await res.json();
+      if (data.phoneNumber) {
+        triggerToast("Profile details saved successfully.", "success");
+      } else {
+        triggerToast("Failed to save profile.", "error");
+      }
+    } catch (err) {
+      triggerToast("Error saving profile details.", "error");
+    }
+  };
+
   const handleExport = () => {
     triggerToast("Preparing your data file...", "info");
     setTimeout(() => {
@@ -410,7 +453,7 @@ export default function Settings() {
                   {/* Actions */}
                   <div style={{ display: "flex", gap: 12, width: "100%", marginTop: 28 }}>
                     <Button
-                      onClick={() => triggerToast("Profile details saved successfully.", "success")}
+                      onClick={handleSaveProfile}
                       variant="outline"
                       style={{
                         flex: 1,

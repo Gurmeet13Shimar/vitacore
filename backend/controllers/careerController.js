@@ -1,4 +1,5 @@
 const StudyLog = require('../models/StudyLog');
+const { sendAutomaticSMS } = require('../utils/smsHelper');
 
 // @desc    Get user study logs
 // @route   GET /api/career
@@ -28,6 +29,13 @@ const addStudyLog = async (req, res) => {
       durationMinutes,
       notes
     });
+
+    // --- Automatic Deep Focus Celebration Alert ---
+    if (durationMinutes >= 120) {
+      const celebrationMsg = `🚀 VitaCore Focus Celebration: Incredible work! You've successfully finished a deep-focus session of ${durationMinutes} minutes on "${topic}"! Keep this standard going! 💻🌟`;
+      sendAutomaticSMS({ userId: req.user.id, message: celebrationMsg });
+    }
+
     res.status(201).json(log);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });

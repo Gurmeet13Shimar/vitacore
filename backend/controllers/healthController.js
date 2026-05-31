@@ -1,5 +1,6 @@
 const HealthLog = require('../models/HealthLog');
 const axios = require('axios');
+const { sendAutomaticSMS } = require('../utils/smsHelper');
 
 // @desc    Get user health logs
 // @route   GET /api/health
@@ -29,6 +30,25 @@ const addHealthLog = async (req, res) => {
       waterGlasses,
       mood
     });
+
+    // --- Automatic Health SMS Alert Generation ---
+    const alerts = [];
+    if (sleepHours && sleepHours < 6) {
+      alerts.push(`😴 Only ${sleepHours} hours of sleep today! Try to rest at least 7-8 hours.`);
+    }
+    if (waterGlasses && waterGlasses < 6) {
+      alerts.push(`💧 Hydration alert: Only ${waterGlasses} glasses of water. Remember to drink 8-10 glasses.`);
+    }
+    if (caloriesConsumed && caloriesConsumed > 2800) {
+      alerts.push(`🔥 Nutrition alert: High calorie day at ${caloriesConsumed} kcal! Aim to keep it balanced.`);
+    }
+
+    if (alerts.length > 0) {
+      const alertMsg = `⚠️ VitaCore Health Alert:\n${alerts.join('\n')}\n\nTake care! 💪`;
+      // Dispatch in background so we don't delay client response
+      sendAutomaticSMS({ userId: req.user.id, message: alertMsg });
+    }
+
     res.status(201).json(log);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
