@@ -2,7 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+<<<<<<< HEAD
 import { Eye, EyeOff, Mail, Lock, User, Zap, Phone } from "lucide-react";
+=======
+import { useTheme } from "@/context/ThemeContext";
+import { Eye, EyeOff, Mail, Lock, User, Zap } from "lucide-react";
+>>>>>>> 0a36875c97a532873b0a26ad1f0ce52d302ce43f
 
 interface FormInputProps {
   icon: React.ReactNode;
@@ -101,6 +106,7 @@ const Background: React.FC<BackgroundProps> = ({ imageUrl }) => {
 export default function Login() {
   const navigate = useNavigate();
   const { login, register } = useAuth();
+  const { themeColors, theme } = useTheme();
   const [isRegistering, setIsRegistering] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -130,7 +136,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center p-4 relative overflow-hidden select-none">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden select-none" style={{ background: themeColors.background }}>
       {/* Visual Image Background */}
       <Background imageUrl="https://i.pinimg.com/1200x/e6/6e/66/e66e66a33eee270aee3f6092de07accf.jpg" />
 

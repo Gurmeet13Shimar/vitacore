@@ -1,8 +1,7 @@
 const axios = require("axios");
-console.log("OPENROUTER KEY:", process.env.OPENROUTER_API_KEY);
 const getRecommendations = async (req, res) => {
   try {
-    const { domain, context } = req.body;
+    const { domain, context, message } = req.body;
 
     const API_KEY = process.env.OPENROUTER_API_KEY;
 
@@ -13,28 +12,34 @@ const getRecommendations = async (req, res) => {
       });
     }
 
-    const prompt = `
-You are VitaCore Neural AI — an advanced futuristic life assistant.
+const prompt = `
+You are VitaCore AI, a personalized life assistant.
 
-Domain: ${domain}
+User Question:
+${message}
+
+Domain:
+${domain}
 
 User Context:
-${JSON.stringify(context)}
+${JSON.stringify(context, null, 2)}
 
 Instructions:
-- Give personalized and intelligent insights
-- Sound futuristic and analytical
-- Keep responses concise but impactful
-- Avoid generic motivation
-- Mention trends, predictions, improvements, or risks
+1. First analyze the user's context.
+2. Answer the user's specific question.
+3. Use the provided context only when relevant.
+4. Give practical recommendations.
+5. Avoid generic motivational advice.
+6. Keep the response between 100-200 words.
+7. Mention risks, opportunities, and next actions when applicable.
 
-Domain-specific intelligence:
-- Finance → spending analysis, savings, budgeting, investments
-- Health → sleep quality, workouts, hydration, calories
-- Career → productivity, learning, focus, growth
-- Goals → consistency tracking and future projections
+Examples:
+- If the question is about sleep, focus on health metrics.
+- If the question is about money, focus on finance metrics.
+- If the question is about learning or jobs, focus on career metrics.
+- If the question is unrelated to the context, answer normally but briefly.
 
-Speak naturally like an advanced AI companion.
+Response:
 `;
 
     // Fallback list of models to ensure high availability
@@ -95,6 +100,7 @@ Speak naturally like an advanced AI companion.
     });
   }
 };
+
 
 const simulateScenario = async (req, res) => {
   try {

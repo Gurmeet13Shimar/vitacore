@@ -1,4 +1,6 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { ParallaxScrollFeatureSection } from "@/components/ui/parallax-scroll-feature-section";
@@ -46,6 +48,7 @@ const stats = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { themeColors, theme } = useTheme();
 
   return (
     <div className="bg-[#08060f] text-white overflow-x-hidden">
@@ -63,7 +66,7 @@ export default function HomePage() {
       />
 
       {/* ── Section 2: Stats Banner ─────────────────────────────────── */}
-      <div className="relative z-10 bg-[#0d0a1e] border-y border-violet-500/10">
+      <div className="relative z-10 border-y" style={{ background: themeColors.background, borderColor: themeColors.cardBorder }}>
         <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
             <motion.div
@@ -74,11 +77,11 @@ export default function HomePage() {
               transition={{ delay: i * 0.1, duration: 0.6 }}
               className="flex flex-col items-center text-center gap-2"
             >
-              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border flex items-center justify-center" style={{ background: `${themeColors.cardBg}`, borderColor: themeColors.cardBorder }}>
                 {s.icon}
               </div>
-              <span className="text-3xl font-black text-white">{s.value}</span>
-              <span className="text-xs text-violet-300/50 font-semibold uppercase tracking-widest">
+              <span className="text-3xl font-black" style={{ color: themeColors.textWhite }}>{s.value}</span>
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: themeColors.textMuted }}>
                 {s.label}
               </span>
             </motion.div>
@@ -87,7 +90,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Section 3: Dashboard Preview (Container Scroll) ─────────── */}
-      <div className="relative bg-[#08060f]">
+      <div className="relative" style={{ background: themeColors.background }}>
         {/* Ambient glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div
@@ -148,7 +151,7 @@ export default function HomePage() {
       <ParallaxScrollFeatureSection features={vitacoreFeatures} />
 
       {/* ── Section 5: Feature Pills ─────────────────────────────────── */}
-      <div className="bg-[#08060f] py-24 px-6 relative overflow-hidden">
+      <div className="py-24 px-6 relative overflow-hidden" style={{ background: themeColors.background }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{
             background:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useTheme } from "@/context/ThemeContext";
 import { Briefcase, Target, Award, Rocket, CheckCircle2, Circle, Plus, Activity, ExternalLink, Flame } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function Career() {
+  const { themeColors, theme } = useTheme();
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -183,7 +185,7 @@ export default function Career() {
       <div
         style={{
           minHeight: "100%",
-          background: "#030712",
+          background: themeColors.background,
           padding: "36px 40px 60px",
           fontFamily: "Inter, sans-serif",
           position: "relative",

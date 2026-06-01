@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useTheme } from "@/context/ThemeContext";
 import { Beaker, Zap, TrendingUp, Sparkles, Brain } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 
 export default function Simulator() {
+  const { themeColors, theme } = useTheme();
 
   const [params, setParams] = useState({
     study: 2,
@@ -134,7 +136,7 @@ setAiInsight(response.data.insight);
 
   return (
     <AppLayout>
-      <div className="min-h-full bg-[#030712] py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans">
+      <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans" style={{ background: themeColors.background }}>
         
         {/* Ambient glow orbs */}
         <div className="absolute top-[-10%] left-[5%] w-[40vw] h-[40vw] rounded-full bg-radial-gradient from-violet-500/5 to-transparent pointer-events-none z-0" />

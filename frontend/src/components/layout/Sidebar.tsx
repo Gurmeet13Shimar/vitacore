@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/context/ThemeContext";
 import { mockUser } from "@/data/mockData";
 import {
   LayoutDashboard,
@@ -29,16 +30,17 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { themeColors, theme } = useTheme();
 
   return (
     <header
       style={{
         height: 68,
-        background: "rgba(10, 8, 28, 0.85)",
+        background: theme === "bright" ? "rgba(255, 255, 255, 0.9)" : "rgba(10, 8, 28, 0.85)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(139, 92, 246, 0.14)",
-        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.45)",
+        borderBottom: `1px solid ${themeColors.cardBorder}`,
+        boxShadow: theme === "bright" ? "0 4px 24px rgba(0, 0, 0, 0.08)" : "0 4px 24px rgba(0, 0, 0, 0.45)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -116,14 +118,20 @@ export function Sidebar() {
                   fontSize: 13.5,
                   transition: "background 0.2s ease, color 0.2s ease",
                   background: isActive
-                    ? "linear-gradient(135deg, rgba(124,58,237,0.85), rgba(233,30,140,0.6))"
+                    ? theme === "bright"
+                      ? `linear-gradient(135deg, rgba(107,92,231,0.85), rgba(212,30,119,0.6))`
+                      : `linear-gradient(135deg, rgba(124,58,237,0.85), rgba(233,30,140,0.6))`
                     : "transparent",
-                  color: isActive ? "#ffffff" : "rgba(196, 181, 253, 0.65)",
+                  color: isActive ? themeColors.textWhite : theme === "bright" ? "rgba(107,92,231,0.65)" : "rgba(196, 181, 253, 0.65)",
                   border: isActive
-                    ? "1px solid rgba(196, 181, 253, 0.2)"
+                    ? theme === "bright"
+                      ? "1px solid rgba(107,92,231,0.3)"
+                      : "1px solid rgba(196, 181, 253, 0.2)"
                     : "1px solid transparent",
                   boxShadow: isActive
-                    ? "0 2px 12px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
+                    ? theme === "bright"
+                      ? "0 2px 12px rgba(107,92,231,0.2), inset 0 1px 0 rgba(0,0,0,0.08)"
+                      : "0 2px 12px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.12)"
                     : "none",
                 }}
                 data-testid={`link-nav-${item.label.toLowerCase().replace(" ", "-")}`}
@@ -131,7 +139,7 @@ export function Sidebar() {
                 <item.icon
                   size={16}
                   style={{
-                    color: isActive ? "#ffffff" : "rgba(196, 181, 253, 0.5)",
+                    color: isActive ? themeColors.textWhite : theme === "bright" ? "rgba(107,92,231,0.5)" : "rgba(196, 181, 253, 0.5)",
                     flexShrink: 0,
                   }}
                 />
@@ -149,7 +157,7 @@ export function Sidebar() {
           alignItems: "center",
           gap: 12,
           paddingLeft: 20,
-          borderLeft: "1px solid rgba(139, 92, 246, 0.14)",
+          borderLeft: `1px solid ${themeColors.cardBorder}`,
           flexShrink: 0,
         }}
       >
@@ -162,7 +170,7 @@ export function Sidebar() {
               style={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: "rgba(225,220,255,0.9)",
+                color: themeColors.textWhite,
                 maxWidth: 120,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -174,14 +182,14 @@ export function Sidebar() {
             <p
               style={{
                 fontSize: 11,
-                color: "rgba(196,181,253,0.5)",
+                color: themeColors.textMuted,
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
                 justifyContent: "flex-end",
               }}
             >
-              <Zap size={10} color="#f5c518" fill="#f5c518" />
+              <Zap size={10} color={themeColors.gold} fill={themeColors.gold} />
               Level {mockUser.level}
             </p>
           </div>

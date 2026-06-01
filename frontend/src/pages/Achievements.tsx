@@ -1,11 +1,13 @@
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useTheme } from "@/context/ThemeContext";
 import { mockUser, achievements } from "@/data/mockData";
 import { Trophy, Star, Shield, Flame, Medal, Target, PiggyBank, Moon, Sun, Code, Wind, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Achievements() {
+  const { themeColors, theme } = useTheme();
   const nextLevelXp = 5000;
   const progress = (mockUser.xp / nextLevelXp) * 100;
 
@@ -31,7 +33,7 @@ export default function Achievements() {
 
   return (
     <AppLayout>
-      <div className="min-h-full bg-[#030712] py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans">
+      <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans" style={{ background: themeColors.background }}>
         
         {/* Ambient glow orbs */}
         <div className="absolute top-[-10%] right-[5%] w-[40vw] h-[40vw] rounded-full bg-radial-gradient from-amber-500/5 to-transparent pointer-events-none z-0" />

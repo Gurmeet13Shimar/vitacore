@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/context/ThemeContext';
 import { Dock } from '@/components/ui/dock';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { SplineScene } from '@/components/ui/splite';
@@ -25,6 +26,7 @@ import {
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { themeColors, theme } = useTheme();
 
   const features = [
     {
@@ -69,12 +71,12 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div style={{ background: '#07071A', minHeight: '100%', position: 'relative', color: '#ffffff' }}>
-        <div className="flex flex-col overflow-hidden pb-[20px] pt-[20px]">
+      <div style={{ background: themeColors.background, minHeight: '100%', position: 'relative', color: themeColors.textWhite }}>
+        <div className="flex flex-col overflow-hidden pb-[100px] pt-[40px]">
           <ContainerScroll
             titleComponent={
               <>
-                <h1 className="text-4xl font-semibold text-white mb-4">
+                <h1 className="text-4xl font-semibold mb-4" style={{ color: themeColors.textWhite }}>
                   Welcome to Vitacore, {user?.name || 'Explorer'} <br />
                   <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
                     My Life Dashboard

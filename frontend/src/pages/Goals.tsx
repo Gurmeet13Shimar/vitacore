@@ -1,5 +1,6 @@
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useTheme } from "@/context/ThemeContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 export default function Goals() {
+  const { themeColors, theme } = useTheme();
   const navigate = useNavigate();
 
   // Mock scores for the digital twin
@@ -93,7 +95,7 @@ export default function Goals() {
 
   return (
     <AppLayout>
-      <div className="min-h-full bg-[#030712] py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans">
+      <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans" style={{ background: themeColors.background }}>
         
         {/* Faint cover background icons */}
         <div 
