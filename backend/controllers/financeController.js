@@ -1,4 +1,6 @@
 const Expense = require('../models/Expense');
+const { sendAutomaticSMS } = require('../utils/smsHelper');
+const mongoose = require('mongoose');
 
 // @desc    Get user expenses
 // @route   GET /api/finance
@@ -29,6 +31,45 @@ const addExpense = async (req, res) => {
       description,
       type
     });
+
+    // --- Automatic Budget & Expense Warning System ---
+    if (expense.type === 'Expense') {
+      try {
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const monthlyExpenses = await Expense.aggregate([
+          {
+            $match: {
+              user: new mongoose.Types.ObjectId(req.user.id),
+              type: 'Expense',
+              date: { $gte: startOfMonth }
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              total: { $sum: '$amount' }
+            }
+          }
+        ]);
+
+        const totalSpent = (monthlyExpenses[0]?.total || 0);
+        const monthlyBudget = 15000; // set standard threshold warning limit
+
+        if (totalSpent > monthlyBudget) {
+          const budgetExceededMsg = `💸 VitaCore Budget Alert: You have exceeded your monthly budget! Total spent: ₹${totalSpent.toLocaleString()} (Limit: ₹${monthlyBudget.toLocaleString()}). Try to minimize extra costs. 📉`;
+          sendAutomaticSMS({ userId: req.user.id, message: budgetExceededMsg });
+        } else if (expense.amount >= 3000) {
+          const highExpenseMsg = `⚠️ VitaCore Finance: You logged a high individual expense of ₹${expense.amount.toLocaleString()} for "${expense.category}" (${expense.description || 'No description'}).`;
+          sendAutomaticSMS({ userId: req.user.id, message: highExpenseMsg });
+        }
+      } catch (aggErr) {
+        console.error('[FinanceAlert] Aggregation error:', aggErr.message);
+      }
+    }
+
     res.status(201).json(expense);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });

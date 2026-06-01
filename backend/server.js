@@ -30,12 +30,15 @@ const aiRoutes = require('./routes/aiRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const careerRoutes = require('./routes/careerRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/career', careerRoutes);
+app.use('/api/notifications', notificationRoutes);
+console.log('Twilio SID:', process.env.TWILIO_ACCOUNT_SID ? 'Loaded' : 'Missing');
 
 // MongoDB connection
 if (process.env.MONGODB_URI) {

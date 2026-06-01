@@ -16,7 +16,7 @@ export const ContainerScroll = ({
   }, []);
 
   if (!scrollContainer) {
-    return <div className="h-[60rem] md:h-[80rem]" />;
+    return <div className="h-[45rem] md:h-[58rem]" />;
   }
 
   return (
@@ -65,11 +65,11 @@ const ContainerScrollInner = ({
 
   return (
     <div
-      className="h-[60rem] md:h-[80rem] flex items-center justify-center relative p-2 md:p-20"
+      className="h-[45rem] md:h-[58rem] flex items-center justify-center relative p-2 md:p-10"
       ref={containerRef}
     >
       <div
-        className="py-10 md:py-40 w-full relative"
+        className="py-5 md:py-16 w-full relative"
         style={{
           perspective: "1000px",
         }}

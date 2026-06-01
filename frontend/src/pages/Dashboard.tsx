@@ -107,10 +107,10 @@ export default function Dashboard() {
                   <motion.button
                     whileHover={{ opacity: 0.9, y: -1 }}
                     whileTap={{ y: 0 }}
-                    onClick={() => navigate('/simulator')}
+                    onClick={() => navigate('/goals')}
                     className="mt-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none rounded-full py-3 px-6 font-bold text-sm cursor-pointer w-fit shadow-lg shadow-indigo-500/30"
                   >
-                    Try Simulator
+                    Go to Dashboard
                   </motion.button>
                 </div>
 
@@ -129,63 +129,6 @@ export default function Dashboard() {
         {/* Feature Scroll Section */}
         <ParallaxScrollFeatureSection features={features} />
 
-        {/* Dashboard Summary Card */}
-        <div className="max-w-5xl mx-auto px-6 mb-12 relative z-20">
-          <motion.div
-            whileHover={{ y: -3 }}
-            className="glass-card border border-violet-500/25 bg-slate-950/85 backdrop-blur-xl p-8 rounded-3xl relative overflow-hidden shadow-2xl"
-          >
-            {/* Ambient glow in card background */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-              <div className="flex-1 text-left">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-500/10 border border-violet-500/20 text-violet-400 mb-4">
-                  <Sparkles className="h-3 w-3 animate-pulse" /> Active Life Status
-                </span>
-                
-                <h2 className="text-3xl font-black text-white tracking-tight">
-                  My Dashboard Summary
-                </h2>
-                
-                <p className="text-slate-400 mt-2 text-sm leading-relaxed">
-                  See your healthy habits, wealth progress, and career milestones all together in one place. Keep an eye on your numbers, read easy daily tips, and hit your goals.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                    <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Daily Health & Wealth Scores</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                    <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Simple Goal Tracking Cards</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                    <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Friendly Tips & Advice</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                    <div className="w-2 h-2 rounded-full bg-violet-400" />
-                    <span>Your Daily Habits Log</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="shrink-0 flex flex-col items-center justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate('/goals')}
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black px-8 py-4 rounded-2xl border-0 shadow-lg shadow-violet-500/25 flex items-center gap-2 text-sm cursor-pointer"
-                >
-                  <span>Open My Tracker</span>
-                  <ArrowRight size={16} />
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
 
         {/* Floating Dock */}
         <div style={{
