@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, FC } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useTheme } from "@/context/ThemeContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
@@ -53,6 +54,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function Health() {
+  const { themeColors, theme } = useTheme();
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -332,7 +334,7 @@ export default function Health() {
 
   return (
     <AppLayout>
-      <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans bg-[#070513]">
+      <div className="min-h-full py-8 px-4 md:px-8 relative selection:bg-violet-500/30 font-sans" style={{ background: themeColors.background }}>
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-[0.02] pointer-events-none"
           style={{ backgroundImage: "url('/health_bg.png')" }}

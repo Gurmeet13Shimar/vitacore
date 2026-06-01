@@ -3,9 +3,11 @@ import { Sidebar } from "./Sidebar";
 import { AIAssistantWidget } from "../shared/AIAssistantWidget";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const { themeColors, theme } = useTheme();
 
   let themeClass = "";
   if (location.pathname === "/health") themeClass = "theme-health";
@@ -17,7 +19,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={`flex flex-col h-screen overflow-hidden selection:bg-violet-500/30 text-foreground ${themeClass}`}
-      style={{ background: '#080612' }}
+      style={{ background: themeColors.background }}
     >
       <Sidebar />
       <main className="flex-1 overflow-y-auto relative scroll-smooth">

@@ -95,11 +95,11 @@ export function AIAssistantWidget() {
                   <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background animate-pulse" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-sm text-foreground">VitaCore AI</h2>
+                  <h2 className="font-bold text-sm text-white">VitaCore AI</h2>
                   <p className="text-[10px] text-primary font-medium uppercase tracking-wider">Online</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={18} />
               </button>
             </div>
@@ -111,13 +111,13 @@ export function AIAssistantWidget() {
                   key={msg.id}
                   className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
                 >
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.sender === 'user' ? 'bg-primary/20 text-foreground' : 'bg-primary/20 text-primary'
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.sender === 'user' ? 'bg-primary/20 text-white' : 'bg-primary/20 text-primary'
                     }`}>
                     {msg.sender === 'user' ? <User size={12} /> : <Bot size={12} />}
                   </div>
                   <div className={`p-3 rounded-xl text-sm ${msg.sender === 'user'
-                    ? 'bg-primary text-foreground rounded-tr-sm'
-                    : 'bg-white/10 border border-primary/20 text-foreground rounded-tl-sm'
+                    ? 'bg-primary text-white rounded-tr-sm'
+                    : 'bg-white/10 border border-primary/20 text-white rounded-tl-sm'
                     }`}>
                     {msg.text}
                   </div>
@@ -146,7 +146,7 @@ export function AIAssistantWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask anything..."
-                  className="flex-1 bg-black/50 border-primary/20 text-foreground h-10 text-sm focus-visible:ring-primary"
+                  className="flex-1 bg-black/50 border-primary/20 text-white h-10 text-sm focus-visible:ring-primary"
                 />
                 <Button type="submit" size="icon" className="h-10 w-10 bg-primary hover:bg-primary/80 text-foreground shrink-0" disabled={!input.trim()}>
                   <Send size={16} />

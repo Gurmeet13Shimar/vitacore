@@ -12,27 +12,30 @@ import Settings from './pages/Settings';
 import HomePage from './pages/HomePage';
 import NotFound from './pages/not-found';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-      <div className="min-h-screen bg-background text-foreground font-sans">
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/health" element={<Health />} />
-          <Route path="/finance" element={<Finance />} />
-          <Route path="/career" element={<Career />} />
-          <Route path="/simulator" element={<Simulator />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/achievements" element={<Achievements />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </Router>
+      <ThemeProvider>
+        <Router>
+          <div className="min-h-screen bg-background text-foreground font-sans">
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/health" element={<Health />} />
+              <Route path="/finance" element={<Finance />} />
+              <Route path="/career" element={<Career />} />
+              <Route path="/simulator" element={<Simulator />} />
+              <Route path="/goals" element={<Goals />} />
+              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
