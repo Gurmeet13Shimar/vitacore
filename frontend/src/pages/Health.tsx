@@ -822,6 +822,7 @@ export default function Health() {
           </div>
         </div>
       </div>
+    </div>
     </AppLayout>
   );
 }

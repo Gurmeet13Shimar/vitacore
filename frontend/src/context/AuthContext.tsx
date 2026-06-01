@@ -5,7 +5,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   user: any;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, phoneNumber: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -32,8 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    const res = await axios.post("http://localhost:5000/api/auth/register", { name, email, password });
+  const register = async (name: string, email: string, password: string, phoneNumber: string) => {
+    const res = await axios.post("http://localhost:5000/api/auth/register", { name, email, password, phoneNumber });
     setUser(res.data);
     setIsLoggedIn(true);
     localStorage.setItem("vitacore_user", JSON.stringify(res.data));

@@ -10,9 +10,9 @@ const generateToken = (id) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please add all fields' });
+    const { name, email, password, phoneNumber } = req.body;
+    if (!name || !email || !password || !phoneNumber) {
+      return res.status(400).json({ message: 'Please add all fields including phone number' });
     }
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -26,6 +26,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      phoneNumber: phoneNumber || '',
     });
 
     if (user) {
@@ -33,6 +34,7 @@ const registerUser = async (req, res) => {
         _id: user.id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         token: generateToken(user._id),
       });
     } else {
@@ -53,6 +55,7 @@ const loginUser = async (req, res) => {
         _id: user.id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         token: generateToken(user._id),
       });
     } else {
