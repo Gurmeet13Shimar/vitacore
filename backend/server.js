@@ -38,7 +38,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/career', careerRoutes);
 app.use('/api/notifications', notificationRoutes);
-console.log('Twilio SID:', process.env.TWILIO_ACCOUNT_SID ? 'Loaded' : 'Missing');
+console.log('Novu Secret Key:', process.env.NOVU_SECRET_KEY ? 'Loaded ✅' : 'Missing ❌');
 
 // MongoDB connection
 if (process.env.MONGODB_URI) {

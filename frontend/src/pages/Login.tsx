@@ -2,12 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-<<<<<<< HEAD
-import { Eye, EyeOff, Mail, Lock, User, Zap, Phone } from "lucide-react";
-=======
 import { useTheme } from "@/context/ThemeContext";
-import { Eye, EyeOff, Mail, Lock, User, Zap } from "lucide-react";
->>>>>>> 0a36875c97a532873b0a26ad1f0ce52d302ce43f
+import { Eye, EyeOff, Mail, Lock, User, Zap, Phone } from "lucide-react";
 
 interface FormInputProps {
   icon: React.ReactNode;

@@ -1,85 +1,115 @@
-const twilio = require('twilio');
+const axios = require('axios');
 const User = require('../models/User');
 
-// Initialize Twilio client
-const getTwilioClient = () => {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  if (!accountSid || !authToken) {
-    throw new Error('Twilio credentials not configured');
-  }
-  return twilio(accountSid, authToken);
+// ─── Novu Config ────────────────────────────────────────────────────────────
+const NOVU_API_URL = 'https://api.novu.co/v1';
+
+// Single workflow ID — create this once in your Novu dashboard
+// (see README comment at the bottom of this file)
+const NOVU_WORKFLOW_ID = 'vitacore-notification';
+
+const getNovuHeaders = () => {
+  const key = process.env.NOVU_SECRET_KEY;
+  if (!key) throw new Error('NOVU_SECRET_KEY is not set in environment variables');
+  return {
+    Authorization: `ApiKey ${key}`,
+    'Content-Type': 'application/json',
+  };
 };
 
-// Helper to resolve phone number from request body or authenticated user
-const resolvePhoneNumber = async (req) => {
-  if (req.body.phoneNumber) {
-    return req.body.phoneNumber;
-  }
+// ─── Core Helpers ────────────────────────────────────────────────────────────
+
+/**
+ * Trigger a Novu workflow for a given subscriber.
+ * Novu auto-creates the subscriber if it doesn't exist yet.
+ */
+const triggerNovuNotification = async (subscriberId, phoneNumber, message) => {
+  const response = await axios.post(
+    `${NOVU_API_URL}/events/trigger`,
+    {
+      name: NOVU_WORKFLOW_ID,
+      to: {
+        subscriberId,   // unique per user — we use MongoDB _id
+        phone: phoneNumber,
+      },
+      payload: { message },
+    },
+    { headers: getNovuHeaders() }
+  );
+  return response.data;
+};
+
+/**
+ * Resolve the authenticated user's phone number and subscriber ID.
+ * Falls back to the phone number in req.body if the user hasn't saved one.
+ */
+const resolveUser = async (req) => {
+  let phoneNumber = req.body.phoneNumber || null;
+  let subscriberId = 'anonymous';
+  let userName = '';
+
   if (req.user && req.user.id) {
     const user = await User.findById(req.user.id);
-    if (user && user.phoneNumber) {
-      return user.phoneNumber;
+    if (user) {
+      subscriberId = user._id.toString();
+      userName = user.name || '';
+      phoneNumber = phoneNumber || user.phoneNumber || null;
     }
   }
-  return null;
+
+  // Ensure E.164 format (default +91 for India if no country code)
+  if (phoneNumber && !phoneNumber.startsWith('+')) {
+    phoneNumber = `+91${phoneNumber}`;
+  }
+
+  return { phoneNumber, subscriberId, userName };
 };
 
-// @desc    Send an SMS notification to a phone number
+// ─── Controllers ─────────────────────────────────────────────────────────────
+
+// @desc    Send a generic SMS notification
 // @route   POST /api/notifications/send-sms
 // @access  Private
 const sendSMS = async (req, res) => {
   const { message } = req.body;
-  const phoneNumber = await resolvePhoneNumber(req);
+  const { phoneNumber, subscriberId } = await resolveUser(req);
 
   if (!phoneNumber || !message) {
     return res.status(400).json({ error: 'Phone number and message are required.' });
   }
 
-  // Normalize phone: ensure it has a country code
-  const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-
   try {
-    const client = getTwilioClient();
-    const result = await client.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
-
-    console.log(`[Twilio] SMS sent to ${formattedPhone}, SID: ${result.sid}`);
-    res.status(200).json({ success: true, message: 'SMS sent successfully!', sid: result.sid });
+    const result = await triggerNovuNotification(subscriberId, phoneNumber, message);
+    console.log(`[Novu] SMS triggered for subscriber ${subscriberId}`);
+    res.status(200).json({ success: true, message: 'SMS sent successfully!', data: result });
   } catch (error) {
-    console.error('[Twilio] Error sending SMS:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const errMsg = error.response?.data?.message || error.message;
+    console.error('[Novu] Error sending SMS:', errMsg);
+    res.status(500).json({ success: false, error: errMsg });
   }
 };
 
-// @desc    Send a test/health check notification
+// @desc    Send a test/health-check notification
 // @route   POST /api/notifications/test
 // @access  Private
 const sendTestNotification = async (req, res) => {
-  const phoneNumber = await resolvePhoneNumber(req);
+  const { phoneNumber, subscriberId } = await resolveUser(req);
 
   if (!phoneNumber) {
     return res.status(400).json({ error: 'Phone number is required.' });
   }
 
-  const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
+  const message =
+    '✅ VitaCore Alert: Your notification setup is working perfectly! You will now receive important reminders here. — VitaCore';
 
   try {
-    const client = getTwilioClient();
-    const result = await client.messages.create({
-      body: `✅ VitaCore Alert: Your notification setup is working perfectly! You will now receive important reminders here. — VitaCore`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
-
-    console.log(`[Twilio] Test SMS sent to ${formattedPhone}, SID: ${result.sid}`);
-    res.status(200).json({ success: true, message: 'Test notification sent!', sid: result.sid });
+    const result = await triggerNovuNotification(subscriberId, phoneNumber, message);
+    console.log(`[Novu] Test notification triggered for subscriber ${subscriberId}`);
+    res.status(200).json({ success: true, message: 'Test notification sent!', data: result });
   } catch (error) {
-    console.error('[Twilio] Error sending test SMS:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const errMsg = error.response?.data?.message || error.message;
+    console.error('[Novu] Error sending test notification:', errMsg);
+    res.status(500).json({ success: false, error: errMsg });
   }
 };
 
@@ -88,37 +118,36 @@ const sendTestNotification = async (req, res) => {
 // @access  Private
 const sendHealthReminder = async (req, res) => {
   const { sleepHours, waterGlasses, caloriesConsumed } = req.body;
-  const phoneNumber = await resolvePhoneNumber(req);
+  const { phoneNumber, subscriberId } = await resolveUser(req);
 
   if (!phoneNumber) {
     return res.status(400).json({ error: 'Phone number is required.' });
   }
 
-  const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-
   const alerts = [];
-  if (sleepHours && sleepHours < 6) alerts.push(`😴 Only ${sleepHours}h sleep! Try to get 7-8 hours.`);
-  if (waterGlasses && waterGlasses < 6) alerts.push(`💧 Only ${waterGlasses} glasses of water! Drink more.`);
-  if (caloriesConsumed && caloriesConsumed > 2800) alerts.push(`🔥 High calorie day: ${caloriesConsumed} kcal! Stay mindful.`);
+  if (sleepHours && sleepHours < 6)
+    alerts.push(`😴 Only ${sleepHours}h sleep! Try to get 7-8 hours.`);
+  if (waterGlasses && waterGlasses < 6)
+    alerts.push(`💧 Only ${waterGlasses} glasses of water! Drink more.`);
+  if (caloriesConsumed && caloriesConsumed > 2800)
+    alerts.push(`🔥 High calorie day: ${caloriesConsumed} kcal! Stay mindful.`);
 
   if (alerts.length === 0) {
-    return res.status(200).json({ success: true, message: 'All health metrics look good — no alerts needed.' });
+    return res
+      .status(200)
+      .json({ success: true, message: 'All health metrics look good — no alerts needed.' });
   }
 
-  const messageBody = `⚡ VitaCore Health Alert:\n${alerts.join('\n')}\n\nKeep pushing! 💪`;
+  const message = `⚡ VitaCore Health Alert:\n${alerts.join('\n')}\n\nKeep pushing! 💪`;
 
   try {
-    const client = getTwilioClient();
-    const result = await client.messages.create({
-      body: messageBody,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
-
-    res.status(200).json({ success: true, message: 'Health reminder sent!', sid: result.sid });
+    const result = await triggerNovuNotification(subscriberId, phoneNumber, message);
+    console.log(`[Novu] Health reminder triggered for subscriber ${subscriberId}`);
+    res.status(200).json({ success: true, message: 'Health reminder sent!', data: result });
   } catch (error) {
-    console.error('[Twilio] Error sending health reminder:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const errMsg = error.response?.data?.message || error.message;
+    console.error('[Novu] Error sending health reminder:', errMsg);
+    res.status(500).json({ success: false, error: errMsg });
   }
 };
 
@@ -127,30 +156,25 @@ const sendHealthReminder = async (req, res) => {
 // @access  Private
 const sendStreakReminder = async (req, res) => {
   const { platform, streakDays } = req.body;
-  const phoneNumber = await resolvePhoneNumber(req);
+  const { phoneNumber, subscriberId } = await resolveUser(req);
 
   if (!phoneNumber || !platform) {
     return res.status(400).json({ error: 'Phone number and platform are required.' });
   }
 
-  const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-
-  const messageBody = streakDays > 0
-    ? `🔥 VitaCore: You're on a ${streakDays}-day streak on ${platform}! Keep it going today! 💻`
-    : `📚 VitaCore Reminder: Don't forget to practice on ${platform} today to build your streak! 🎯`;
+  const message =
+    streakDays > 0
+      ? `🔥 VitaCore: You're on a ${streakDays}-day streak on ${platform}! Keep it going today! 💻`
+      : `📚 VitaCore Reminder: Don't forget to practice on ${platform} today to build your streak! 🎯`;
 
   try {
-    const client = getTwilioClient();
-    const result = await client.messages.create({
-      body: messageBody,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
-
-    res.status(200).json({ success: true, message: 'Streak reminder sent!', sid: result.sid });
+    const result = await triggerNovuNotification(subscriberId, phoneNumber, message);
+    console.log(`[Novu] Streak reminder triggered for subscriber ${subscriberId}`);
+    res.status(200).json({ success: true, message: 'Streak reminder sent!', data: result });
   } catch (error) {
-    console.error('[Twilio] Error sending streak reminder:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const errMsg = error.response?.data?.message || error.message;
+    console.error('[Novu] Error sending streak reminder:', errMsg);
+    res.status(500).json({ success: false, error: errMsg });
   }
 };
 
@@ -159,33 +183,25 @@ const sendStreakReminder = async (req, res) => {
 // @access  Private
 const sendFinanceAlert = async (req, res) => {
   const { totalExpenses, budget } = req.body;
-  const phoneNumber = await resolvePhoneNumber(req);
+  const { phoneNumber, subscriberId } = await resolveUser(req);
 
   if (!phoneNumber) {
     return res.status(400).json({ error: 'Phone number is required.' });
   }
 
-  const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-
-  let messageBody = '';
-  if (totalExpenses > budget) {
-    messageBody = `💸 VitaCore Finance Alert: You've exceeded your budget! Spent ₹${totalExpenses} vs budget ₹${budget}. Time to cut back! 📉`;
-  } else {
-    messageBody = `✅ VitaCore Finance: Great job! You're within budget. Spent ₹${totalExpenses} of ₹${budget}. Keep it up! 💰`;
-  }
+  const message =
+    totalExpenses > budget
+      ? `💸 VitaCore Finance Alert: You've exceeded your budget! Spent ₹${totalExpenses} vs budget ₹${budget}. Time to cut back! 📉`
+      : `✅ VitaCore Finance: Great job! You're within budget. Spent ₹${totalExpenses} of ₹${budget}. Keep it up! 💰`;
 
   try {
-    const client = getTwilioClient();
-    const result = await client.messages.create({
-      body: messageBody,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
-
-    res.status(200).json({ success: true, message: 'Finance alert sent!', sid: result.sid });
+    const result = await triggerNovuNotification(subscriberId, phoneNumber, message);
+    console.log(`[Novu] Finance alert triggered for subscriber ${subscriberId}`);
+    res.status(200).json({ success: true, message: 'Finance alert sent!', data: result });
   } catch (error) {
-    console.error('[Twilio] Error sending finance alert:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const errMsg = error.response?.data?.message || error.message;
+    console.error('[Novu] Error sending finance alert:', errMsg);
+    res.status(500).json({ success: false, error: errMsg });
   }
 };
 
@@ -197,3 +213,14 @@ module.exports = {
   sendFinanceAlert,
 };
 
+/*
+ * ─── NOVU DASHBOARD SETUP (one-time) ─────────────────────────────────────────
+ *
+ * 1. Go to https://dashboard.novu.co → Workflows → Create Workflow
+ * 2. Name it exactly: "vitacore-notification"  (this is the workflow ID)
+ * 3. Add an SMS step → set Body to:  {{message}}
+ * 4. Go to Settings → Integrations → add an SMS provider
+ *    (Twilio, Vonage, AWS SNS, etc.) and connect your credentials there.
+ *    Novu will route SMS through whichever provider you connect.
+ * 5. That's it! All five notification endpoints will now work through Novu.
+ */

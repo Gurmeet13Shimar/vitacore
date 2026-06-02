@@ -15,7 +15,14 @@ import {
   Flame,
   ShieldCheck,
   RefreshCw,
-  LogOut
+  LogOut,
+  Smartphone,
+  Send,
+  Heart,
+  BookOpen,
+  DollarSign,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -98,7 +105,12 @@ export default function Settings() {
   };
 
   // --- SMS Notification Helpers ---
-  const getToken = () => localStorage.getItem("token") || "";
+  const getToken = () => {
+    try {
+      const stored = localStorage.getItem("vitacore_user");
+      return stored ? JSON.parse(stored).token || "" : "";
+    } catch { return ""; }
+  };
 
   const sendNotification = async (endpoint: string, body: object, buttonKey: string) => {
     setSmsLoading(buttonKey);
