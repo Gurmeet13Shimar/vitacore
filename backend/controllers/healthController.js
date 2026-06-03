@@ -167,4 +167,213 @@ const getNutritionDetails = async (req, res) => {
   }
 };
 
-module.exports = { getHealthLogs, addHealthLog, getNutritionDetails };
+const FALLBACK_EXERCISES = {
+  yoga: [
+    {
+      name: "Cobra Pose (Bhujangasana)",
+      target: "spine & core",
+      equipment: "body weight",
+      bodyPart: "waist",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M20,80 Q50,70 80,80 Q70,50 60,30 Q50,20 40,25 Q35,30 30,50 Z' fill='none' stroke='%23c084fc' stroke-width='3' stroke-linecap='round'/><circle cx='42' cy='22' r='4' fill='%23c084fc'/></svg>"
+    },
+    {
+      name: "Child's Pose (Balasana)",
+      target: "back & shoulders",
+      equipment: "body weight",
+      bodyPart: "back",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M20,80 Q40,65 60,75 Q80,80 85,80 Q70,60 50,60 Q35,60 20,80' fill='none' stroke='%23c084fc' stroke-width='3' stroke-linecap='round'/><circle cx='80' cy='75' r='4' fill='%23c084fc'/></svg>"
+    },
+    {
+      name: "Downward-Facing Dog (Adho Mukha Svanasana)",
+      target: "hamstrings & calves",
+      equipment: "body weight",
+      bodyPart: "lower legs",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M20,80 L50,30 L80,80 M50,30 L45,40' fill='none' stroke='%23c084fc' stroke-width='3' stroke-linecap='round'/><circle cx='50' cy='25' r='4' fill='%23c084fc'/></svg>"
+    }
+  ],
+  cardio: [
+    {
+      name: "Jumping Jacks",
+      target: "cardiovascular system",
+      equipment: "body weight",
+      bodyPart: "cardio",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><circle cx='50' cy='25' r='6' fill='%23fb923c'/><line x1='50' y1='31' x2='50' y2='60' stroke='%23fb923c' stroke-width='4'/><line x1='50' y1='38' x2='20' y2='20' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/><line x1='50' y1='38' x2='80' y2='20' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/><line x1='50' y1='60' x2='30' y2='85' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/><line x1='50' y1='60' x2='70' y2='85' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/></svg>"
+    },
+    {
+      name: "Mountain Climbers",
+      target: "cardiovascular system",
+      equipment: "body weight",
+      bodyPart: "cardio",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M25,75 L45,45 L75,55 M45,45 L50,35 M75,55 L85,75' fill='none' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/><circle cx='50' cy='30' r='5' fill='%23fb923c'/></svg>"
+    },
+    {
+      name: "Burpees",
+      target: "cardiovascular system",
+      equipment: "body weight",
+      bodyPart: "cardio",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><circle cx='50' cy='20' r='5' fill='%23fb923c'/><path d='M30,80 L40,60 L50,40 L65,30 M65,30 L80,20' fill='none' stroke='%23fb923c' stroke-width='3.5' stroke-linecap='round'/></svg>"
+    }
+  ],
+  strength: [
+    {
+      name: "Push-ups",
+      target: "pectorals",
+      equipment: "body weight",
+      bodyPart: "chest",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><line x1='15' y1='75' x2='85' y2='75' stroke='%23475569' stroke-width='3'/><path d='M25,72 L75,52 M75,52 L80,72' fill='none' stroke='%2360a5fa' stroke-width='4' stroke-linecap='round'/><circle cx='75' cy='46' r='5' fill='%2360a5fa'/></svg>"
+    },
+    {
+      name: "Bodyweight Squats",
+      target: "quadriceps",
+      equipment: "body weight",
+      bodyPart: "upper legs",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><circle cx='50' cy='25' r='5' fill='%2360a5fa'/><path d='M50,30 L50,55 L35,55 L35,80 M50,40 L65,40' fill='none' stroke='%2360a5fa' stroke-width='4' stroke-linecap='round'/></svg>"
+    },
+    {
+      name: "Plank",
+      target: "abs",
+      equipment: "body weight",
+      bodyPart: "waist",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><line x1='20' y1='65' x2='80' y2='65' stroke='%2360a5fa' stroke-width='4' stroke-linecap='round'/><circle cx='75' cy='58' r='5' fill='%2360a5fa'/></svg>"
+    }
+  ],
+  "general fitness": [
+    {
+      name: "Walking Lunges",
+      target: "glutes & quads",
+      equipment: "body weight",
+      bodyPart: "upper legs",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><circle cx='50' cy='25' r='5' fill='%2334d399'/><path d='M50,30 L50,50 L35,65 L35,85 M50,50 L65,65 L65,85' fill='none' stroke='%2334d399' stroke-width='4' stroke-linecap='round'/></svg>"
+    },
+    {
+      name: "Bicycle Crunches",
+      target: "abs",
+      equipment: "body weight",
+      bodyPart: "waist",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M25,60 Q50,45 75,60 M50,50 L40,30 M50,50 L60,30' fill='none' stroke='%2334d399' stroke-width='4' stroke-linecap='round'/><circle cx='75' cy='52' r='5' fill='%2334d399'/></svg>"
+    },
+    {
+      name: "Glute Bridges",
+      target: "glutes",
+      equipment: "body weight",
+      bodyPart: "upper legs",
+      gifUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e1b4b'/><path d='M20,70 Q50,40 80,70' fill='none' stroke='%2334d399' stroke-width='4' stroke-linecap='round'/><circle cx='80' cy='63' r='5' fill='%2334d399'/></svg>"
+    }
+  ]
+};
+
+// @desc    Get custom fitness plan based on user health log
+// @route   GET /api/health/fitness-plan
+// @access  Private
+const getFitnessPlan = async (req, res) => {
+  try {
+    const latestLog = await HealthLog.findOne({ user: req.user.id }).sort({ date: -1 });
+
+    if (!latestLog) {
+      return res.status(404).json({ message: 'No health log found. Please log your health metrics today to generate a personalized fitness plan!' });
+    }
+
+    const { caloriesConsumed = 0, sleepHours = 8, waterGlasses = 8, workoutMinutes = 30, mood = 'Good' } = latestLog;
+
+    const issues = [];
+    if (sleepHours < 6) issues.push('poor_sleep');
+    if (waterGlasses < 6) issues.push('dehydration');
+    if (caloriesConsumed > 2500) issues.push('high_calories');
+    if (workoutMinutes < 20) issues.push('inactive');
+    if (mood === 'Bad' || mood === 'Terrible') issues.push('stress');
+
+    let category = 'general fitness';
+    if (issues.includes('stress') || issues.includes('poor_sleep')) {
+      category = 'yoga';
+    } else if (issues.includes('high_calories')) {
+      category = 'cardio';
+    } else if (issues.includes('inactive')) {
+      category = 'strength';
+    }
+
+    let exercises = [];
+    const apiKey = process.env.RAPIDAPI_KEY;
+
+    try {
+      let url = 'https://exercisedb.p.rapidapi.com/exercises/bodyPart/waist';
+      let params = { limit: '10' };
+
+      if (category === 'yoga') {
+        // ExerciseDB has very few exercises named 'yoga'; use 'stretch' for 10 diverse results
+        url = 'https://exercisedb.p.rapidapi.com/exercises/name/stretch';
+      } else if (category === 'cardio') {
+        url = 'https://exercisedb.p.rapidapi.com/exercises/bodyPart/cardio';
+      } else if (category === 'strength') {
+        url = 'https://exercisedb.p.rapidapi.com/exercises/bodyPart/upper%20legs';
+      }
+
+      console.log(`[FitnessPlan] Calling ExerciseDB API for category "${category}":`, url);
+      
+      const response = await axios.get(url, {
+        params,
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'exercisedb.p.rapidapi.com'
+        },
+        timeout: 8000
+      });
+
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+        exercises = response.data.map(item => ({
+          name: item.name,
+          target: item.target,
+          equipment: item.equipment,
+          bodyPart: item.bodyPart,
+          gifUrl: `${backendUrl}/api/health/exercise-gif/${item.id}`
+        }));
+      }
+    } catch (apiErr) {
+      console.error('[FitnessPlan] ExerciseDB API call failed, using fallback:', apiErr.message);
+    }
+
+    // Fallback if API returned no data or failed
+    if (exercises.length === 0) {
+      exercises = FALLBACK_EXERCISES[category] || FALLBACK_EXERCISES['general fitness'];
+    }
+
+    res.status(200).json({
+      category,
+      issues,
+      exercises
+    });
+  } catch (error) {
+    console.error('[FitnessPlan] Error:', error.message);
+    res.status(500).json({ message: 'Server Error: Failed to generate fitness plan' });
+  }
+};
+
+// @desc    Proxy ExerciseDB GIF images securely
+// @route   GET /api/health/exercise-gif/:exerciseId
+// @access  Public
+const getExerciseGif = async (req, res) => {
+  try {
+    const { exerciseId } = req.params;
+    const apiKey = process.env.RAPIDAPI_KEY;
+
+    const response = await axios({
+      method: 'get',
+      url: 'https://exercisedb.p.rapidapi.com/image',
+      params: { exerciseId, resolution: '360' },
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'exercisedb.p.rapidapi.com'
+      },
+      responseType: 'stream',
+      timeout: 8000
+    });
+
+    res.setHeader('Content-Type', 'image/gif');
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('[ExerciseGifProxy] Error:', error.message);
+    res.status(500).json({ message: 'Failed to load exercise animation' });
+  }
+};
+
+module.exports = { getHealthLogs, addHealthLog, getNutritionDetails, getFitnessPlan, getExerciseGif };

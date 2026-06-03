@@ -114,6 +114,40 @@ export default function Health() {
     fetchLogs();
   }, []);
 
+  // AI Fitness Coach State
+  const [fitnessPlan, setFitnessPlan] = useState<{
+    category: string;
+    issues: string[];
+    exercises: Array<{
+      name: string;
+      target: string;
+      equipment: string;
+      bodyPart: string;
+      gifUrl: string;
+    }>;
+  } | null>(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [fitnessError, setFitnessError] = useState("");
+
+  const generateFitnessPlan = async () => {
+    setIsGeneratingPlan(true);
+    setFitnessError("");
+    setFitnessPlan(null);
+    try {
+      const res = await axios.get("http://localhost:5000/api/health/fitness-plan");
+      setFitnessPlan(res.data);
+    } catch (err: any) {
+      console.error("Error generating fitness plan:", err);
+      if (err?.response?.data?.message) {
+        setFitnessError(err.response.data.message);
+      } else {
+        setFitnessError("Failed to connect to the fitness coach. Please check your network and try again.");
+      }
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
+
   // Form Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,53 +175,7 @@ export default function Health() {
     }
   };
 
-  // Autocomplete Presets
-  const applyPreset = (presetName: string) => {
-    switch (presetName) {
-      case "morning_run":
-        setFormData({
-          workoutMinutes: 45,
-          caloriesBurned: 420,
-          caloriesConsumed: 0,
-          sleepHours: 0,
-          waterGlasses: 2,
-          mood: "Great"
-        });
-        break;
-      case "cheat_breakfast":
-        setFormData({
-          workoutMinutes: 0,
-          caloriesBurned: 0,
-          caloriesConsumed: 850,
-          sleepHours: 0,
-          waterGlasses: 1,
-          mood: "Good"
-        });
-        break;
-      case "desk_focus":
-        setFormData({
-          workoutMinutes: 15,
-          caloriesBurned: 110,
-          caloriesConsumed: 180,
-          sleepHours: 0,
-          waterGlasses: 3,
-          mood: "Neutral"
-        });
-        break;
-      case "deep_sleep":
-        setFormData({
-          workoutMinutes: 0,
-          caloriesBurned: 0,
-          caloriesConsumed: 0,
-          sleepHours: 8.5,
-          waterGlasses: 0,
-          mood: "Great"
-        });
-        break;
-      default:
-        break;
-    }
-  };
+  // (Presets removed — form is purely user-driven)
 
   // Food Calorie Search handler
   const handleFoodSearch = async (e: React.FormEvent) => {
@@ -610,6 +598,211 @@ export default function Health() {
                   valueClassName="text-emerald-400"
                 />
               </div>
+
+              {/* AI Fitness Coach Card */}
+              <Card className="glass-card border border-slate-800/80 bg-slate-950/85 backdrop-blur-xl shadow-2xl overflow-hidden">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-lg font-black flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-violet-400 animate-pulse" />
+                    AI Fitness Coach
+                  </CardTitle>
+                  <CardDescription className="text-slate-400 text-xs">
+                    Get a customized exercise plan generated instantly based on your latest logged metrics.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2 flex flex-col gap-6">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <Button
+                      onClick={generateFitnessPlan}
+                      disabled={isGeneratingPlan}
+                      className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl h-11 border-0 cursor-pointer shadow-lg shadow-violet-950/30 flex items-center gap-2"
+                    >
+                      {isGeneratingPlan ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Analyzing & Generating...
+                        </>
+                      ) : (
+                        "Generate My Fitness Plan"
+                      )}
+                    </Button>
+
+                    {fitnessError && (
+                      <span className="text-red-400 text-xs font-bold bg-red-950/30 border border-red-900/50 px-3.5 py-1.5 rounded-xl">
+                        ⚠️ {fitnessError}
+                      </span>
+                    )}
+                  </div>
+
+                  {isGeneratingPlan && (
+                    <div className="flex flex-col items-center justify-center py-10 gap-3 border border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
+                      <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                      <p className="text-slate-350 text-xs font-bold animate-pulse">Running health logs analysis and retrieving exercises...</p>
+                    </div>
+                  )}
+
+                  {fitnessPlan && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col gap-6"
+                    >
+                      {/* Health Analysis Status */}
+                      <div className="flex flex-col gap-3">
+                        <h4 className="text-slate-200 text-sm font-bold tracking-tight border-l-2 border-violet-500 pl-2">Health Analysis</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {/* Sleep Status */}
+                          <div className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sleep Status</span>
+                              <span className="text-white text-xs font-semibold">{sleep} hrs</span>
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                              sleep < 6 ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                              sleep < 7.5 ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
+                              "bg-green-500/10 text-green-400 border border-green-500/20"
+                            }`}>
+                              {sleep < 6 ? "Critical" : sleep < 7.5 ? "Moderate" : "Good"}
+                            </span>
+                          </div>
+
+                          {/* Hydration Status */}
+                          <div className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Hydration Status</span>
+                              <span className="text-white text-xs font-semibold">{water} glasses</span>
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                              water < 6 ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                              water < 8 ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
+                              "bg-green-500/10 text-green-400 border border-green-500/20"
+                            }`}>
+                              {water < 6 ? "Critical" : water < 8 ? "Moderate" : "Good"}
+                            </span>
+                          </div>
+
+                          {/* Activity Status */}
+                          <div className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Activity Status</span>
+                              <span className="text-white text-xs font-semibold">{workoutMinutes} mins</span>
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                              workoutMinutes < 20 ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                              workoutMinutes < 45 ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
+                              "bg-green-500/10 text-green-400 border border-green-500/20"
+                            }`}>
+                              {workoutMinutes < 20 ? "Critical" : workoutMinutes < 45 ? "Moderate" : "Good"}
+                            </span>
+                          </div>
+
+                          {/* Mood Status */}
+                          <div className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Mood Status</span>
+                              <span className="text-white text-xs font-semibold">{latestLog.mood || 'Good'}</span>
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                              (latestLog.mood === 'Bad' || latestLog.mood === 'Terrible') ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                              latestLog.mood === 'Neutral' ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
+                              "bg-green-500/10 text-green-400 border border-green-500/20"
+                            }`}>
+                              {(latestLog.mood === 'Bad' || latestLog.mood === 'Terrible') ? "Critical" : latestLog.mood === 'Neutral' ? "Moderate" : "Good"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detected Issues */}
+                      <div className="flex flex-col gap-3">
+                        <h4 className="text-slate-200 text-sm font-bold tracking-tight border-l-2 border-violet-500 pl-2">Detected Issues</h4>
+                        {fitnessPlan.issues.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {fitnessPlan.issues.map((issue) => {
+                              let text = "";
+                              switch (issue) {
+                                case "poor_sleep": text = "Poor Sleep (< 6 hours slept)"; break;
+                                case "dehydration": text = "Dehydration (< 6 glasses of water)"; break;
+                                case "high_calories": text = "High Calories consumed (> 2500 kcal)"; break;
+                                case "inactive": text = "Inactive Day (< 20 mins workout)"; break;
+                                case "stress": text = "Elevated Stress (Mood reported as Bad/Terrible)"; break;
+                                default: text = issue;
+                              }
+                              return (
+                                <span key={issue} className="bg-red-95/30 text-red-400 border border-red-900/50 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                                  <ShieldAlert size={14} className="text-red-500" />
+                                  {text}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="p-3.5 rounded-xl bg-green-950/10 border border-green-900/30 text-green-400 text-xs font-bold">
+                            ✅ No major health issues detected in your latest log. Amazing job maintaining your routine!
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Recommended Goal */}
+                      <div className="p-4 rounded-2xl bg-gradient-to-r from-violet-950/30 to-indigo-950/30 border border-violet-800/40">
+                        <span className="text-[10px] text-violet-400 font-extrabold uppercase tracking-widest block mb-1">Recommended Goal</span>
+                        <h5 className="text-white text-md font-black capitalize">{fitnessPlan.category} Training Plan</h5>
+                        <p className="text-slate-300 text-xs mt-1.5 leading-relaxed font-semibold">
+                          {fitnessPlan.category === 'yoga' && "Focus on slow, mindful movements, deep breathing, and light stretching to reduce cortisol (stress) and prepare your body for deep restorative sleep."}
+                          {fitnessPlan.category === 'cardio' && "Focus on active cardiovascular work to burn off high calorie intake, improve circulation, and build aerobic capacity."}
+                          {fitnessPlan.category === 'strength' && "Focus on muscle engagement and strength exercises to wake up inactive muscle groups, improve core stability, and kickstart metabolism."}
+                          {fitnessPlan.category === 'general fitness' && "Focus on a balanced routine of strength, mobility, and steady-state cardiovascular work to maintain your excellent current health status."}
+                        </p>
+                      </div>
+
+                      {/* Recommended Exercises */}
+                      <div className="flex flex-col gap-3">
+                        <h4 className="text-slate-200 text-sm font-bold tracking-tight border-l-2 border-violet-500 pl-2">Recommended Exercises</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {fitnessPlan.exercises.map((ex, i) => (
+                            <motion.div
+                              whileHover={{ y: -3 }}
+                              key={i}
+                              className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden flex flex-col justify-between shadow-lg"
+                            >
+                              {/* Exercise GIF or placeholder */}
+                              <div className="w-full h-40 bg-slate-950/80 flex items-center justify-center relative overflow-hidden border-b border-slate-850">
+                                <img
+                                  src={ex.gifUrl}
+                                  alt={ex.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230f172a'/><text x='50' y='50' font-family='sans-serif' font-size='10' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'>No Animation</text></svg>";
+                                  }}
+                                />
+                              </div>
+
+                              <div className="p-4 flex flex-col gap-3.5">
+                                <div>
+                                  <h6 className="text-white text-sm font-black capitalize line-clamp-1">{ex.name}</h6>
+                                  <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider block mt-1">Target: {ex.target}</span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-400 uppercase">
+                                  <div className="bg-slate-950/40 border border-slate-850 p-1.5 rounded-lg text-center">
+                                    <span className="text-slate-500 block text-[9px] mb-0.5">Equipment</span>
+                                    <span className="text-slate-200 line-clamp-1">{ex.equipment}</span>
+                                  </div>
+                                  <div className="bg-slate-950/40 border border-slate-850 p-1.5 rounded-lg text-center">
+                                    <span className="text-slate-500 block text-[9px] mb-0.5">Body Part</span>
+                                    <span className="text-slate-200 line-clamp-1">{ex.bodyPart}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </CardContent>
+              </Card>
+
 
               {/* Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
