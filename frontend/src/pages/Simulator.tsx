@@ -385,7 +385,7 @@ setAiInsight(response.data.insight);
                   <CardHeader className="pb-3 flex flex-row items-center justify-between flex-wrap gap-4">
                     <CardTitle className="text-white text-md font-bold flex items-center gap-2">
                       <Brain className="h-5 w-5 text-amber-400" />
-                      Neural Engine Projections
+                     Future Outlook
                     </CardTitle>
                     <Button 
                       onClick={fetchAiInsight}
