@@ -18,37 +18,64 @@ export default function Career() {
     try {
       const saved = localStorage.getItem("vitacore_platform_streaks");
       return saved ? JSON.parse(saved) : {
-        leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0
+        leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0,
+        kaggle: 0, fastai: 0, huggingface: 0, coursera: 0, freecodecamp: 0, theodinproject: 0
       };
-    } catch { return { leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0 }; }
+    } catch { return { leetcode: 0, codingninjas: 0, gfg: 0, hackerrank: 0, codechef: 0, codeforces: 0,
+      kaggle: 0, fastai: 0, huggingface: 0, coursera: 0, freecodecamp: 0, theodinproject: 0 }; }
   });
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
   const [editStreak, setEditStreak] = useState<string>("");
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
 
+  // Custom user-defined platforms
+  const [customPlatforms, setCustomPlatforms] = useState<Array<{key: string; name: string; url: string; emoji: string; accent: string; bg: string; border: string; desc: string}>>(() => {
+    try {
+      const saved = localStorage.getItem("vitacore_custom_platforms");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [showAddPlatform, setShowAddPlatform] = useState(false);
+  const [newPlatform, setNewPlatform] = useState({ name: "", url: "", desc: "" });
+
   // Study Path State
   const [selectedPath, setSelectedPath] = useState("all");
 
   const codingPlatforms = [
-    { key: "leetcode",    name: "LeetCode",      url: "https://leetcode.com",                emoji: "⚡", accent: "#FFA116", bg: "rgba(255,161,22,0.08)",  border: "rgba(255,161,22,0.2)",  desc: "DSA & Interview Prep" },
-    { key: "codingninjas",name: "Coding Ninjas",  url: "https://www.naukri.com/code360",      emoji: "🥷", accent: "#FF4B45", bg: "rgba(255,75,69,0.08)",   border: "rgba(255,75,69,0.2)",   desc: "Courses & Contests" },
-    { key: "gfg",         name: "GeeksforGeeks",  url: "https://www.geeksforgeeks.org",        emoji: "🌿", accent: "#2F8D46", bg: "rgba(47,141,70,0.08)",   border: "rgba(47,141,70,0.2)",   desc: "CS Fundamentals" },
-    { key: "hackerrank",  name: "HackerRank",     url: "https://www.hackerrank.com",           emoji: "💻", accent: "#00EA64", bg: "rgba(0,234,100,0.08)",   border: "rgba(0,234,100,0.2)",   desc: "Skill Certifications" },
-    { key: "codechef",    name: "CodeChef",        url: "https://www.codechef.com",             emoji: "👨‍🍳", accent: "#F9A12E", bg: "rgba(249,161,46,0.08)",  border: "rgba(249,161,46,0.2)",  desc: "Competitive Coding" },
-    { key: "codeforces",  name: "Codeforces",      url: "https://codeforces.com",               emoji: "🏆", accent: "#3B82F6", bg: "rgba(59,130,246,0.08)",  border: "rgba(59,130,246,0.2)",  desc: "CP & Rounds" },
+    { key: "leetcode",       name: "LeetCode",           url: "https://leetcode.com",                emoji: "⚡", accent: "#FFA116", bg: "rgba(255,161,22,0.08)",  border: "rgba(255,161,22,0.2)",  desc: "DSA & Interview Prep" },
+    { key: "codingninjas",   name: "Coding Ninjas",       url: "https://www.naukri.com/code360",      emoji: "🥷", accent: "#FF4B45", bg: "rgba(255,75,69,0.08)",   border: "rgba(255,75,69,0.2)",   desc: "Courses & Contests" },
+    { key: "gfg",            name: "GeeksforGeeks",       url: "https://www.geeksforgeeks.org",       emoji: "🌿", accent: "#2F8D46", bg: "rgba(47,141,70,0.08)",   border: "rgba(47,141,70,0.2)",   desc: "CS Fundamentals" },
+    { key: "hackerrank",     name: "HackerRank",          url: "https://www.hackerrank.com",          emoji: "💻", accent: "#00EA64", bg: "rgba(0,234,100,0.08)",   border: "rgba(0,234,100,0.2)",   desc: "Skill Certifications" },
+    { key: "codechef",       name: "CodeChef",            url: "https://www.codechef.com",            emoji: "👨‍🍳", accent: "#F9A12E", bg: "rgba(249,161,46,0.08)", border: "rgba(249,161,46,0.2)",  desc: "Competitive Coding" },
+    { key: "codeforces",     name: "Codeforces",          url: "https://codeforces.com",              emoji: "🏆", accent: "#3B82F6", bg: "rgba(59,130,246,0.08)",  border: "rgba(59,130,246,0.2)",  desc: "CP & Rounds" },
+    { key: "kaggle",         name: "Kaggle",              url: "https://www.kaggle.com",              emoji: "🐍", accent: "#20BEFF", bg: "rgba(32,190,255,0.08)",  border: "rgba(32,190,255,0.2)",  desc: "ML Competitions & Datasets" },
+    { key: "fastai",         name: "fast.ai",             url: "https://www.fast.ai",                 emoji: "🧠", accent: "#FF6B35", bg: "rgba(255,107,53,0.08)",  border: "rgba(255,107,53,0.2)",  desc: "Practical Deep Learning" },
+    { key: "huggingface",    name: "Hugging Face",        url: "https://huggingface.co",              emoji: "🤗", accent: "#FFD21E", bg: "rgba(255,210,30,0.08)",  border: "rgba(255,210,30,0.2)",  desc: "AI Models & NLP" },
+    { key: "coursera",       name: "Coursera",            url: "https://www.coursera.org",            emoji: "🎓", accent: "#0056D3", bg: "rgba(0,86,211,0.08)",    border: "rgba(0,86,211,0.2)",    desc: "Online Courses & Certificates" },
+    { key: "freecodecamp",   name: "freeCodeCamp",        url: "https://www.freecodecamp.org",        emoji: "🔥", accent: "#A3A3A3", bg: "rgba(163,163,163,0.08)", border: "rgba(163,163,163,0.2)", desc: "Web Dev Projects" },
+    { key: "theodinproject", name: "The Odin Project",    url: "https://www.theodinproject.com",      emoji: "⚔️", accent: "#D23232", bg: "rgba(210,50,50,0.08)",   border: "rgba(210,50,50,0.2)",   desc: "Full Stack Web Dev" },
   ];
 
-  // Filter coding platforms based on chosen study path
-  const filteredPlatforms = codingPlatforms.filter(p => {
+  // Merge built-in + custom platforms
+  const allPlatforms = [...codingPlatforms, ...customPlatforms];
+
+  // Filter platforms based on chosen study path
+  const filteredPlatforms = allPlatforms.filter(p => {
     if (selectedPath === "all") return true;
     if (selectedPath === "competitive") {
       return ["leetcode", "codingninjas", "codechef", "codeforces"].includes(p.key);
     }
     if (selectedPath === "fundamentals") {
-      return ["leetcode", "codingninjas", "gfg"].includes(p.key);
+      return ["leetcode", "codingninjas", "gfg", "freecodecamp"].includes(p.key);
     }
     if (selectedPath === "software") {
-      return ["hackerrank", "leetcode", "codingninjas"].includes(p.key);
+      return ["hackerrank", "leetcode", "freecodecamp", "theodinproject", "coursera"].includes(p.key);
+    }
+    if (selectedPath === "ml") {
+      return ["kaggle", "fastai", "huggingface", "coursera", "leetcode"].includes(p.key);
+    }
+    if (selectedPath === "custom") {
+      return customPlatforms.some(cp => cp.key === p.key);
     }
     return true;
   });
@@ -62,7 +89,7 @@ export default function Career() {
     // Automatically trigger SMS streak celebration!
     if (value > 0) {
       try {
-        const platformName = codingPlatforms.find(p => p.key === key)?.name || key;
+        const platformName = allPlatforms.find(p => p.key === key)?.name || key;
         await axios.post("http://localhost:5000/api/notifications/streak-reminder", {
           platform: platformName,
           streakDays: value
@@ -74,8 +101,41 @@ export default function Career() {
     }
   };
 
+  const addCustomPlatform = () => {
+    if (!newPlatform.name.trim() || !newPlatform.url.trim()) return;
+    const key = newPlatform.name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+    if (allPlatforms.some(p => p.key === key)) return; // prevent duplicate
+    const accents = ["#A78BFA", "#34D399", "#F472B6", "#60A5FA", "#FBBF24", "#F87171", "#38BDF8"];
+    const accent = accents[customPlatforms.length % accents.length];
+    const hex = accent.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const newEntry = {
+      key,
+      name: newPlatform.name.trim(),
+      url: newPlatform.url.trim().startsWith("http") ? newPlatform.url.trim() : `https://${newPlatform.url.trim()}`,
+      emoji: "🔗",
+      accent,
+      bg: `rgba(${r},${g},${b},0.08)`,
+      border: `rgba(${r},${g},${b},0.2)`,
+      desc: newPlatform.desc.trim() || "Custom Platform",
+    };
+    const updated = [...customPlatforms, newEntry];
+    setCustomPlatforms(updated);
+    localStorage.setItem("vitacore_custom_platforms", JSON.stringify(updated));
+    setNewPlatform({ name: "", url: "", desc: "" });
+    setShowAddPlatform(false);
+  };
+
+  const removeCustomPlatform = (key: string) => {
+    const updated = customPlatforms.filter(p => p.key !== key);
+    setCustomPlatforms(updated);
+    localStorage.setItem("vitacore_custom_platforms", JSON.stringify(updated));
+  };
+
   const [formData, setFormData] = useState({
-    topic: "React",
+    topic: "",
     durationMinutes: 0,
     notes: ""
   });
@@ -148,7 +208,7 @@ export default function Career() {
       localStorage.setItem("focusScore", score.toString());
       localStorage.setItem("skills", Object.keys(topicMap).join(", "));
       fetchLogs(); // Refresh
-      setFormData({ topic: "React", durationMinutes: 0, notes: "" });
+      setFormData({ topic: "", durationMinutes: 0, notes: "" });
     } catch (error) {
       console.error(error);
     }
@@ -454,10 +514,10 @@ export default function Career() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: "#e2d9ff", margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
-                    <Flame size={18} color="#e91e8c" /> Recommended Coding Platforms
+                    <Flame size={18} color="#e91e8c" /> Learning Platforms Hub
                   </h3>
                   <p style={{ color: "rgba(196,181,253,0.5)", fontSize: 12, marginTop: 4, fontWeight: 500 }}>
-                    Select a path below to see suitable study platforms. Click streak to update.
+                    Filter by learning path or add any platform. Click a row to track its streak.
                   </p>
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -471,7 +531,9 @@ export default function Career() {
                   { id: "all", label: "All Paths" },
                   { id: "competitive", label: "Competitive Coding" },
                   { id: "fundamentals", label: "DSA & CS Fundamentals" },
-                  { id: "software", label: "Web Dev & Certifications" }
+                  { id: "software", label: "Web Dev & Certifications" },
+                  { id: "ml", label: "ML & Data Science" },
+                  { id: "custom", label: `My Platforms${customPlatforms.length > 0 ? ` (${customPlatforms.length})` : ""}` }
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -671,6 +733,92 @@ export default function Career() {
                 </tbody>
               </table>
             </div>
+
+            {/* ── Add Custom Platform ── */}
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(196,181,253,0.4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  Don't see your platform?
+                </span>
+                <button
+                  onClick={() => setShowAddPlatform(!showAddPlatform)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    background: showAddPlatform ? "rgba(233,30,140,0.12)" : "rgba(139,92,246,0.1)",
+                    border: showAddPlatform ? "1px solid rgba(233,30,140,0.3)" : "1px solid rgba(139,92,246,0.25)",
+                    borderRadius: 10, padding: "7px 16px", cursor: "pointer",
+                    fontSize: 12, fontWeight: 700,
+                    color: showAddPlatform ? "#e91e8c" : "#a78bfa",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  <Plus size={13} /> {showAddPlatform ? "Cancel" : "Add Custom Platform"}
+                </button>
+              </div>
+
+              {showAddPlatform && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    background: "rgba(139,92,246,0.04)",
+                    border: "1px solid rgba(139,92,246,0.15)",
+                    borderRadius: 16, padding: "20px 24px",
+                    display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 12, alignItems: "flex-end"
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Platform Name *</label>
+                    <input
+                      type="text" value={newPlatform.name}
+                      onChange={e => setNewPlatform({ ...newPlatform, name: e.target.value })}
+                      placeholder="e.g. Kaggle, Udemy, fast.ai"
+                      style={{ height: 38, padding: "0 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontSize: 13, fontWeight: 600, outline: "none" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Website URL *</label>
+                    <input
+                      type="text" value={newPlatform.url}
+                      onChange={e => setNewPlatform({ ...newPlatform, url: e.target.value })}
+                      placeholder="e.g. kaggle.com"
+                      style={{ height: 38, padding: "0 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontSize: 13, fontWeight: 600, outline: "none" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Short Description</label>
+                    <input
+                      type="text" value={newPlatform.desc}
+                      onChange={e => setNewPlatform({ ...newPlatform, desc: e.target.value })}
+                      placeholder="e.g. ML Competitions"
+                      style={{ height: 38, padding: "0 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontSize: 13, fontWeight: 600, outline: "none" }}
+                    />
+                  </div>
+                  <button
+                    onClick={addCustomPlatform}
+                    style={{ height: 38, padding: "0 20px", background: "linear-gradient(135deg, #e91e8c, #8b5cf6)", border: "none", borderRadius: 10, color: "#fff", fontSize: 12, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}
+                  >
+                    + Add
+                  </button>
+                </motion.div>
+              )}
+
+              {customPlatforms.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>
+                  {customPlatforms.map(cp => (
+                    <div key={cp.key} style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 20, padding: "5px 12px" }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa" }}>{cp.emoji} {cp.name}</span>
+                      <button
+                        onClick={() => removeCustomPlatform(cp.key)}
+                        style={{ background: "none", border: "none", color: "rgba(196,181,253,0.4)", cursor: "pointer", fontSize: 16, lineHeight: 1, padding: 0, display: "flex", alignItems: "center" }}
+                        title={`Remove ${cp.name}`}
+                      >×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </motion.div>
 
           {/* Competency & Milestones Grid */}
@@ -776,15 +924,25 @@ export default function Career() {
                     <Input type="number" value={formData.durationMinutes} onChange={e => setFormData({ ...formData, durationMinutes: Number(e.target.value) })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }} required />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Topic</label>
-                    <select value={formData.topic} onChange={e => setFormData({ ...formData, topic: e.target.value })} style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600, padding: "0 10px", outline: "none", cursor: "pointer" }}>
-                      <option value="React" style={{ background: "#100c26", color: "#e2d9ff" }}>React</option>
-                      <option value="Node.js" style={{ background: "#100c26", color: "#e2d9ff" }}>Node.js</option>
-                      <option value="MongoDB" style={{ background: "#100c26", color: "#e2d9ff" }}>MongoDB</option>
-                      <option value="System Design" style={{ background: "#100c26", color: "#e2d9ff" }}>System Design</option>
-                      <option value="Security" style={{ background: "#100c26", color: "#e2d9ff" }}>Security</option>
-                      <option value="DevOps" style={{ background: "#100c26", color: "#e2d9ff" }}>DevOps</option>
-                    </select>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Topic / Skill</label>
+                    <Input
+                      type="text"
+                      list="topic-suggestions"
+                      value={formData.topic}
+                      onChange={e => setFormData({ ...formData, topic: e.target.value })}
+                      placeholder="e.g. Machine Learning, React..."
+                      style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
+                    />
+                    <datalist id="topic-suggestions">
+                      <option value="React" /><option value="Node.js" /><option value="MongoDB" />
+                      <option value="System Design" /><option value="Security" /><option value="DevOps" />
+                      <option value="Machine Learning" /><option value="Deep Learning" /><option value="Python" />
+                      <option value="Data Science" /><option value="Computer Vision" /><option value="NLP" />
+                      <option value="TypeScript" /><option value="Flutter" /><option value="Kubernetes" />
+                      <option value="AWS" /><option value="GCP" /><option value="DSA" /><option value="SQL" />
+                      <option value="Rust" /><option value="Go" /><option value="Java" /><option value="C++" />
+                      <option value="Android" /><option value="iOS" /><option value="Unity" /><option value="Blockchain" />
+                    </datalist>
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
