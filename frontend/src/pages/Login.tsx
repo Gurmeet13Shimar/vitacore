@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/context/ThemeContext";
-import { Eye, EyeOff, Mail, Lock, User, Zap, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Zap } from "lucide-react";
 
 interface FormInputProps {
   icon: React.ReactNode;
@@ -107,7 +107,6 @@ export default function Login() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
@@ -119,7 +118,7 @@ export default function Login() {
     setIsLoading(true);
     try {
       if (isRegistering) {
-        await register(name, email, password, phoneNumber);
+        await register(name, email, password);
       } else {
         await login(email, password);
       }
@@ -195,23 +194,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* Conditional Phone Number Field for Sign Up Mode */}
-          {isRegistering && (
-            <div className="space-y-1.5 animate-fadeIn">
-              <label className="text-[10px] font-bold text-violet-300/60 uppercase tracking-widest ml-1">
-                Phone Number
-              </label>
-              <FormInput
-                icon={<Phone size={16} />}
-                type="tel"
-                placeholder="Enter your phone number (e.g. 9876543210)"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-              />
-              <p className="text-[10px] text-violet-300/40 ml-1">Used to send you health alerts & reminders via SMS</p>
-            </div>
-          )}
+
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-violet-300/60 uppercase tracking-widest ml-1">

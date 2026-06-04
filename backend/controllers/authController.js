@@ -11,8 +11,8 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phoneNumber } = req.body;
-    if (!name || !email || !password || !phoneNumber) {
-      return res.status(400).json({ message: 'Please add all fields including phone number' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Please add all fields' });
     }
     const userExists = await User.findOne({ email });
     if (userExists) {

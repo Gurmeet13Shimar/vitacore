@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/context/ThemeContext';
@@ -21,12 +21,26 @@ import {
   MessageCircle,
   ArrowRight,
   Sparkles,
+  X,
+  AlertCircle
 } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { themeColors, theme } = useTheme();
+
+  const isUserOne = user && (user.name?.toLowerCase() === 'userone' || user.email?.toLowerCase().includes('userone'));
+  const [showUserOneAlert, setShowUserOneAlert] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isUserOne) {
+      const timer = setTimeout(() => {
+        setShowUserOneAlert(true);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [user, isUserOne]);
 
   const features = [
     {
@@ -168,6 +182,84 @@ export default function Dashboard() {
           <MessageCircle size={22} color="#fff" strokeWidth={2} />
         </motion.button>
       </div>
+
+      <AnimatePresence>
+        {showUserOneAlert && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowUserOneAlert(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Alert Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-md p-6 rounded-3xl border shadow-2xl overflow-hidden z-10"
+              style={{
+                background: theme === "bright" ? "rgba(255, 255, 255, 0.9)" : "rgba(15, 12, 35, 0.85)",
+                borderColor: theme === "bright" ? "rgba(107, 92, 231, 0.3)" : "rgba(139, 92, 246, 0.3)",
+                backdropFilter: "blur(20px)",
+                boxShadow: theme === "bright" ? "0 20px 50px rgba(107, 92, 231, 0.15)" : "0 20px 50px rgba(0, 0, 0, 0.6)",
+              }}
+            >
+              {/* Top ambient glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowUserOneAlert(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors cursor-pointer"
+                style={{ color: themeColors.textMuted }}
+              >
+                <X size={16} />
+              </button>
+
+              {/* Header Icon & Title */}
+              <div className="flex items-center gap-4 mb-4 mt-2">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                  <Sparkles size={24} className="text-white animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold tracking-tight" style={{ color: themeColors.textWhite }}>
+                    Welcome Back, userone!
+                  </h3>
+                  <span className="text-xs uppercase font-extrabold tracking-wider" style={{ color: theme === "bright" ? "#6b5ce7" : "#c4b5fd" }}>
+                    System Status Alert
+                  </span>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-3 mb-6">
+                <p className="text-sm leading-relaxed" style={{ color: themeColors.textMuted }}>
+                  SMS notifications and phone alerts have been successfully deactivated as they are currently not working.
+                </p>
+                <div className="flex gap-3 p-3.5 rounded-2xl border bg-white/5" style={{ borderColor: themeColors.cardBorder }}>
+                  <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-xs leading-relaxed" style={{ color: themeColors.textWhite }}>
+                    All future alerts, achievements, and notifications will be displayed dynamically here on your live Web Dashboard.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={() => setShowUserOneAlert(false)}
+                className="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-white transition-all bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 cursor-pointer"
+              >
+                Enter Dashboard
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </AppLayout>
   );
 }

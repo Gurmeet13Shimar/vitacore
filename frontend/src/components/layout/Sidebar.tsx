@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/context/ThemeContext";
 import { mockUser } from "@/data/mockData";
+import { useGamification } from "@/hooks/useGamification";
 import {
   LayoutDashboard,
   Heart,
@@ -14,7 +15,7 @@ import {
   LogOut,
   Zap,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 
 const navItems = [
@@ -31,6 +32,7 @@ export function Sidebar() {
   const location = useLocation();
   const { logout, user } = useAuth();
   const { themeColors, theme } = useTheme();
+  const { level } = useGamification();
 
   return (
     <header
@@ -89,6 +91,7 @@ export function Sidebar() {
 
       {/* ── Navigation Pills ── */}
       <nav
+        className="no-scrollbar"
         style={{
           flex: 1,
           display: "flex",
@@ -190,7 +193,7 @@ export function Sidebar() {
               }}
             >
               <Zap size={10} color={themeColors.gold} fill={themeColors.gold} />
-              Level {mockUser.level}
+              Level {level}
             </p>
           </div>
           <Avatar
@@ -202,7 +205,6 @@ export function Sidebar() {
               flexShrink: 0,
             }}
           >
-            <AvatarImage src={mockUser.avatar} />
             <AvatarFallback
               style={{
                 background: "linear-gradient(135deg, #7c3aed, #e91e8c)",
