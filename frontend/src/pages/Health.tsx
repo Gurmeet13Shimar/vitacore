@@ -53,43 +53,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface HealthLog {
-  date?: string;
-  caloriesConsumed: number;
-  sleepHours: number;
-  waterGlasses: number;
-  workoutMinutes: number;
-  caloriesBurned: number;
-  mood?: string;
-}
-
-interface SleepDataPoint {
-  day: string;
-  hours: number;
-}
-
-interface FoodItem {
-  name: string;
-  calories: number;
-}
-
-interface Exercise {
-  name: string;
-  target: string;
-  equipment: string;
-  bodyPart: string;
-  gifUrl: string;
-}
-
-interface FitnessPlan {
-  category: string;
-  issues: string[];
-  exercises: Exercise[];
-}
-
 export default function Health() {
   const { themeColors, theme } = useTheme();
-  const [logs, setLogs] = useState<HealthLog[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -122,7 +88,7 @@ export default function Health() {
   // CalorieNinjas Search State
   const [foodQuery, setFoodQuery] = useState("");
   const [isSearchingFood, setIsSearchingFood] = useState(false);
-  const [foodResult, setFoodResult] = useState<FoodItem[] | null>(null);
+  const [foodResult, setFoodResult] = useState<any[] | null>(null);
   const [foodError, setFoodError] = useState("");
   const [showCalorieLookup, setShowCalorieLookup] = useState(false);
 
@@ -149,7 +115,17 @@ export default function Health() {
   }, []);
 
   // AI Fitness Coach State
-  const [fitnessPlan, setFitnessPlan] = useState<FitnessPlan | null>(null);
+  const [fitnessPlan, setFitnessPlan] = useState<{
+    category: string;
+    issues: string[];
+    exercises: Array<{
+      name: string;
+      target: string;
+      equipment: string;
+      bodyPart: string;
+      gifUrl: string;
+    }>;
+  } | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [fitnessError, setFitnessError] = useState("");
 
@@ -160,11 +136,10 @@ export default function Health() {
     try {
       const res = await axios.get("http://localhost:5000/api/health/fitness-plan");
       setFitnessPlan(res.data);
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error("Error generating fitness plan:", err);
-      const axiosErr = err as { response?: { data?: { message?: string } } };
-      if (axiosErr?.response?.data?.message) {
-        setFitnessError(axiosErr.response.data.message);
+      if (err?.response?.data?.message) {
+        setFitnessError(err.response.data.message);
       } else {
         setFitnessError("Failed to connect to the fitness coach. Please check your network and try again.");
       }
@@ -184,7 +159,7 @@ export default function Health() {
       localStorage.setItem("workoutMinutes", formData.workoutMinutes.toString());
       localStorage.setItem("mood", formData.mood);
 
-      fetchLogs();
+      fetchLogs(); // Refresh DB entries
       setFormData({ 
         workoutMinutes: 0, 
         caloriesBurned: 0, 
@@ -199,6 +174,8 @@ export default function Health() {
       console.error("Error submitting health log:", error);
     }
   };
+
+  // (Presets removed — form is purely user-driven)
 
   // Food Calorie Search handler
   const handleFoodSearch = async (e: React.FormEvent) => {
@@ -223,10 +200,9 @@ export default function Health() {
       } else {
         setFoodError("Something went wrong. Please try again!");
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err);
-      const axiosErr = err as { response?: { status?: number } };
-      if (axiosErr?.response?.status === 401) {
+      if (err?.response?.status === 401) {
         setFoodError("Please log in first to use this feature.");
       } else {
         setFoodError("Could not connect. Please check your connection and try again.");
@@ -243,6 +219,7 @@ export default function Health() {
       ...prev,
       caloriesConsumed: Math.round(totalCalories)
     }));
+    // Clear search so it feels completed
     setFoodResult(null);
     setFoodQuery("");
   };
@@ -264,32 +241,25 @@ export default function Health() {
     { name: "Remaining", value: Math.max(0, 3000 - calories) }
   ];
 
-  // ✅ FIXED: Sleep history — no more never[] mutation
-  const sleepHistoryData = useMemo((): SleepDataPoint[] => {
-    const historicalPoints: SleepDataPoint[] = safeLogs
-      .slice(0, 7)
-      .reverse()
-      .map((l: HealthLog, i: number) => ({
-        day: l.date
-          ? new Date(l.date).toLocaleDateString([], { weekday: "short" })
-          : `Day ${i + 1}`,
-        hours: l.sleepHours || 0,
-      }));
+  // Sleep history calculation
+  const sleepHistoryData = useMemo(() => {
+    const historicalPoints = safeLogs.slice(0, 7).reverse().map((l: any, i: number) => ({
+      day: l.date ? new Date(l.date).toLocaleDateString([], { weekday: 'short' }) : `Day ${i + 1}`,
+      hours: l.sleepHours || 0
+    }));
 
     if (historicalPoints.length === 0) {
-      return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => ({
-        day,
-        hours: 0,
-      }));
+      for (let i = 0; i < 7; i++) {
+        historicalPoints.push({ day: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i], hours: 0 });
+      }
     }
-
     return historicalPoints;
   }, [logs]);
 
   // Calendar month calculation
   const calendarData = useMemo(() => {
     const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const month = currentDate.getMonth(); // 0-indexed
 
     const monthNames = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
@@ -297,11 +267,13 @@ export default function Health() {
     ];
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // Monday = 0, Sunday = 6 index:
     const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; 
     const prevDaysInMonth = new Date(year, month, 0).getDate();
 
-    const cells: { day: number; isCurrentMonth: boolean; date: Date }[] = [];
+    const cells = [];
 
+    // Previous month padding cells (faded)
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       cells.push({
         day: prevDaysInMonth - i,
@@ -310,6 +282,7 @@ export default function Health() {
       });
     }
 
+    // Current month cells
     for (let i = 1; i <= daysInMonth; i++) {
       cells.push({
         day: i,
@@ -318,6 +291,7 @@ export default function Health() {
       });
     }
 
+    // Next month padding cells to fill grid (42 cells total)
     const remainingCells = 42 - cells.length;
     for (let i = 1; i <= remainingCells; i++) {
       cells.push({
@@ -327,9 +301,10 @@ export default function Health() {
       });
     }
 
+    // Map each cell to matched log in safeLogs
     const matchedLogs = cells.map(cell => {
       const cellDateStr = cell.date.toDateString();
-      const log = safeLogs.find((l: HealthLog) => {
+      const log = safeLogs.find(l => {
         if (!l.date) return false;
         return new Date(l.date).toDateString() === cellDateStr;
       });
@@ -417,6 +392,7 @@ export default function Health() {
                         </Button>
                       </form>
 
+                      {/* Loading/Error/Results */}
                       {isSearchingFood && (
                         <div className="text-xs text-violet-400 font-semibold mt-3 animate-pulse text-center">
                           Searching foods...
@@ -536,7 +512,7 @@ export default function Health() {
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">My Mood</label>
                         <select 
                           value={formData.mood}
-                          onChange={e => setFormData({ ...formData, mood: e.target.value as "Great" | "Good" | "Neutral" | "Bad" | "Terrible" })}
+                          onChange={e => setFormData({ ...formData, mood: e.target.value as any })}
                           className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm px-3 h-10 cursor-pointer outline-none"
                         >
                           <option value="Great">😄 Great</option>
@@ -789,6 +765,7 @@ export default function Health() {
                               key={i}
                               className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden flex flex-col justify-between shadow-lg"
                             >
+                              {/* Exercise GIF or placeholder */}
                               <div className="w-full h-40 bg-slate-950/80 flex items-center justify-center relative overflow-hidden border-b border-slate-850">
                                 <img
                                   src={ex.gifUrl}
@@ -892,6 +869,7 @@ export default function Health() {
                 </CardHeader>
                 
                 <CardContent className="p-0 overflow-visible flex-grow">
+                  {/* Calendar Container */}
                   <div className="flex flex-col select-none overflow-visible">
                     {/* Header Month Selector */}
                     <div className="flex items-center justify-between mb-5 px-2">
@@ -929,6 +907,7 @@ export default function Health() {
                         const isLogged = !!cell.log;
                         const log = cell.log;
 
+                        // Get mood details
                         let moodEmoji = "🙂 Good";
                         let moodBadgeColor = "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30";
                         if (log) {
@@ -961,6 +940,7 @@ export default function Health() {
                             key={idx}
                             className="group relative flex items-center justify-center aspect-square overflow-visible"
                           >
+                            {/* Cell circle */}
                             <div 
                               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all relative ${
                                 !cell.isCurrentMonth 
@@ -972,16 +952,19 @@ export default function Health() {
                             >
                               {cell.day}
                               
+                              {/* Small indicator dot for active day */}
                               {isLogged && (
                                 <span className="absolute bottom-1 w-1 h-1 rounded-full bg-white opacity-80" />
                               )}
                             </div>
 
+                            {/* Tooltip on Hover */}
                             {isLogged && log && (
                               <div 
                                 className="absolute bottom-10 left-1/2 -translate-x-1/2 w-48 bg-slate-950/95 border border-slate-800 rounded-2xl p-3.5 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50 flex flex-col gap-2"
                                 style={{ backdropFilter: "blur(12px)", transformOrigin: "bottom center" }}
                               >
+                                {/* Mood on Top */}
                                 <div className="flex items-center justify-between border-b border-slate-850 pb-1.5 mb-1">
                                   <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Mood</span>
                                   <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${moodBadgeColor}`}>
@@ -989,6 +972,7 @@ export default function Health() {
                                   </span>
                                 </div>
 
+                                {/* Metrics List */}
                                 <div className="flex flex-col gap-1.5 text-[11px] font-semibold text-slate-300">
                                   <div className="flex items-center justify-between">
                                     <span className="flex items-center gap-1.5 text-slate-400">
@@ -1016,6 +1000,7 @@ export default function Health() {
                                   </div>
                                 </div>
 
+                                {/* Small Arrow indicator for the tooltip */}
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-950 border-r border-b border-slate-800 rotate-45 -mt-1" />
                               </div>
                             )}
