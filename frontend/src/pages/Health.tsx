@@ -668,7 +668,7 @@ export default function Health() {
                             return (
                               <div 
                                 key={idx}
-                                className="group relative flex items-center justify-center aspect-square overflow-visible"
+                                className="group relative flex items-center justify-center h-9 overflow-visible"
                               >
                                 {/* Cell circle */}
                                 <div 
