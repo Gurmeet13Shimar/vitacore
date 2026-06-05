@@ -600,7 +600,7 @@ export default function Health() {
                     
                     <CardContent className="p-0 overflow-visible flex-grow">
                       {/* Calendar Container */}
-                      <div className="flex flex-col select-none overflow-visible">
+                      <div className="flex flex-col select-none overflow-visible max-w-md mx-auto w-full">
                         {/* Header Month Selector */}
                         <div className="flex items-center justify-between mb-2 px-2">
                           <button 
