@@ -123,3 +123,8 @@ backend/vitacore_model.pkl
 backend/__pycache__/
 *.pkl
 __pycache__/
+
+
+.README.md
+.REFERENCE.md
+.TECH_STACK.md
