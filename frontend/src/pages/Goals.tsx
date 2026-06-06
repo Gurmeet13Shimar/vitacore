@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useTheme } from "@/context/ThemeContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -11,10 +11,26 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Goals() {
   const { themeColors, theme } = useTheme();
   const navigate = useNavigate();
+  const [realGoals, setRealGoals] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/goals");
+        if (Array.isArray(res.data)) {
+          setRealGoals(res.data);
+        }
+      } catch (error) {
+        console.error("Error fetching goals in twin dashboard:", error);
+      }
+    };
+    fetchGoals();
+  }, []);
 
   // Mock scores for the digital twin
   const overviewScores = [
@@ -23,33 +39,50 @@ export default function Goals() {
     { label: "Career Progress", value: 78, icon: Briefcase, color: "text-indigo-500", bg: "bg-indigo-500/10", border: "border-indigo-500/20" },
   ];
 
-  // Mock goal progress cards
-  const goalCards = [
-    { 
-      title: "Workout Consistency", 
-      category: "Health",
-      desc: "Maintain 4 exercise sessions per week", 
-      progress: 75, 
-      color: "#f43f5e", 
-      deadline: "2 days remaining" 
-    },
-    { 
-      title: "Liquidity Reserve Target", 
-      category: "Finance", 
-      desc: "Save 30% of current monthly income assets", 
-      progress: 60, 
-      color: "#10b981", 
-      deadline: "8 days remaining" 
-    },
-    { 
-      title: "Algorithmic Focus Hours", 
-      category: "Career", 
-      desc: "Log 15 total study hours on career tracks", 
-      progress: 90, 
-      color: "#6366f1", 
-      deadline: "Completed today" 
-    },
-  ];
+  const getColorForDomain = (domain: string) => {
+    if (domain === "Health") return "#f43f5e";
+    if (domain === "Finance") return "#10b981";
+    return "#6366f1";
+  };
+
+  // Real goals or mock fallback
+  const goalCards = realGoals.length > 0 
+    ? realGoals.map(g => ({
+        title: g.title,
+        category: g.domain,
+        desc: g.domain === "Finance" 
+          ? `Save toward target of ₹${g.targetValue.toLocaleString()}`
+          : `Target objective: ${g.targetValue}`,
+        progress: Math.min(100, Math.round((g.currentValue / g.targetValue) * 100)) || 0,
+        color: getColorForDomain(g.domain),
+        deadline: g.deadline ? `Target: ${new Date(g.deadline).toLocaleDateString()}` : "Active"
+      }))
+    : [
+        { 
+          title: "Workout Consistency", 
+          category: "Health",
+          desc: "Maintain 4 exercise sessions per week", 
+          progress: 75, 
+          color: "#f43f5e", 
+          deadline: "2 days remaining" 
+        },
+        { 
+          title: "Liquidity Reserve Target", 
+          category: "Finance", 
+          desc: "Save 30% of current monthly income assets", 
+          progress: 60, 
+          color: "#10b981", 
+          deadline: "8 days remaining" 
+        },
+        { 
+          title: "Algorithmic Focus Hours", 
+          category: "Career", 
+          desc: "Log 15 total study hours on career tracks", 
+          progress: 90, 
+          color: "#6366f1", 
+          deadline: "Completed today" 
+        },
+      ];
 
   // Mock AI recommendation feed
   const recommendations = [
