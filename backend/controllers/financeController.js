@@ -1,5 +1,6 @@
 const Expense = require('../models/Expense');
 const { sendAutomaticSMS } = require('../utils/smsHelper');
+const { createNotification } = require('../services/notificationService');
 const mongoose = require('mongoose');
 
 // @desc    Get user expenses
@@ -59,11 +60,35 @@ const addExpense = async (req, res) => {
         const monthlyBudget = 15000; // set standard threshold warning limit
 
         if (totalSpent > monthlyBudget) {
-          const budgetExceededMsg = `💸 VitaCore Budget Alert: You have exceeded your monthly budget! Total spent: ₹${totalSpent.toLocaleString()} (Limit: ₹${monthlyBudget.toLocaleString()}). Try to minimize extra costs. 📉`;
-          sendAutomaticSMS({ userId: req.user.id, message: budgetExceededMsg });
+          const budgetExceededMsg = `You have exceeded your monthly budget! Total spent: ₹${totalSpent.toLocaleString()} (Limit: ₹${monthlyBudget.toLocaleString()}). Try to minimize extra costs.`;
+          const smsMsg = `💸 VitaCore Budget Alert: You have exceeded your monthly budget! Total spent: ₹${totalSpent.toLocaleString()} (Limit: ₹${monthlyBudget.toLocaleString()}). Try to minimize extra costs. 📉`;
+          
+          // In-App Notification
+          createNotification(
+            req.user.id,
+            '💸 Budget Exceeded',
+            budgetExceededMsg,
+            'finance',
+            'critical'
+          );
+
+          // SMS Alert
+          sendAutomaticSMS({ userId: req.user.id, message: smsMsg });
         } else if (expense.amount >= 3000) {
-          const highExpenseMsg = `⚠️ VitaCore Finance: You logged a high individual expense of ₹${expense.amount.toLocaleString()} for "${expense.category}" (${expense.description || 'No description'}).`;
-          sendAutomaticSMS({ userId: req.user.id, message: highExpenseMsg });
+          const highExpenseMsg = `You logged a high individual expense of ₹${expense.amount.toLocaleString()} for "${expense.category}" (${expense.description || 'No description'}).`;
+          const smsMsg = `⚠️ VitaCore Finance: You logged a high individual expense of ₹${expense.amount.toLocaleString()} for "${expense.category}" (${expense.description || 'No description'}).`;
+          
+          // In-App Notification
+          createNotification(
+            req.user.id,
+            '⚠️ High Expense Warning',
+            highExpenseMsg,
+            'finance',
+            'high'
+          );
+
+          // SMS Alert
+          sendAutomaticSMS({ userId: req.user.id, message: smsMsg });
         }
       } catch (aggErr) {
         console.error('[FinanceAlert] Aggregation error:', aggErr.message);

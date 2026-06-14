@@ -11,7 +11,8 @@ import {
 } from "recharts";
 import { 
   Activity, Droplets, Moon, Flame, Plus, Clock, Search,
-  HeartPulse, ShieldAlert, ClipboardCheck, Apple, ChevronLeft, ChevronRight
+  HeartPulse, ShieldAlert, ClipboardCheck, Apple, ChevronLeft, ChevronRight,
+  Brain, TrendingUp, TrendingDown, Minus, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,14 @@ interface HealthLog {
   workoutMinutes: number;
   caloriesBurned: number;
   mood?: string;
+  age?: number;
+  qualityOfSleep?: number;
+  stressLevel?: number;
+  heartRate?: number;
+  dailySteps?: number;
+  prediction?: string;
+  confidence?: number;
+  riskLevel?: string;
 }
 
 interface SleepDataPoint {
@@ -124,7 +133,12 @@ export default function Health() {
     caloriesConsumed: 0,
     sleepHours: 0,
     waterGlasses: 0,
-    mood: "Good" as "Great" | "Good" | "Neutral" | "Bad" | "Terrible"
+    mood: "Good" as "Great" | "Good" | "Neutral" | "Bad" | "Terrible",
+    age: Number(localStorage.getItem("age")) || 25,
+    qualityOfSleep: Number(localStorage.getItem("qualityOfSleep")) || 6,
+    stressLevel: Number(localStorage.getItem("stressLevel")) || 5,
+    heartRate: Number(localStorage.getItem("heartRate")) || 72,
+    dailySteps: Number(localStorage.getItem("dailySteps")) || 5000
   });
 
   // CalorieNinjas Search State
@@ -190,16 +204,22 @@ export default function Health() {
       localStorage.setItem("caloriesConsumed", formData.caloriesConsumed.toString());
       localStorage.setItem("workoutMinutes", formData.workoutMinutes.toString());
       localStorage.setItem("mood", formData.mood);
+      localStorage.setItem("age", formData.age.toString());
+      localStorage.setItem("qualityOfSleep", formData.qualityOfSleep.toString());
+      localStorage.setItem("stressLevel", formData.stressLevel.toString());
+      localStorage.setItem("heartRate", formData.heartRate.toString());
+      localStorage.setItem("dailySteps", formData.dailySteps.toString());
 
       fetchLogs(); // Refresh DB entries
-      setFormData({ 
+      setFormData(prev => ({ 
+        ...prev,
         workoutMinutes: 0, 
         caloriesBurned: 0, 
         caloriesConsumed: 0, 
         sleepHours: 0, 
         waterGlasses: 0, 
         mood: "Good" 
-      });
+      }));
       setFoodResult(null);
       setFoodQuery("");
     } catch (error) {
@@ -258,7 +278,21 @@ export default function Health() {
 
   // Derive status from logs
   const safeLogs = Array.isArray(logs) ? logs : [];
-  const latestLog = safeLogs[0] || { caloriesConsumed: 0, sleepHours: 0, waterGlasses: 0, workoutMinutes: 0, caloriesBurned: 0 };
+  const latestLog = safeLogs[0] || { 
+    caloriesConsumed: 0, 
+    sleepHours: 0, 
+    waterGlasses: 0, 
+    workoutMinutes: 0, 
+    caloriesBurned: 0,
+    prediction: "None",
+    confidence: 1.0,
+    riskLevel: "Low",
+    age: 25,
+    qualityOfSleep: 6,
+    stressLevel: 5,
+    heartRate: 72,
+    dailySteps: 5000
+  };
   const calories = latestLog.caloriesConsumed || 0;
   const sleep = latestLog.sleepHours || 0;
   const water = latestLog.waterGlasses || 0;
@@ -383,9 +417,10 @@ export default function Health() {
                         <div className="relative">
                           <Input 
                             type="number" 
-                            value={formData.caloriesConsumed || ""} 
-                            onChange={e => setFormData({ ...formData, caloriesConsumed: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
+                            placeholder="e.g. 1800"
+                            value={formData.caloriesConsumed === 0 ? "" : formData.caloriesConsumed} 
+                            onChange={e => setFormData({ ...formData, caloriesConsumed: Number(e.target.value) || 0 })}
+                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner pr-10"
                             required 
                           />
                           <span className="absolute right-3 top-2.5 text-[9px] font-bold text-slate-500">kcal</span>
@@ -397,10 +432,11 @@ export default function Health() {
                         <div className="relative">
                           <Input 
                             type="number" 
-                            step="0.5"
-                            value={formData.sleepHours || ""} 
-                            onChange={e => setFormData({ ...formData, sleepHours: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
+                            step="0.1"
+                            placeholder="e.g. 7.5"
+                            value={formData.sleepHours === 0 ? "" : formData.sleepHours} 
+                            onChange={e => setFormData({ ...formData, sleepHours: Number(e.target.value) || 0 })}
+                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner pr-10"
                             required 
                           />
                           <span className="absolute right-3 top-2.5 text-[9px] font-bold text-slate-500">hrs</span>
@@ -412,9 +448,10 @@ export default function Health() {
                         <div className="relative">
                           <Input 
                             type="number" 
-                            value={formData.waterGlasses || ""} 
-                            onChange={e => setFormData({ ...formData, waterGlasses: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
+                            placeholder="e.g. 8"
+                            value={formData.waterGlasses === 0 ? "" : formData.waterGlasses} 
+                            onChange={e => setFormData({ ...formData, waterGlasses: Number(e.target.value) || 0 })}
+                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner pr-14"
                             required 
                           />
                           <span className="absolute right-3 top-2.5 text-[9px] font-bold text-slate-500">glasses</span>
@@ -426,9 +463,10 @@ export default function Health() {
                         <div className="relative">
                           <Input 
                             type="number" 
-                            value={formData.workoutMinutes || ""} 
-                            onChange={e => setFormData({ ...formData, workoutMinutes: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10"
+                            placeholder="e.g. 45"
+                            value={formData.workoutMinutes === 0 ? "" : formData.workoutMinutes} 
+                            onChange={e => setFormData({ ...formData, workoutMinutes: Number(e.target.value) || 0 })}
+                            className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner pr-12"
                             required 
                           />
                           <span className="absolute right-3 top-2.5 text-[9px] font-bold text-slate-500">mins</span>
@@ -448,6 +486,76 @@ export default function Health() {
                           <option value="Bad">🙁 Bad</option>
                           <option value="Terrible">😫 Terrible</option>
                         </select>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Age</label>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g. 30"
+                          value={formData.age === 0 ? "" : formData.age} 
+                          onChange={e => setFormData({ ...formData, age: Number(e.target.value) || 0 })}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
+                          required 
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Heart Rate (bpm)</label>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g. 72"
+                          value={formData.heartRate === 0 ? "" : formData.heartRate} 
+                          onChange={e => setFormData({ ...formData, heartRate: Number(e.target.value) || 0 })}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
+                          required 
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Daily Steps</label>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g. 8000"
+                          value={formData.dailySteps === 0 ? "" : formData.dailySteps} 
+                          onChange={e => setFormData({ ...formData, dailySteps: Number(e.target.value) || 0 })}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
+                          required 
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Sleep Quality (1–10)</label>
+                        <Input 
+                          type="number"
+                          min="1"
+                          max="10"
+                          placeholder="e.g. 7"
+                          value={formData.qualityOfSleep === 0 ? "" : formData.qualityOfSleep}
+                          onChange={e => {
+                            const v = Math.min(10, Math.max(1, Number(e.target.value) || 1));
+                            setFormData({ ...formData, qualityOfSleep: v });
+                          }}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
+                          required
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Stress Level (1–10)</label>
+                        <Input 
+                          type="number"
+                          min="1"
+                          max="10"
+                          placeholder="e.g. 4"
+                          value={formData.stressLevel === 0 ? "" : formData.stressLevel}
+                          onChange={e => {
+                            const v = Math.min(10, Math.max(1, Number(e.target.value) || 1));
+                            setFormData({ ...formData, stressLevel: v });
+                          }}
+                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
+                          required
+                        />
                       </div>
 
                     </div>
@@ -478,16 +586,25 @@ export default function Health() {
                   </p>
                 </div>
 
-                {/* Score badge */}
-                <div className="glass-card border border-slate-800/80 bg-slate-900/85 backdrop-blur-md px-5 py-2.5 flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-[10px] font-bold text-violet-400 tracking-wider uppercase block">Health Score</span>
-                    <h3 className="text-white text-xl font-black">{score}%</h3>
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-violet-500/20 flex items-center justify-center border border-violet-500/30">
-                    <HeartPulse className="text-violet-400 h-4.5 w-4.5 animate-pulse" />
-                  </div>
-                </div>
+                {/* Sleep risk pill — clean & simple */}
+                {(() => {
+                  const pred    = latestLog.prediction || "None";
+                  const riskLvl = latestLog.riskLevel  || "Low";
+                  const dot =
+                    riskLvl === "High"   ? "bg-red-400" :
+                    riskLvl === "Medium" ? "bg-amber-400" :
+                                          "bg-emerald-400";
+                  const label =
+                    riskLvl === "High"   ? "text-red-300" :
+                    riskLvl === "Medium" ? "text-amber-300" :
+                                          "text-emerald-300";
+                  return (
+                    <div className="flex items-center gap-2 bg-slate-900/70 border border-slate-800 rounded-full px-4 py-1.5">
+                      <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
+                      <span className={`text-sm font-semibold ${label}`}>{pred === "None" ? "No disorder" : pred}</span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Glowing Metrics Cards Grid */}
@@ -525,6 +642,92 @@ export default function Health() {
                   valueClassName="text-emerald-400"
                 />
               </div>
+
+              {/* ── Sleep Health Check card ── */}
+              {(() => {
+                const pred    = latestLog.prediction || "None";
+                const conf    = latestLog.confidence ?? 1.0;
+                const riskLvl = latestLog.riskLevel  || "Low";
+                const confPct = Math.round(conf * 100);
+
+                const colors = {
+                  High:   { bar: "bg-red-400",     text: "text-red-400",     pill: "bg-red-400/10 text-red-300 border border-red-400/20" },
+                  Medium: { bar: "bg-amber-400",   text: "text-amber-400",   pill: "bg-amber-400/10 text-amber-300 border border-amber-400/20" },
+                  Low:    { bar: "bg-emerald-400", text: "text-emerald-400", pill: "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20" },
+                };
+                const c = colors[riskLvl as keyof typeof colors] || colors.Low;
+
+                const tips: Record<string, string> = {
+                  None:          "You're sleeping well. Keep it up.",
+                  Insomnia:      "Try winding down earlier and avoiding screens before bed.",
+                  "Sleep Apnea": "Your heart rate and sleep quality suggest a risk. Consider seeing a doctor.",
+                };
+                const tip = tips[pred] || "Stay consistent with sleep and exercise.";
+
+                const riskLabel = { High: "High risk", Medium: "Moderate", Low: "All clear" };
+                const hasPrediction = safeLogs.length > 0 && latestLog.prediction;
+
+                return (
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                    <div className="bg-slate-900/50 border border-slate-800/70 rounded-2xl p-5 flex flex-col gap-4">
+
+                      {/* Top row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <HeartPulse className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm font-semibold text-slate-300">Sleep Health Check</span>
+                        </div>
+                        {hasPrediction && (
+                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.pill}`}>
+                            {riskLabel[riskLvl as keyof typeof riskLabel]}
+                          </span>
+                        )}
+                      </div>
+
+                      {!hasPrediction ? (
+                        <p className="text-slate-500 text-sm">Log your health data to see your sleep risk report.</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                          {/* Condition */}
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-slate-500">Condition</span>
+                            <span className={`text-xl font-bold ${c.text}`}>
+                              {pred === "None" ? "No disorder" : pred}
+                            </span>
+                          </div>
+
+                          {/* Confidence */}
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-slate-500">Confidence</span>
+                              <span className="text-xs font-semibold text-slate-300">{confPct}%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                              <motion.div
+                                className={`h-full rounded-full ${c.bar}`}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${confPct}%` }}
+                                transition={{ duration: 0.7, ease: "easeOut" }}
+                              />
+                            </div>
+                            <span className="text-[11px] text-slate-600">
+                              {confPct >= 80 ? "High" : confPct >= 60 ? "Moderate" : "Low — add more logs"}
+                            </span>
+                          </div>
+
+                          {/* Tip */}
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-slate-500">What to do</span>
+                            <p className="text-sm text-slate-300 leading-relaxed">{tip}</p>
+                          </div>
+
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })()}
 
               {/* Charts Container */}
               <div className="flex flex-col gap-6">

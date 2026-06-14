@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 const navItems = [
   { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
@@ -164,6 +165,7 @@ export function Sidebar() {
           flexShrink: 0,
         }}
       >
+        <NotificationBell />
         <div
           className="hidden md:flex"
           style={{ alignItems: "center", gap: 10 }}

@@ -37,7 +37,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Finance() {
   const { themeColors, theme } = useTheme();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -117,13 +117,9 @@ export default function Finance() {
         `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/profile`,
         { income: newIncome }
       );
-      // Persist income directly to localStorage (works with any AuthContext version)
-      const stored = localStorage.getItem("vitacore_user");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const merged = { ...parsed, income: res.data.income ?? newIncome };
-        localStorage.setItem("vitacore_user", JSON.stringify(merged));
-      }
+      const savedIncome = res.data.income ?? newIncome;
+      // Update the AuthContext user state so the UI re-renders immediately
+      updateUser({ income: savedIncome });
       setIsEditingIncome(false);
     } catch (error) {
       console.error(error);

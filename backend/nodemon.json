@@ -1,0 +1,13 @@
+{
+  "watch": ["."],
+  "ext": "js,json",
+  "ignore": [
+    "*.py",
+    "*.pkl",
+    "*.csv",
+    "ml/",
+    "node_modules/",
+    "uploads/"
+  ],
+  "delay": "500"
+}

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { createNotification } = require('../services/notificationService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -30,6 +31,15 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Welcome notification (fire & forget)
+      createNotification(
+        user._id.toString(),
+        '👋 Welcome to VitaCore!',
+        `Hey ${user.name}! Your intelligent life optimizer is ready. Start by logging your health metrics, setting financial goals, and tracking your career growth. Let's crush it! 🚀`,
+        'system',
+        'medium'
+      );
+
       res.status(201).json({
         _id: user.id,
         name: user.name,
@@ -105,4 +115,3 @@ const updateProfile = async (req, res) => {
 };
 
 module.exports = { registerUser, loginUser, getProfile, updateProfile };
-

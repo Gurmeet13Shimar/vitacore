@@ -1,4 +1,5 @@
 const Goal = require('../models/Goal');
+const { createNotification } = require('../services/notificationService');
 
 // @desc    Get user goals
 // @route   GET /api/goals
@@ -56,6 +57,8 @@ const updateGoal = async (req, res) => {
 
     const { title, targetValue, currentValue, deadline, status, contribution } = req.body;
 
+    const wasCompleted = goal.status === 'Completed';
+
     if (title) goal.title = title;
     if (targetValue !== undefined) goal.targetValue = targetValue;
     if (deadline) goal.deadline = deadline;
@@ -73,6 +76,18 @@ const updateGoal = async (req, res) => {
       goal.status = 'Completed';
     } else {
       goal.status = 'Active';
+    }
+
+    const isCompletedNow = goal.status === 'Completed';
+
+    if (isCompletedNow && !wasCompleted) {
+      createNotification(
+        req.user.id,
+        '🎯 Goal Achieved!',
+        `Congratulations! You have completed your goal: "${goal.title}". You reached ₹${goal.currentValue.toLocaleString()} of your ₹${goal.targetValue.toLocaleString()} target! 🎉`,
+        'finance',
+        'high'
+      );
     }
 
     const updatedGoal = await goal.save();

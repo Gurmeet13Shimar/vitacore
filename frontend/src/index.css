@@ -353,3 +353,12 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.25) transparent;
 }
+/* Hide number input spin arrows */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner[type='number'] {
+  -moz-appearance: textfield;
+}

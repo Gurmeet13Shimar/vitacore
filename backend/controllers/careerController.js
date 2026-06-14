@@ -1,5 +1,6 @@
 const StudyLog = require('../models/StudyLog');
 const { sendAutomaticSMS } = require('../utils/smsHelper');
+const { createNotification } = require('../services/notificationService');
 
 // @desc    Get user study logs
 // @route   GET /api/career
@@ -33,7 +34,13 @@ const addStudyLog = async (req, res) => {
     // --- Automatic Deep Focus Celebration Alert ---
     if (durationMinutes >= 120) {
       const celebrationMsg = `🚀 VitaCore Focus Celebration: Incredible work! You've successfully finished a deep-focus session of ${durationMinutes} minutes on "${topic}"! Keep this standard going! 💻🌟`;
+      const inAppMsg = `Incredible work! You've successfully finished a deep-focus session of ${durationMinutes} minutes on "${topic}"! Keep this standard going! 💻`;
+      
+      createNotification(req.user.id, '🚀 Deep Focus Achieved!', inAppMsg, 'career', 'high');
       sendAutomaticSMS({ userId: req.user.id, message: celebrationMsg });
+    } else if (durationMinutes < 30) {
+      const warningMsg = `You logged a study session of only ${durationMinutes} minutes on "${topic}". Try to block out at least 30-45 minutes next time for deeper learning.`;
+      createNotification(req.user.id, '📚 Short Study Session', warningMsg, 'career', 'medium');
     }
 
     res.status(201).json(log);
