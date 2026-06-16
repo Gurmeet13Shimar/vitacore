@@ -34,6 +34,7 @@ import {
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FinancialTwinCard } from "@/components/finance/FinancialTwinCard";
 
 export default function Finance() {
   const { themeColors, theme } = useTheme();
@@ -707,9 +708,20 @@ export default function Finance() {
             </motion.div>
           </div>
 
-          {/* Goal-Based Savings Tracker */}
-          <div>
-            <div style={{ marginBottom: 20 }}>
+          {/* Goal-Based Savings Tracker & Form in One Card */}
+          <motion.div
+            whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
+            style={{
+              background: "rgba(16,12,38,0.82)",
+              backdropFilter: "blur(16px)",
+              border: "1px solid rgba(139,92,246,0.14)",
+              borderRadius: 22,
+              padding: 32,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div style={{ marginBottom: 28 }}>
               <h2 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
                 Goal-Based Savings Tracker
               </h2>
@@ -718,9 +730,9 @@ export default function Finance() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24 }} className="lg:grid-cols-3">
-              {/* Goals Cards List */}
-              <div className="lg:col-span-2" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "grid", gap: 32 }} className="grid-cols-1 lg:grid-cols-2">
+              {/* Left Column: Goals List */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 {isGoalsLoading ? (
                   <div style={{ color: "rgba(196,181,253,0.5)", fontSize: 14, fontWeight: 600, padding: "20px 0" }}>
                     Loading goals telemetry...
@@ -728,12 +740,15 @@ export default function Finance() {
                 ) : goals.length === 0 ? (
                   <div
                     style={{
-                      background: "rgba(16,12,38,0.5)",
-                      backdropFilter: "blur(16px)",
-                      border: "1px solid rgba(139,92,246,0.1)",
-                      borderRadius: 22,
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px dashed rgba(139,92,246,0.3)",
+                      borderRadius: 16,
                       padding: "48px 20px",
-                      textAlign: "center"
+                      textAlign: "center",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center"
                     }}
                   >
                     <Target size={40} color="rgba(139,92,246,0.4)" style={{ margin: "0 auto 12px" }} />
@@ -742,27 +757,22 @@ export default function Finance() {
                     </p>
                   </div>
                 ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
                     {goals.map((goal) => {
                       const progress = Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) || 0;
                       const remaining = Math.max(0, goal.targetValue - goal.currentValue);
                       const targetDateStr = goal.deadline ? new Date(goal.deadline).toLocaleDateString() : "No date";
                       return (
-                        <motion.div
+                        <div
                           key={goal._id}
-                          whileHover={{ y: -4, boxShadow: "0 12px 30px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
                           style={{
-                            background: "rgba(16,12,38,0.82)",
-                            backdropFilter: "blur(16px)",
-                            border: "1px solid rgba(139,92,246,0.14)",
-                            borderRadius: 22,
-                            padding: 24,
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                            transition: "all 0.3s ease",
+                            background: "rgba(255,255,255,0.03)",
+                            border: "1px solid rgba(139,92,246,0.1)",
+                            borderRadius: 16,
+                            padding: 20,
                             display: "flex",
                             flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: 16
+                            gap: 12
                           }}
                         >
                           <div>
@@ -776,7 +786,7 @@ export default function Finance() {
                                 <Trash2 size={14} />
                               </button>
                             </div>
-                            <div style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", fontWeight: 700, margin: "4px 0 16px" }}>
+                            <div style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", fontWeight: 700, margin: "4px 0 12px" }}>
                               Target: ₹{goal.targetValue.toLocaleString()} • Deadline: {targetDateStr}
                             </div>
 
@@ -800,7 +810,7 @@ export default function Finance() {
                             </div>
                           </div>
 
-                          <div style={{ marginTop: 8 }}>
+                          <div style={{ marginTop: 4 }}>
                             {remaining > 0 ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                 <span style={{ fontSize: 11, color: "rgba(196,181,253,0.5)", fontWeight: 600 }}>
@@ -829,83 +839,73 @@ export default function Finance() {
                               </div>
                             )}
                           </div>
-                        </motion.div>
+                        </div>
                       );
                     })}
                   </div>
                 )}
               </div>
 
-              {/* Create Savings Goal Form */}
-              <div>
-                <motion.div
-                  whileHover={{ y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.5)", borderColor: "rgba(139,92,246,0.25)" }}
-                  style={{
-                    background: "rgba(16,12,38,0.82)",
-                    backdropFilter: "blur(16px)",
-                    border: "1px solid rgba(139,92,246,0.14)",
-                    borderRadius: 22,
-                    padding: 28,
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.40)",
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <h3 style={{ fontSize: 17, fontWeight: 900, color: "#e2d9ff", margin: "0 0 20px", display: "flex", alignItems: "center", gap: 8 }}>
-                    <Target size={18} color="#e91e8c" strokeWidth={3} /> Create Savings Goal
-                  </h3>
-                  <form onSubmit={handleCreateGoal} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Right Column: Create Savings Goal Form */}
+              <div style={{ paddingLeft: "1rem", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
+                <h3 style={{ fontSize: 17, fontWeight: 900, color: "#e2d9ff", margin: "0 0 20px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Target size={18} color="#e91e8c" strokeWidth={3} /> Create Savings Goal
+                </h3>
+                <form onSubmit={handleCreateGoal} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Goal Name</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Dream House Fund"
+                      value={goalForm.title}
+                      onChange={e => setGoalForm({ ...goalForm, title: e.target.value })}
+                      style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
+                      required
+                    />
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Goal Name</label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Target (₹)</label>
                       <Input
-                        type="text"
-                        placeholder="e.g. Dream House Fund"
-                        value={goalForm.title}
-                        onChange={e => setGoalForm({ ...goalForm, title: e.target.value })}
+                        type="number"
+                        placeholder="₹ Total"
+                        value={goalForm.targetValue}
+                        onChange={e => setGoalForm({ ...goalForm, targetValue: e.target.value })}
                         style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
                         required
                       />
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Target (₹)</label>
-                        <Input
-                          type="number"
-                          placeholder="₹ Total"
-                          value={goalForm.targetValue}
-                          onChange={e => setGoalForm({ ...goalForm, targetValue: e.target.value })}
-                          style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
-                          required
-                        />
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Initial Saved (₹)</label>
-                        <Input
-                          type="number"
-                          placeholder="₹ 0"
-                          value={goalForm.currentValue}
-                          onChange={e => setGoalForm({ ...goalForm, currentValue: e.target.value })}
-                          style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
-                        />
-                      </div>
-                    </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Target Date</label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Initial Saved (₹)</label>
                       <Input
-                        type="date"
-                        value={goalForm.deadline}
-                        onChange={e => setGoalForm({ ...goalForm, deadline: e.target.value })}
+                        type="number"
+                        placeholder="₹ 0"
+                        value={goalForm.currentValue}
+                        onChange={e => setGoalForm({ ...goalForm, currentValue: e.target.value })}
                         style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
-                        required
                       />
                     </div>
-                    <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)", marginTop: 8 }}>
-                      CREATE GOAL
-                    </Button>
-                  </form>
-                </motion.div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(196,181,253,0.5)", textTransform: "uppercase" }}>Target Date</label>
+                    <Input
+                      type="date"
+                      value={goalForm.deadline}
+                      onChange={e => setGoalForm({ ...goalForm, deadline: e.target.value })}
+                      style={{ height: 42, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, color: "#e2d9ff", fontWeight: 600 }}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" style={{ height: 46, background: "linear-gradient(135deg, #e91e8c, #f472b6)", color: "#fff", fontWeight: 800, borderRadius: 99, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(233,30,140,0.25)", marginTop: 8 }}>
+                    CREATE GOAL
+                  </Button>
+                </form>
               </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Financial Twin Interactive Card */}
+          <FinancialTwinCard />
 
         </div>
       </div>

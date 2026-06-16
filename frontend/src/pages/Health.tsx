@@ -141,6 +141,62 @@ export default function Health() {
     dailySteps: Number(localStorage.getItem("dailySteps")) || 5000
   });
 
+  // ── Sleep Quiz State ──────────────────────────────────────────────────────
+  const QUIZ_QUESTIONS = [
+    { key: "age",             label: "How old are you?",                                         hint: "e.g. 28",   unit: "yrs",   desc: "" },
+    { key: "sleepDuration",  label: "How many hours did you sleep last night?",                  hint: "e.g. 7.5", unit: "hrs",   desc: "" },
+    { key: "qualityOfSleep", label: "How would you rate that sleep? (1 = awful, 10 = great)",   hint: "e.g. 6",   unit: "/10",   desc: "Think about how rested you actually felt" },
+    { key: "heartRate",      label: "What\'s your resting heart rate right now?",                hint: "e.g. 72",  unit: "bpm",   desc: "Check your phone health app or just estimate" },
+    { key: "stressLevel",    label: "Stress level today? (1 = totally calm, 10 = overwhelmed)", hint: "e.g. 4",   unit: "/10",   desc: "" },
+    { key: "dailySteps",     label: "How many steps have you walked today?",                     hint: "e.g. 6000",unit: "steps", desc: "Rough number is fine" },
+    { key: "physicalActivity",label: "Minutes of exercise today?",                              hint: "e.g. 30",  unit: "mins",  desc: "Any movement counts — gym, walk, yoga" },
+  ];
+  type QuizState = "idle" | "asking" | "loading" | "done";
+  const [quizState, setQuizState]       = useState<QuizState>("idle");
+  const [quizStep, setQuizStep]         = useState(0);
+  const [quizInput, setQuizInput]       = useState("");
+  const [quizAnswers, setQuizAnswers]   = useState<Record<string, number>>({});
+  const [quizResult, setQuizResult]     = useState<{
+    prediction: string; confidence: number; riskLevel: string; recommendation: string;
+  } | null>(null);
+
+  const quizNext = async () => {
+    const val = Number(quizInput);
+    if (!quizInput || isNaN(val)) return;
+    const updated = { ...quizAnswers, [QUIZ_QUESTIONS[quizStep].key]: val };
+    setQuizAnswers(updated);
+    if (quizStep < QUIZ_QUESTIONS.length - 1) {
+      setQuizStep(s => s + 1);
+      setQuizInput("");
+    } else {
+      setQuizState("loading");
+      try {
+        const res = await axios.post("http://127.0.0.1:8000/predict-health-risk", {
+          age:              updated.age,
+          sleepDuration:   updated.sleepDuration,
+          qualityOfSleep:  updated.qualityOfSleep,
+          physicalActivity:updated.physicalActivity,
+          stressLevel:     updated.stressLevel,
+          heartRate:       updated.heartRate,
+          dailySteps:      updated.dailySteps,
+        });
+        setQuizResult(res.data);
+        setQuizState("done");
+      } catch { setQuizState("idle"); }
+    }
+  };
+
+  const quizBack = () => {
+    if (quizStep === 0) { setQuizState("idle"); return; }
+    setQuizStep(s => s - 1);
+    setQuizInput(String(quizAnswers[QUIZ_QUESTIONS[quizStep - 1].key] ?? ""));
+  };
+
+  const quizReset = () => {
+    setQuizState("idle"); setQuizStep(0);
+    setQuizInput(""); setQuizAnswers({}); setQuizResult(null);
+  };
+
   // CalorieNinjas Search State
   const [foodQuery, setFoodQuery] = useState("");
   const [isSearchingFood, setIsSearchingFood] = useState(false);
@@ -488,75 +544,10 @@ export default function Health() {
                         </select>
                       </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Age</label>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g. 30"
-                          value={formData.age === 0 ? "" : formData.age} 
-                          onChange={e => setFormData({ ...formData, age: Number(e.target.value) || 0 })}
-                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
-                          required 
-                        />
-                      </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Heart Rate (bpm)</label>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g. 72"
-                          value={formData.heartRate === 0 ? "" : formData.heartRate} 
-                          onChange={e => setFormData({ ...formData, heartRate: Number(e.target.value) || 0 })}
-                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
-                          required 
-                        />
-                      </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Daily Steps</label>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g. 8000"
-                          value={formData.dailySteps === 0 ? "" : formData.dailySteps} 
-                          onChange={e => setFormData({ ...formData, dailySteps: Number(e.target.value) || 0 })}
-                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
-                          required 
-                        />
-                      </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Sleep Quality (1–10)</label>
-                        <Input 
-                          type="number"
-                          min="1"
-                          max="10"
-                          placeholder="e.g. 7"
-                          value={formData.qualityOfSleep === 0 ? "" : formData.qualityOfSleep}
-                          onChange={e => {
-                            const v = Math.min(10, Math.max(1, Number(e.target.value) || 1));
-                            setFormData({ ...formData, qualityOfSleep: v });
-                          }}
-                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
-                          required
-                        />
-                      </div>
 
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Stress Level (1–10)</label>
-                        <Input 
-                          type="number"
-                          min="1"
-                          max="10"
-                          placeholder="e.g. 4"
-                          value={formData.stressLevel === 0 ? "" : formData.stressLevel}
-                          onChange={e => {
-                            const v = Math.min(10, Math.max(1, Number(e.target.value) || 1));
-                            setFormData({ ...formData, stressLevel: v });
-                          }}
-                          className="bg-slate-900/80 border border-slate-800 rounded-xl focus:border-violet-500 text-white font-semibold text-sm h-10 no-spinner"
-                          required
-                        />
-                      </div>
 
                     </div>
 
@@ -586,22 +577,25 @@ export default function Health() {
                   </p>
                 </div>
 
-                {/* Sleep risk pill — clean & simple */}
+                {/* Sleep risk pill — updates from quiz result OR saved log */}
                 {(() => {
-                  const pred    = latestLog.prediction || "None";
-                  const riskLvl = latestLog.riskLevel  || "Low";
+                  // Quiz result takes priority when available
+                  const activePred    = quizResult?.prediction  || latestLog.prediction || "None";
+                  const activeRisk    = quizResult?.riskLevel   || latestLog.riskLevel  || "Low";
                   const dot =
-                    riskLvl === "High"   ? "bg-red-400" :
-                    riskLvl === "Medium" ? "bg-amber-400" :
-                                          "bg-emerald-400";
+                    activeRisk === "High"   ? "bg-red-400" :
+                    activeRisk === "Medium" ? "bg-amber-400" :
+                                             "bg-emerald-400";
                   const label =
-                    riskLvl === "High"   ? "text-red-300" :
-                    riskLvl === "Medium" ? "text-amber-300" :
-                                          "text-emerald-300";
+                    activeRisk === "High"   ? "text-red-300" :
+                    activeRisk === "Medium" ? "text-amber-300" :
+                                             "text-emerald-300";
                   return (
                     <div className="flex items-center gap-2 bg-slate-900/70 border border-slate-800 rounded-full px-4 py-1.5">
                       <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
-                      <span className={`text-sm font-semibold ${label}`}>{pred === "None" ? "No disorder" : pred}</span>
+                      <span className={`text-sm font-semibold ${label}`}>
+                        {activePred === "None" ? "No disorder" : activePred}
+                      </span>
                     </div>
                   );
                 })()}
@@ -643,91 +637,181 @@ export default function Health() {
                 />
               </div>
 
-              {/* ── Sleep Health Check card ── */}
-              {(() => {
-                const pred    = latestLog.prediction || "None";
-                const conf    = latestLog.confidence ?? 1.0;
-                const riskLvl = latestLog.riskLevel  || "Low";
-                const confPct = Math.round(conf * 100);
+              {/* ── Interactive Sleep Quiz ── */}
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                <div className="bg-slate-900/50 border border-slate-800/70 rounded-2xl overflow-hidden">
 
-                const colors = {
-                  High:   { bar: "bg-red-400",     text: "text-red-400",     pill: "bg-red-400/10 text-red-300 border border-red-400/20" },
-                  Medium: { bar: "bg-amber-400",   text: "text-amber-400",   pill: "bg-amber-400/10 text-amber-300 border border-amber-400/20" },
-                  Low:    { bar: "bg-emerald-400", text: "text-emerald-400", pill: "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20" },
-                };
-                const c = colors[riskLvl as keyof typeof colors] || colors.Low;
-
-                const tips: Record<string, string> = {
-                  None:          "You're sleeping well. Keep it up.",
-                  Insomnia:      "Try winding down earlier and avoiding screens before bed.",
-                  "Sleep Apnea": "Your heart rate and sleep quality suggest a risk. Consider seeing a doctor.",
-                };
-                const tip = tips[pred] || "Stay consistent with sleep and exercise.";
-
-                const riskLabel = { High: "High risk", Medium: "Moderate", Low: "All clear" };
-                const hasPrediction = safeLogs.length > 0 && latestLog.prediction;
-
-                return (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-                    <div className="bg-slate-900/50 border border-slate-800/70 rounded-2xl p-5 flex flex-col gap-4">
-
-                      {/* Top row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <HeartPulse className="h-4 w-4 text-slate-400" />
-                          <span className="text-sm font-semibold text-slate-300">Sleep Health Check</span>
+                  {/* IDLE */}
+                  {quizState === "idle" && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl mt-0.5">🛌</span>
+                        <div>
+                          <p className="text-white font-semibold text-sm">Want to know your sleep health?</p>
+                          <p className="text-slate-500 text-xs mt-0.5">7 quick questions. Takes about 30 seconds.</p>
                         </div>
-                        {hasPrediction && (
-                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.pill}`}>
-                            {riskLabel[riskLvl as keyof typeof riskLabel]}
-                          </span>
+                      </div>
+                      <button
+                        onClick={() => { setQuizState("asking"); setQuizStep(0); setQuizInput(""); }}
+                        className="shrink-0 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors"
+                      >
+                        Check now &rarr;
+                      </button>
+                    </div>
+                  )}
+
+                  {/* ASKING */}
+                  {quizState === "asking" && (
+                    <div className="p-6 flex flex-col gap-5">
+                      {/* Progress dots */}
+                      <div className="flex items-center gap-1.5">
+                        {QUIZ_QUESTIONS.map((_, i) => (
+                          <span
+                            key={i}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              i < quizStep ? "bg-violet-500 w-4" :
+                              i === quizStep ? "bg-violet-400 w-6" :
+                              "bg-slate-700 w-3"
+                            }`}
+                          />
+                        ))}
+                        <span className="text-[11px] text-slate-500 ml-2">{quizStep + 1} of {QUIZ_QUESTIONS.length}</span>
+                      </div>
+
+                      {/* Question */}
+                      <div>
+                        <p className="text-white font-semibold text-base leading-snug">{QUIZ_QUESTIONS[quizStep].label}</p>
+                        {QUIZ_QUESTIONS[quizStep].desc && (
+                          <p className="text-slate-500 text-xs mt-1">{QUIZ_QUESTIONS[quizStep].desc}</p>
                         )}
                       </div>
 
-                      {!hasPrediction ? (
-                        <p className="text-slate-500 text-sm">Log your health data to see your sleep risk report.</p>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      {/* Input */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          type="number"
+                          placeholder={QUIZ_QUESTIONS[quizStep].hint}
+                          value={quizInput}
+                          onChange={e => setQuizInput(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && quizNext()}
+                          className="bg-slate-800/80 border border-slate-700 rounded-xl text-white font-semibold text-sm px-4 h-10 w-36 outline-none focus:border-violet-500 no-spinner transition-colors"
+                        />
+                        <span className="text-slate-500 text-sm">{QUIZ_QUESTIONS[quizStep].unit}</span>
+                      </div>
+
+                      {/* Navigation */}
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          onClick={quizBack}
+                          className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
+                        >
+                          &larr; Back
+                        </button>
+                        <button
+                          onClick={quizNext}
+                          disabled={!quizInput}
+                          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors"
+                        >
+                          {quizStep < QUIZ_QUESTIONS.length - 1 ? "Next →" : "Get my report"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* LOADING */}
+                  {quizState === "loading" && (
+                    <div className="flex items-center gap-3 p-6">
+                      <div className="w-4 h-4 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+                      <span className="text-slate-400 text-sm">Running your data through the model...</span>
+                    </div>
+                  )}
+
+                  {/* RESULT */}
+                  {quizState === "done" && quizResult && (() => {
+                    const { prediction: pred, confidence: conf, riskLevel, recommendation } = quizResult;
+                    const pct = Math.round(conf * 100);
+
+                    const theme = {
+                      "Sleep Apnea": { condColor: "text-red-400",    bar: "bg-red-400",     pill: "bg-red-400/10 text-red-300 border-red-400/20" },
+                      "Insomnia":    { condColor: "text-amber-400",  bar: "bg-amber-400",   pill: "bg-amber-400/10 text-amber-300 border-amber-400/20" },
+                      "None":        { condColor: "text-emerald-400",bar: "bg-emerald-400", pill: "bg-emerald-400/10 text-emerald-300 border-emerald-400/20" },
+                    };
+                    const t = theme[pred as keyof typeof theme] || theme["None"];
+
+                    const confNote =
+                      pct >= 90 ? "Pretty confident about this — strong signal in your data" :
+                      pct >= 75 ? "Fairly sure — worth paying attention to" :
+                      pct >= 60 ? "Moderate certainty — take this as a nudge, not a verdict" :
+                                  "Low certainty — try logging more consistently for better results";
+
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                        className="p-6 flex flex-col gap-5"
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <p className="text-slate-400 text-xs font-medium">Here\'s what we found</p>
+                          <span className={`text-xs px-2.5 py-1 rounded-full border ${t.pill}`}>
+                            {riskLevel === "High" ? "High risk" : riskLevel === "Medium" ? "Moderate" : "All clear"}
+                          </span>
+                        </div>
+
+                        {/* Three rows */}
+                        <div className="flex flex-col gap-4">
 
                           {/* Condition */}
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-0.5">
                             <span className="text-xs text-slate-500">Condition</span>
-                            <span className={`text-xl font-bold ${c.text}`}>
-                              {pred === "None" ? "No disorder" : pred}
+                            <span className={`text-2xl font-bold tracking-tight ${t.condColor}`}>
+                              {pred === "None" ? "No sleep disorder" : pred}
                             </span>
                           </div>
 
                           {/* Confidence */}
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-slate-500">Confidence</span>
-                              <span className="text-xs font-semibold text-slate-300">{confPct}%</span>
+                              <span className="text-xs font-semibold text-slate-300">{pct}%</span>
                             </div>
                             <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                               <motion.div
-                                className={`h-full rounded-full ${c.bar}`}
+                                className={`h-full rounded-full ${t.bar}`}
                                 initial={{ width: 0 }}
-                                animate={{ width: `${confPct}%` }}
-                                transition={{ duration: 0.7, ease: "easeOut" }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
                               />
                             </div>
-                            <span className="text-[11px] text-slate-600">
-                              {confPct >= 80 ? "High" : confPct >= 60 ? "Moderate" : "Low — add more logs"}
-                            </span>
+                            <span className="text-[11px] text-slate-500 leading-snug">{confNote}</span>
                           </div>
 
-                          {/* Tip */}
+                          {/* What to do */}
                           <div className="flex flex-col gap-1">
                             <span className="text-xs text-slate-500">What to do</span>
-                            <p className="text-sm text-slate-300 leading-relaxed">{tip}</p>
+                            <p className={`text-sm font-medium leading-relaxed ${
+                              pred === "None" ? "text-emerald-300" :
+                              pred === "Insomnia" ? "text-amber-300" :
+                              "text-red-300"
+                            }`}>{recommendation}</p>
                           </div>
 
                         </div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })()}
+
+                        <button
+                          onClick={quizReset}
+                          className="self-start text-slate-500 hover:text-slate-300 text-xs font-medium transition-colors mt-1"
+                        >
+                          ↺ Check again
+                        </button>
+                      </motion.div>
+                    );
+                  })()}
+
+                </div>
+              </motion.div>
 
               {/* Charts Container */}
               <div className="flex flex-col gap-6">
@@ -894,46 +978,43 @@ export default function Health() {
                                 {/* Tooltip on Hover */}
                                 {isLogged && log && (
                                   <div 
-                                    className="absolute bottom-10 left-1/2 -translate-x-1/2 w-48 bg-slate-950/95 border border-slate-800 rounded-2xl p-3.5 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50 flex flex-col gap-2"
+                                    className="absolute bottom-10 left-1/2 -translate-x-1/2 w-44 bg-slate-950/95 border border-slate-800 rounded-2xl p-3 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-50 flex flex-col gap-2"
                                     style={{ backdropFilter: "blur(12px)", transformOrigin: "bottom center" }}
                                   >
-                                    {/* Mood on Top */}
-                                    <div className="flex items-center justify-between border-b border-slate-850 pb-1.5 mb-1">
-                                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Mood</span>
-                                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${moodBadgeColor}`}>
-                                        {moodEmoji}
-                                      </span>
-                                    </div>
-
-                                    {/* Metrics List */}
+                                    {/* Metrics */}
                                     <div className="flex flex-col gap-1.5 text-[11px] font-semibold text-slate-300">
                                       <div className="flex items-center justify-between">
                                         <span className="flex items-center gap-1.5 text-slate-400">
-                                          <Flame size={12} className="text-orange-500" /> Calories:
+                                          <Moon size={11} className="text-indigo-400" /> Sleep
                                         </span>
-                                        <span className="font-extrabold text-white">{log.caloriesConsumed} kcal</span>
+                                        <span className="font-bold text-white">{log.sleepHours} hrs</span>
                                       </div>
                                       <div className="flex items-center justify-between">
                                         <span className="flex items-center gap-1.5 text-slate-400">
-                                          <Droplets size={12} className="text-cyan-500" /> Water:
+                                          <Activity size={11} className="text-violet-400" /> Steps
                                         </span>
-                                        <span className="font-extrabold text-white">{log.waterGlasses} glasses</span>
+                                        <span className="font-bold text-white">{(log as any).dailySteps ?? "—"}</span>
                                       </div>
                                       <div className="flex items-center justify-between">
                                         <span className="flex items-center gap-1.5 text-slate-400">
-                                          <Activity size={12} className="text-violet-400" /> Workout:
+                                          <HeartPulse size={11} className="text-red-400" /> Heart rate
                                         </span>
-                                        <span className="font-extrabold text-white">{log.workoutMinutes} mins</span>
+                                        <span className="font-bold text-white">{(log as any).heartRate ?? "—"} bpm</span>
                                       </div>
-                                      <div className="flex items-center justify-between">
-                                        <span className="flex items-center gap-1.5 text-slate-400">
-                                          <Moon size={12} className="text-indigo-400" /> Sleep:
-                                        </span>
-                                        <span className="font-extrabold text-white">{log.sleepHours} hrs</span>
-                                      </div>
+                                      {(log as any).prediction && (
+                                        <div className="flex items-center justify-between border-t border-slate-800 pt-1.5 mt-0.5">
+                                          <span className="text-slate-500 text-[10px]">Sleep risk</span>
+                                          <span className={`text-[10px] font-bold ${
+                                            (log as any).riskLevel === "High" ? "text-red-400" :
+                                            (log as any).riskLevel === "Medium" ? "text-amber-400" :
+                                            "text-emerald-400"
+                                          }`}>
+                                            {(log as any).prediction === "None" ? "None" : (log as any).prediction}
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
-
-                                    {/* Small Arrow indicator for the tooltip */}
+                                    {/* Arrow */}
                                     <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-950 border-r border-b border-slate-800 rotate-45 -mt-1" />
                                   </div>
                                 )}

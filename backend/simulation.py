@@ -4,10 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 from ml.health_prediction import router as health_router
+from ml.finance_prediction import router as finance_router
 
 app = FastAPI()
 
 app.include_router(health_router)
+app.include_router(finance_router)
 
 app.add_middleware(
     CORSMiddleware,
