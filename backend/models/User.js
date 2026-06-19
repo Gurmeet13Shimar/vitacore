@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phoneNumber: { type: String, default: '' },
   income: { type: Number, default: 0 },
+  githubUsername: { type: String, default: '' },
+  githubAchievements: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

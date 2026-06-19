@@ -24,7 +24,7 @@ const navItems = [
   { path: "/health",       label: "Health",       icon: Heart },
   { path: "/finance",      label: "Finance",      icon: DollarSign },
   { path: "/career",       label: "Career",       icon: Briefcase },
-  { path: "/simulator",    label: "Simulator",    icon: Beaker },
+  { path: "/goals",        label: "Twin Dashboard", icon: Beaker },
   { path: "/achievements", label: "Achievements", icon: Trophy },
   { path: "/settings",     label: "Settings",     icon: Settings },
 ];

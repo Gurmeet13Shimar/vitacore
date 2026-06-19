@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useTheme } from "@/context/ThemeContext";
-import { Beaker, Zap, TrendingUp, Sparkles, Brain } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Beaker, TrendingUp, Sparkles, Brain } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Simulator() {
   const { themeColors, theme } = useTheme();
+  const { user } = useAuth();
 
   const [params, setParams] = useState({
     study: 2,
@@ -21,60 +23,85 @@ export default function Simulator() {
 
   const [isSimulating, setIsSimulating] = useState(false);
 
- const [aiInsight, setAiInsight] = useState<string | null>(
-  "Adjust sliders and click Generate AI Insight."
-);
+  const [aiInsight, setAiInsight] = useState<string | null>(
+    "Adjust sliders and click Generate AI Insight to get a 6-month life projection."
+  );
 
   const [isAiLoading, setIsAiLoading] = useState(false);
 
- const [simulationResult, setSimulationResult] = useState({
-  health_score: 0,
-  finance_score: 0,
-  career_score: 0,
-  overall_score: 0,
-  monthly_savings: 0,
-});
+  // =========================
+  // LOCAL SCORE CALCULATIONS (instant, no backend)
+  // =========================
+  const computeScores = () => {
+    const healthScore = Math.round(
+      Math.min(100, Math.max(0,
+        70 + (params.exercise * 3) + ((params.sleep - 6) * 6) - (params.dining * 1.5)
+      ))
+    );
+    const financeScore = Math.round(
+      Math.min(100, Math.max(0,
+        40 + (params.savings * 0.9) - (params.dining * 1.2)
+      ))
+    );
+    const careerScore = Math.round(
+      Math.min(100, Math.max(0,
+        60 + (params.study * 6) - (params.sleep < 6 ? 12 : 0)
+      ))
+    );
+    const monthlySavings = Math.round(50000 * (params.savings / 100) - params.dining * 2000);
+    return { healthScore, financeScore, careerScore, monthlySavings };
+  };
+
+  const scores = computeScores();
 
   // =========================
-  // REAL AI BACKEND FUNCTION
+  // AI BACKEND CALL → Express /api/ai/simulate (JWT protected, LLM powered)
   // =========================
-
   const fetchAiInsight = async () => {
-
     setIsAiLoading(true);
-
     try {
+      // Read token from the vitacore_user object stored by AuthContext
+      const storedUser = localStorage.getItem("vitacore_user");
+      const token = storedUser ? JSON.parse(storedUser).token : null;
+
+      if (!token) {
+        setAiInsight("Please log in to use AI Insights.");
+        return;
+      }
+
+      // Build a rich natural-language scenario from slider values
+      const scenario =
+        `My current lifestyle: I study ${params.study} hours/day, ` +
+        `exercise ${params.exercise} days/week, sleep ${params.sleep} hours/night, ` +
+        `save ${params.savings}% of my income (~₹${scores.monthlySavings.toLocaleString()} saved monthly), ` +
+        `and dine out ${params.dining} meals/week. ` +
+        `Projected scores: Health ${scores.healthScore}/100, Finance ${scores.financeScore}/100, Career ${scores.careerScore}/100. ` +
+        `If I maintain this exact lifestyle for 6 months, what are my predicted health, financial, and career outcomes? ` +
+        `List specific risks, benefits, and 2-3 action steps I should take.`;
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/simulate",
+        "http://localhost:5000/api/ai/simulate",
+        { scenario },
         {
-          sleep: params.sleep,
-          exercise: params.exercise,
-          water: 2,
-          expenses: params.dining * 2000,
-          income: 50000,
-          codingHours: params.study
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
-     setSimulationResult(response.data);
-
-console.log("ML Response:", response.data);
-
-setAiInsight(response.data.insight);
-
-    } catch (error) {
-
-      console.error("Backend Error:", error);
-
-      setAiInsight(
-        "Failed to connect with AI backend. Make sure FastAPI server is running."
-      );
-
+      setAiInsight(response.data.analysis || "No insight returned from AI.");
+    } catch (error: any) {
+      console.error("AI Insight Error:", error);
+      if (error.response?.status === 401) {
+        setAiInsight("Session expired. Please log in again to use AI Insights.");
+      } else if (error.response?.status === 429) {
+        setAiInsight("Rate limit reached. Please wait a moment before generating another insight.");
+      } else {
+        setAiInsight("AI service temporarily unavailable. Please try again shortly.");
+      }
     } finally {
-
       setIsAiLoading(false);
-
     }
   };
 
@@ -332,48 +359,43 @@ setAiInsight(response.data.insight);
               {/* Projections outcome indicators */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 
-                {/* Health Trajectory */}
                 <motion.div 
                   whileHover={{ y: -4 }}
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-violet-400 uppercase tracking-wider block">Health Trajectory</span>
-                 <div className="text-xl font-black text-white mt-2">
-  {simulationResult.health_score > 70 ? 'Optimizing' : 'Degrading'}
-</div>
-
-<p className="text-xs text-slate-400 mt-2 font-semibold">
-  End score: {simulationResult.health_score}/100
-</p>
+                  <div className="text-xl font-black text-white mt-2">
+                    {scores.healthScore > 70 ? 'Optimizing' : 'Degrading'}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2 font-semibold">
+                    Current score: {scores.healthScore}/100
+                  </p>
                 </motion.div>
  
-                {/* Wealth Creation */}
                 <motion.div 
                   whileHover={{ y: -4 }}
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">Wealth Creation</span>
-                 <div className="text-xl font-black text-white mt-2">
-  ${simulationResult.monthly_savings.toLocaleString()}
-</div>
+                  <div className="text-xl font-black text-white mt-2">
+                    ₹{scores.monthlySavings.toLocaleString()}
+                  </div>
                   <p className="text-xs text-slate-400 mt-2 font-semibold">
-                    Predicted net liquid assets
+                    Predicted monthly savings
                   </p>
                 </motion.div>
 
-                {/* Career Velocity */}
                 <motion.div 
                   whileHover={{ y: -4 }}
                   className="glass-card neon-border border-0 bg-slate-900/60 backdrop-blur-xl p-5 flex flex-col justify-between"
                 >
                   <span className="text-[10px] font-bold text-pink-400 uppercase tracking-wider block">Career Velocity</span>
-                 <div className="text-xl font-black text-white mt-2">
-  {simulationResult.career_score > 80 ? 'Promotion Ready' : 'Skill Deficit'}
-</div>
-
-<p className="text-xs text-slate-400 mt-2 font-semibold">
-  End score: {simulationResult.career_score}/100
-</p>
+                  <div className="text-xl font-black text-white mt-2">
+                    {scores.careerScore > 80 ? 'Promotion Ready' : 'Skill Deficit'}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2 font-semibold">
+                    Current score: {scores.careerScore}/100
+                  </p>
                 </motion.div>
               </div>
 

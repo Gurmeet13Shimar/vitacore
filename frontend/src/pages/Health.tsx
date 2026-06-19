@@ -12,7 +12,8 @@ import {
 import { 
   Activity, Droplets, Moon, Flame, Plus, Clock, Search,
   HeartPulse, ShieldAlert, ClipboardCheck, Apple, ChevronLeft, ChevronRight,
-  Brain, TrendingUp, TrendingDown, Minus, AlertTriangle
+  Brain, TrendingUp, TrendingDown, Minus, AlertTriangle,
+  Play, Tv, Video, Music, Trophy, Sparkles, CheckCircle2, X
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -124,6 +125,196 @@ export default function Health() {
       nextD.setMonth(nextD.getMonth() + 1);
       return nextD;
     });
+  };
+
+  // Interactive Recommendations state
+  const [recTab, setRecTab] = useState<"videos" | "activities">("videos");
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  
+  // Timer state for interactive stress busters
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerType, setTimerType] = useState<"dance" | "breathing" | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(60);
+  const [breathPhase, setBreathPhase] = useState<"inhale" | "hold1" | "exhale" | "hold2">("inhale");
+  const [breathCountdown, setBreathCountdown] = useState(4);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [xpEarned, setXpEarned] = useState(false);
+
+  // Timer effect for breathing/dance exercises
+  useEffect(() => {
+    let interval: any = null;
+    if (timerActive) {
+      if (timerType === "breathing") {
+        interval = setInterval(() => {
+          setBreathCountdown(prev => {
+            if (prev === 1) {
+              setBreathPhase(curr => {
+                if (curr === "inhale") return "hold1";
+                if (curr === "hold1") return "exhale";
+                if (curr === "exhale") return "hold2";
+                return "inhale";
+              });
+              return 4;
+            }
+            return prev - 1;
+          });
+          setSecondsLeft(s => {
+            if (s <= 1) {
+              setTimerActive(false);
+              handleActivityComplete("breathing");
+              return 0;
+            }
+            return s - 1;
+          });
+        }, 1000);
+      } else if (timerType === "dance") {
+        interval = setInterval(() => {
+          setSecondsLeft(s => {
+            if (s <= 1) {
+              setTimerActive(false);
+              handleActivityComplete("dance");
+              return 0;
+            }
+            return s - 1;
+          });
+        }, 1000);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timerType]);
+
+  const handleActivityComplete = async (type: "dance" | "breathing" | "movie") => {
+    setShowConfetti(true);
+    setXpEarned(true);
+    setTimeout(() => setShowConfetti(false), 5000);
+    
+    const dur = type === "dance" ? 5 : type === "breathing" ? 2 : 0;
+    const cBurn = type === "dance" ? 35 : type === "breathing" ? 5 : 0;
+    const strDecrease = type === "breathing" ? 3 : type === "dance" ? 2 : 1;
+
+    try {
+      await axios.post("http://localhost:5000/api/health", {
+        workoutMinutes: dur,
+        caloriesBurned: cBurn,
+        caloriesConsumed: 0,
+        sleepHours: logs[0]?.sleepHours || 8,
+        waterGlasses: logs[0]?.waterGlasses || 0,
+        mood: "Excellent",
+        age: quizAnswers.age || formData.age || 25,
+        qualityOfSleep: quizAnswers.qualityOfSleep || formData.qualityOfSleep || 7,
+        stressLevel: Math.max(1, (quizAnswers.stressLevel || formData.stressLevel || 5) - strDecrease),
+        heartRate: 68,
+        dailySteps: type === "dance" ? 800 : 50
+      });
+      fetchLogs();
+    } catch (err) {
+      console.error("Error auto-logging stress-buster log:", err);
+    }
+  };
+
+  const getTherapyData = (pred: string) => {
+    switch (pred) {
+      case "Insomnia":
+        return {
+          videos: [
+            {
+              id: "aEqlQvczMJQ",
+              title: "10-Min Guided Meditation for Sleep & Calm Mind",
+              duration: "10 min",
+              channel: "Headspace",
+              desc: "Deep, soothing voice that guides you to release body tension and silence racing thoughts."
+            },
+            {
+              id: "mPZkdNFkNps",
+              title: "Cozy ASMR Rain Sounds for Instantly Falling Asleep",
+              duration: "8 hours",
+              channel: "Ambient Sounds",
+              desc: "Gentle rain and soft wind-masking frequencies to slow down overactive brainwaves."
+            }
+          ],
+          activities: [
+            {
+              type: "breathing",
+              title: "🫁 1-Min Relaxing Box Breathing",
+              desc: "A powerful parasympathetic regulator used by Navy SEALs to instantly drop stress levels.",
+              benefit: "Triggers the relaxation response, lowers heart rate, and stops stress-induced insomnia."
+            },
+            {
+              type: "movie",
+              title: "🍿 Wholesome Movie Watchlist",
+              desc: "Watch a warm, low-tempo comforting film tonight instead of browsing social media.",
+              films: ["My Neighbor Totoro", "Chef", "Amélie", "The Secret Life of Walter Mitty"],
+              benefit: "Triggers dopamine release and decreases pre-sleep cortisol spikes."
+            }
+          ]
+        };
+      case "Sleep Apnea":
+        return {
+          videos: [
+            {
+              id: "N-0_165Qlyo",
+              title: "Myofunctional Therapy Airway & Tongue Exercises",
+              duration: "7 min",
+              channel: "Doctor Sleep",
+              desc: "Strengthen throat, tongue, and soft palate muscles to keep your airway open overnight."
+            },
+            {
+              id: "K4wAOk7xIek",
+              title: "Pranayama Breathing Yoga for Sleep Apnea Recovery",
+              duration: "12 min",
+              channel: "Yoga Oasis",
+              desc: "Deep yogic breathing exercise to expand lung vital capacity and improve nighttime oxygenation."
+            }
+          ],
+          activities: [
+            {
+              type: "breathing",
+              title: "🫁 1-Min Diaphragmatic Breathwork",
+              desc: "Strengthen the diaphragm and throat support muscles with focused rhythmic breathing.",
+              benefit: "Improves lung elasticity and supports open airways while sleeping."
+            },
+            {
+              type: "dance",
+              title: "🕺 Anti-Apnea throat activation (Sing & Dance!)",
+              desc: "Singing out loud activates your pharyngeal muscles, which helps prevent collapse during sleep. Dance to double the fun!",
+              benefit: "Combines aerobic conditioning with pharyngeal throat muscle training."
+            }
+          ]
+        };
+      default:
+        return {
+          videos: [
+            {
+              id: "v7AYKjSoHy0",
+              title: "Evening Wind Down Yoga - Full Body Stretch",
+              duration: "10 min",
+              channel: "Yoga With Adriene",
+              desc: "A gentle somatic stretch routine to release physical strain and prepare the body for deep REM sleep."
+            },
+            {
+              id: "jZ_yP2k_lpg",
+              title: "5-Minute High Energy Zumba Workout Break",
+              duration: "5 min",
+              channel: "DanceFit",
+              desc: "A quick, fun dancing routine to boost dopamine, burn calories, and reset your daily stress."
+            }
+          ],
+          activities: [
+            {
+              type: "dance",
+              title: "💃 1-Min Stress-Buster Solo Dance Party",
+              desc: "Put on your favorite track and let loose for 60 seconds! No judgments, just movement.",
+              benefit: "Shakes off daytime fatigue, burns calories, and resets mood."
+            },
+            {
+              type: "breathing",
+              title: "🫁 1-Min Box Breathing Exercise",
+              desc: "Deep chest breathing to oxygenate your blood cells and sharpen focus.",
+              benefit: "Boosts alert awareness and physical performance."
+            }
+          ]
+        };
+    }
   };
 
   // Form State
@@ -796,6 +987,273 @@ export default function Health() {
                               pred === "Insomnia" ? "text-amber-300" :
                               "text-red-300"
                             }`}>{recommendation}</p>
+                          </div>
+
+                          {/* 🧘 Interactive Telemetry Recommendations */}
+                          <div className="border-t border-slate-800/80 pt-4 mt-2 flex flex-col gap-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <Sparkles className="h-4 w-4 text-amber-400 animate-pulse" />
+                                <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">Interactive Therapy Recommendations</span>
+                              </div>
+                              <span className="text-[10px] font-black text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
+                                {xpEarned ? "🎉 logged +15 XP" : "🎁 Earn +15 XP"}
+                              </span>
+                            </div>
+
+                            {/* Confetti celebration panel if completed */}
+                            {showConfetti && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center flex flex-col items-center gap-1.5 shadow-lg shadow-emerald-950/20"
+                              >
+                                <Trophy className="h-6 w-6 text-yellow-400 animate-bounce" />
+                                <p className="text-xs font-bold text-emerald-300">Stress-Buster Action Logged successfully!</p>
+                                <p className="text-[10px] text-slate-400 font-semibold">Your biometrics have been updated & database XP awarded.</p>
+                              </motion.div>
+                            )}
+
+                            {/* TIMER SCREEN (If an active exercise is running) */}
+                            {timerActive && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="p-5 bg-violet-950/20 border border-violet-500/20 rounded-xl flex flex-col items-center justify-center text-center gap-4 relative overflow-hidden"
+                              >
+                                <div className="absolute top-[-20%] left-[-20%] w-24 h-24 rounded-full bg-violet-500/10 blur-xl pointer-events-none" />
+                                <div className="absolute bottom-[-20%] right-[-20%] w-24 h-24 rounded-full bg-pink-500/10 blur-xl pointer-events-none" />
+
+                                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                  {timerType === "breathing" ? "Box Breathing Exercise" : "Stress-Relief Dance Party"}
+                                </span>
+
+                                {timerType === "breathing" && (
+                                  <div className="flex flex-col items-center gap-3">
+                                    <motion.div 
+                                      animate={{ 
+                                        scale: breathPhase === "inhale" ? 1.25 : breathPhase === "exhale" ? 0.9 : breathPhase === "hold1" ? 1.25 : 0.9 
+                                      }}
+                                      transition={{ duration: 4, ease: "easeInOut" }}
+                                      className={`w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-lg transition-colors duration-500 border ${
+                                        breathPhase === "inhale" ? "bg-violet-600/20 border-violet-500 shadow-violet-950/40" :
+                                        breathPhase === "hold1" ? "bg-amber-600/20 border-amber-500 shadow-amber-950/40" :
+                                        breathPhase === "exhale" ? "bg-teal-600/20 border-teal-500 shadow-teal-950/40" :
+                                        "bg-slate-800/20 border-slate-700 shadow-slate-950/40"
+                                      }`}
+                                    >
+                                      <Brain className={`h-6 w-6 animate-pulse ${
+                                        breathPhase === "inhale" ? "text-violet-400" :
+                                        breathPhase === "hold1" ? "text-amber-400" :
+                                        breathPhase === "exhale" ? "text-teal-400" :
+                                        "text-slate-400"
+                                      }`} />
+                                      <span className="text-[10px] font-black text-white mt-1">
+                                        {breathCountdown}s
+                                      </span>
+                                    </motion.div>
+
+                                    <span className="text-sm font-black text-white uppercase tracking-wider h-5 transition-all">
+                                      {breathPhase === "inhale" ? "😤 Inhale Deeply" :
+                                       breathPhase === "hold1" ? "🧘 Hold Breath" :
+                                       breathPhase === "exhale" ? "😮 Exhale Slowly" :
+                                       "🧘 Hold Empty"}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {timerType === "dance" && (
+                                  <div className="flex flex-col items-center gap-2">
+                                    <motion.div 
+                                      animate={{ rotate: [0, 15, -15, 15, 0], scale: [1, 1.1, 1, 1.1, 1] }}
+                                      transition={{ repeat: Infinity, duration: 1.5 }}
+                                      className="text-4xl"
+                                    >
+                                      💃🕺🎵
+                                    </motion.div>
+                                    <span className="text-xs font-semibold text-slate-400">Put on a song and dance!</span>
+                                  </div>
+                                )}
+
+                                <div className="flex flex-col items-center gap-1">
+                                  <span className="text-2xl font-black text-white tracking-tight">{secondsLeft}s</span>
+                                  <span className="text-[10px] text-slate-500">Remaining</span>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                  <Button 
+                                    onClick={() => setTimerActive(false)} 
+                                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-8 px-4 rounded-lg border border-slate-700 cursor-pointer"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button 
+                                    onClick={() => { setTimerActive(false); handleActivityComplete(timerType || "breathing"); }} 
+                                    className="bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs h-8 px-4 rounded-lg border-0 cursor-pointer"
+                                  >
+                                    Skip to complete
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+
+                            {/* REGULAR SELECTION DISPLAY */}
+                            {!timerActive && (() => {
+                              const therapy = getTherapyData(pred);
+
+                              return (
+                                <div className="flex flex-col gap-3">
+                                  
+                                  {/* Tabs selector */}
+                                  <div className="flex bg-slate-950/40 p-1 rounded-xl border border-slate-800/40 gap-1">
+                                    <button
+                                      onClick={() => setRecTab("videos")}
+                                      className={`flex-1 text-center py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                        recTab === "videos" 
+                                          ? "bg-slate-800 text-violet-400 border border-slate-700" 
+                                          : "text-slate-400 hover:text-slate-200"
+                                      }`}
+                                    >
+                                      📺 Therapy Videos
+                                    </button>
+                                    <button
+                                      onClick={() => setRecTab("activities")}
+                                      className={`flex-1 text-center py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                        recTab === "activities" 
+                                          ? "bg-slate-800 text-violet-400 border border-slate-700" 
+                                          : "text-slate-400 hover:text-slate-200"
+                                      }`}
+                                    >
+                                      🎭 Stress-Busters
+                                    </button>
+                                  </div>
+
+                                  {/* VIDEOS TAB */}
+                                  {recTab === "videos" && (
+                                    <div className="flex flex-col gap-2.5">
+                                      
+                                      {activeVideoId ? (
+                                        <div className="flex flex-col gap-2">
+                                          <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-black">
+                                            <iframe
+                                              src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1`}
+                                              title="Yoga/Meditation therapy player"
+                                              frameBorder="0"
+                                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                              allowFullScreen
+                                              className="absolute inset-0 w-full h-full"
+                                            />
+                                          </div>
+                                          <div className="flex justify-between items-center bg-slate-950/20 p-2 rounded-xl border border-slate-800/40">
+                                            <span className="text-[10px] text-slate-400 font-semibold">Watching guided therapy...</span>
+                                            <div className="flex gap-2">
+                                              <Button 
+                                                onClick={() => handleActivityComplete("breathing")}
+                                                className="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[9px] h-6 px-2.5 rounded-md border-0 cursor-pointer"
+                                              >
+                                                Log completed (+15 XP)
+                                              </Button>
+                                              <Button 
+                                                onClick={() => setActiveVideoId(null)}
+                                                className="bg-slate-850 hover:bg-slate-850 text-white font-bold text-[9px] h-6 px-2 rounded-md border border-slate-700 cursor-pointer"
+                                              >
+                                                Close Video
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        therapy.videos.map((vid) => (
+                                          <div 
+                                            key={vid.id}
+                                            className="p-3 bg-slate-950/20 border border-slate-850 hover:border-slate-800 hover:bg-slate-800/10 rounded-xl flex items-start justify-between gap-3 transition-all"
+                                          >
+                                            <div className="flex-1">
+                                              <div className="flex items-center gap-1.5">
+                                                <span className="text-[9px] font-bold text-violet-400 uppercase bg-violet-500/10 px-1.5 py-0.5 rounded border border-violet-500/20">YouTube</span>
+                                                <span className="text-[10px] text-slate-500 font-semibold">{vid.duration} | {vid.channel}</span>
+                                              </div>
+                                              <h5 className="text-xs font-bold text-white leading-snug mt-1.5">{vid.title}</h5>
+                                              <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-1">{vid.desc}</p>
+                                            </div>
+
+                                            <button 
+                                              onClick={() => setActiveVideoId(vid.id)}
+                                              className="w-8 h-8 rounded-lg bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-violet-950/30 transition-colors cursor-pointer border-0"
+                                            >
+                                              <Play className="h-4 w-4 fill-white" />
+                                            </button>
+                                          </div>
+                                        ))
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* ACTIVITIES TAB */}
+                                  {recTab === "activities" && (
+                                    <div className="flex flex-col gap-2.5">
+                                      {therapy.activities.map((act, i) => (
+                                        <div 
+                                          key={i}
+                                          className="p-3 bg-slate-950/20 border border-slate-850 rounded-xl flex flex-col gap-2.5"
+                                        >
+                                          <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1">
+                                              <h5 className="text-xs font-bold text-white leading-snug">{act.title}</h5>
+                                              <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-1">{act.desc}</p>
+                                              
+                                              {act.type === "movie" && act.films && (
+                                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                                  {act.films.map(film => (
+                                                    <span key={film} className="text-[9px] bg-slate-900 border border-slate-800 text-slate-300 font-semibold px-2 py-0.5 rounded-full">
+                                                      🎬 {film}
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          <div className="flex justify-between items-center border-t border-slate-900/60 pt-2 flex-wrap gap-2">
+                                            <span className="text-[9px] text-slate-500 font-medium leading-relaxed max-w-[70%]">
+                                              💡 {act.benefit}
+                                            </span>
+                                            
+                                            {act.type === "breathing" && (
+                                              <Button 
+                                                onClick={() => { setTimerType("breathing"); setSecondsLeft(60); setBreathPhase("inhale"); setBreathCountdown(4); setTimerActive(true); }}
+                                                className="bg-violet-600/90 hover:bg-violet-600 text-white font-extrabold text-[9px] h-7 px-3 rounded-lg border-0 cursor-pointer"
+                                              >
+                                                Start Breathing (1-Min)
+                                              </Button>
+                                            )}
+
+                                            {act.type === "dance" && (
+                                              <Button 
+                                                onClick={() => { setTimerType("dance"); setSecondsLeft(60); setTimerActive(true); }}
+                                                className="bg-violet-600/90 hover:bg-violet-600 text-white font-extrabold text-[9px] h-7 px-3 rounded-lg border-0 cursor-pointer"
+                                              >
+                                                Start Dance Party (1-Min)
+                                              </Button>
+                                            )}
+
+                                            {act.type === "movie" && (
+                                              <Button 
+                                                onClick={() => handleActivityComplete("movie")}
+                                                className="bg-violet-600/90 hover:bg-violet-600 text-white font-extrabold text-[9px] h-7 px-3 rounded-lg border-0 cursor-pointer"
+                                              >
+                                                Log Wholesome Movie Night (+15 XP)
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                </div>
+                              );
+                            })()}
                           </div>
 
                         </div>

@@ -62,7 +62,7 @@ export default function HomePage() {
         ctaLabel="Get Started"
         ctaSecondary="See How It Works"
         onCtaClick={() => navigate("/dashboard")}
-        onSecondaryClick={() => navigate("/simulator")}
+        onSecondaryClick={() => navigate("/goals")}
       />
 
       {/* ── Section 2: Stats Banner ─────────────────────────────────── */}
@@ -281,7 +281,7 @@ export default function HomePage() {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => navigate("/simulator")}
+              onClick={() => navigate("/goals")}
               className="font-semibold rounded-xl px-10 py-4 text-base cursor-pointer"
               style={{
                 background: "rgba(139,92,246,0.08)",

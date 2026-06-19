@@ -78,7 +78,7 @@ export default function Dashboard() {
     { icon: Heart, label: 'Health', onClick: () => navigate('/health') },
     { icon: DollarSign, label: 'Finance', onClick: () => navigate('/finance') },
     { icon: Briefcase, label: 'Career', onClick: () => navigate('/career') },
-    { icon: Beaker, label: 'Simulator', onClick: () => navigate('/simulator') },
+    { icon: Beaker, label: 'Twin Dashboard', onClick: () => navigate('/goals') },
     { icon: Trophy, label: 'Achievements', onClick: () => navigate('/achievements') },
     { icon: Settings, label: 'Settings', onClick: () => navigate('/settings') },
   ];

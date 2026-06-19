@@ -6,43 +6,66 @@ const mongoose = require('mongoose');
 const ML_SERVICE_URL = 'http://127.0.0.1:8000';
 
 const getCurrentSavings = async (userId) => {
-  const expenses = await Expense.aggregate([
+  const User = require('../models/User');
+  const user = await User.findById(userId);
+  const profileIncome = user ? user.income : 0;
+
+  const totalHistory = await Expense.aggregate([
     { $match: { user: new mongoose.Types.ObjectId(userId) } },
     { $group: { _id: '$type', total: { $sum: '$amount' } } }
   ]);
   
-  let income = 0;
-  let spent = 0;
-  
-  expenses.forEach(e => {
-    if (e._id === 'Income') income = e.total;
-    if (e._id === 'Expense') spent = e.total;
+  let totalIncome = 0;
+  let totalExpense = 0;
+  totalHistory.forEach(e => {
+    if (e._id === 'Income') totalIncome = e.total;
+    if (e._id === 'Expense') totalExpense = e.total;
   });
   
-  // Default to something if no history, just for demonstration
-  return Math.max(0, income - spent) || 25000;
+  let currentSavings = 0;
+  if (totalHistory.length > 0) {
+    currentSavings = totalIncome - totalExpense;
+  }
+  if (currentSavings <= 0) {
+    currentSavings = profileIncome || 12073.80;
+  }
+  return currentSavings;
 };
 
-// @desc    Get Finance Twin Overview
-// @route   GET /api/finance/twin/overview
-// @access  Private
 const getOverview = async (req, res) => {
   try {
-    const expenses = await Expense.aggregate([
-      { $match: { user: new mongoose.Types.ObjectId(req.user.id) } },
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    const profileIncome = user ? user.income : 0;
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const monthlyStats = await Expense.aggregate([
+      { 
+        $match: { 
+          user: new mongoose.Types.ObjectId(req.user.id),
+          date: { $gte: startOfMonth }
+        } 
+      },
       { $group: { _id: '$type', total: { $sum: '$amount' } } }
     ]);
     
     let monthlyIncome = 0;
     let monthlyExpenses = 0;
     
-    expenses.forEach(e => {
+    monthlyStats.forEach(e => {
       if (e._id === 'Income') monthlyIncome = e.total;
       if (e._id === 'Expense') monthlyExpenses = e.total;
     });
 
-    const currentSavings = Math.max(0, monthlyIncome - monthlyExpenses) || 25000;
-    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome * 100).toFixed(2) : 0;
+    if (monthlyIncome === 0) {
+      monthlyIncome = profileIncome || 12073.80;
+    }
+
+    const currentSavings = await getCurrentSavings(req.user.id);
+    const savingsRate = monthlyIncome > 0 ? (((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100).toFixed(2) : 0;
 
     let twin = await FinanceTwin.findOne({ user: req.user.id });
     if (!twin) {
@@ -163,9 +186,6 @@ const getOptimizations = async (req, res) => {
   }
 };
 
-// @desc    Goal Forecast
-// @route   POST /api/finance/twin/goal
-// @access  Private
 const forecastGoal = async (req, res) => {
   try {
     const { title, targetAmount, optimizedDailySavingsAddition } = req.body;
@@ -175,9 +195,41 @@ const forecastGoal = async (req, res) => {
       return res.status(200).json({ estimatedCompletionDays: 0, optimizedCompletionDays: 0 });
     }
 
-    // Proxy request to calculate. To keep it simple, we do the math here since ML just provides base trends
-    // Base savings rate per day = approx 500 (just mock it for now since we don't have accurate daily savings from ML directly)
-    const baseDailySavings = 250; 
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    const profileIncome = user ? user.income : 0;
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const monthlyStats = await Expense.aggregate([
+      { 
+        $match: { 
+          user: new mongoose.Types.ObjectId(req.user.id),
+          date: { $gte: startOfMonth }
+        } 
+      },
+      { $group: { _id: '$type', total: { $sum: '$amount' } } }
+    ]);
+
+    let monthlyIncome = 0;
+    let monthlyExpenses = 0;
+    monthlyStats.forEach(e => {
+      if (e._id === 'Income') monthlyIncome = e.total;
+      if (e._id === 'Expense') monthlyExpenses = e.total;
+    });
+
+    if (monthlyIncome === 0) {
+      monthlyIncome = profileIncome || 12073.80;
+    }
+
+    let baseDailySavings = (monthlyIncome - monthlyExpenses) / 30;
+    if (baseDailySavings <= 0) {
+      baseDailySavings = (monthlyIncome * 0.10) / 30;
+    }
+    baseDailySavings = Math.max(1, baseDailySavings);
+
     const optimizedDailySavings = baseDailySavings + (optimizedDailySavingsAddition || 0);
 
     const remaining = targetAmount - currentSavings;

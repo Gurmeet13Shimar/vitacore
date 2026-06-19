@@ -70,6 +70,7 @@ const financeRoutes = require('./routes/financeRoutes');
 const careerRoutes = require('./routes/careerRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const goalRoutes = require('./routes/goalRoutes');
+const githubRoutes = require('./routes/githubRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
@@ -78,6 +79,7 @@ app.use('/api/finance', financeRoutes);
 app.use('/api/career', careerRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/goals', goalRoutes);
+app.use('/api/github', githubRoutes);
 
 console.log('Novu Secret Key:', process.env.NOVU_SECRET_KEY ? 'Loaded ✅' : 'Missing ❌');
 

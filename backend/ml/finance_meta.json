@@ -1,0 +1,17 @@
+{
+  "category_averages": {
+    "food_drink_expense": 87.44,
+    "utilities_expense": 80.5,
+    "rent_expense": 88.86,
+    "investment_income": 199.15,
+    "shopping_expense": 80.53,
+    "other_income": 203.31,
+    "entertainment_expense": 81.23,
+    "health_fitness_expense": 79.6,
+    "salary_expense": 81.72,
+    "travel_expense": 92.93
+  },
+  "confidence": 0.9282,
+  "overall_daily_net_flow_average": -270.34,
+  "total_days": 1824
+}

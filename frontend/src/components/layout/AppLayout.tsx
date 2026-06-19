@@ -13,7 +13,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   if (location.pathname === "/health") themeClass = "theme-health";
   else if (location.pathname === "/finance") themeClass = "theme-finance";
   else if (location.pathname === "/career") themeClass = "theme-career";
-  else if (location.pathname === "/simulator") themeClass = "theme-simulator";
   else if (location.pathname === "/goals") themeClass = "theme-goals";
 
   return (

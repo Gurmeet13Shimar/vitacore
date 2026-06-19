@@ -74,3 +74,34 @@ print(f"MAPE : {mape*100:.2f}%")
 # SAVE MODEL
 joblib.dump(model, model_save_path)
 print(f"\nModel Saved Successfully to {model_save_path}")
+
+# COMPUTE DATA-DRIVEN CATEGORY STATISTICS
+import json
+min_date = df["Date"].min()
+max_date = df["Date"].max()
+total_days = (max_date - min_date).days + 1
+
+category_averages = {}
+for cat in df["Category"].unique():
+    cat_df = df[df["Category"] == cat]
+    for t in cat_df["Type"].unique():
+        subset = cat_df[cat_df["Type"] == t]
+        avg = float(subset["Amount"].sum() / total_days)
+        key = f"{cat}_{t}".lower().replace(" & ", "_").replace(" ", "_")
+        category_averages[key] = round(avg, 2)
+
+daily_range = float(daily_cashflow["y"].max() - daily_cashflow["y"].min())
+confidence = round(max(0.5, min(0.99, 1.0 - (mae / daily_range))), 4) if daily_range > 0 else 0.85
+
+meta = {
+    "category_averages": category_averages,
+    "confidence": confidence,
+    "overall_daily_net_flow_average": round(float(daily_cashflow["y"].mean()), 2),
+    "total_days": int(total_days)
+}
+
+meta_save_path = os.path.join(current_dir, "finance_meta.json")
+with open(meta_save_path, "w") as f:
+    json.dump(meta, f, indent=2)
+print(f"Finance metadata saved to {meta_save_path}")
+

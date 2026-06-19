@@ -4,20 +4,29 @@ import joblib
 import pandas as pd
 from datetime import datetime
 import os
+import json
 
 router = APIRouter()
 
-# Load the trained Prophet model
+# Load the trained Prophet model and metadata
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, "finance_forecast_model.pkl")
+meta_path = os.path.join(current_dir, "finance_meta.json")
 
-# We'll load the model lazily or at startup. Let's load at startup if possible.
 try:
     finance_model = joblib.load(model_path)
     print("Finance model loaded successfully.")
 except Exception as e:
     print(f"Warning: Could not load finance model at {model_path}. Error: {e}")
     finance_model = None
+
+try:
+    with open(meta_path, "r") as f:
+        finance_meta = json.load(f)
+    print("Finance metadata loaded successfully.")
+except Exception as e:
+    print(f"Warning: Could not load finance metadata at {meta_path}. Error: {e}")
+    finance_meta = {}
 
 class ForecastRequest(BaseModel):
     currentSavings: float
@@ -41,8 +50,8 @@ def predict_finance_forecast(req: ForecastRequest):
     # Determine trend
     trend = "Growing" if forecast90Days > req.currentSavings else "Declining"
     
-    # Dummy confidence for now, Prophet provides uncertainty intervals (yhat_lower, yhat_upper)
-    confidence = 0.85
+    # Dynamic confidence from metadata
+    confidence = finance_meta.get("confidence", 0.85)
     
     return {
         "forecast30Days": round(forecast30Days, 2),
@@ -70,13 +79,11 @@ def simulate_finance(req: SimulationRequest):
     
     base_90_day_savings = req.currentSavings + forecast_future["yhat"].sum()
     
-    # Assume arbitrary average daily spend for these categories based on historical or standard values.
-    # To truly do this accurately, we need historical category averages for the user.
-    # For now, we will simulate the additional savings by providing average daily proxy values.
-    # E.g., user spends 500/day on food, 300 on shopping, 200 on transport.
-    avg_daily_food = 500
-    avg_daily_shopping = 300
-    avg_daily_transport = 200
+    # Dynamic category averages from dataset metadata
+    averages = finance_meta.get("category_averages", {})
+    avg_daily_food = averages.get("food_drink_expense", 87.44)
+    avg_daily_shopping = averages.get("shopping_expense", 80.53)
+    avg_daily_transport = averages.get("travel_expense", 92.93)
     
     daily_savings_addition = (
         (avg_daily_food * (req.foodReductionPercent / 100)) +
@@ -98,21 +105,20 @@ class OptimizeRequest(BaseModel):
 
 @router.post("/optimize-finance")
 def optimize_finance(req: OptimizeRequest):
-    # Tests multiple scenarios
-    # 1. Income +3000
-    # 2. Shopping -30%
-    # 3. Food -20%
-    
-    # Assuming the same daily proxies
-    avg_daily_food = 500
-    avg_daily_shopping = 300
+    # Dynamic category averages from dataset metadata
+    averages = finance_meta.get("category_averages", {})
+    avg_daily_food = averages.get("food_drink_expense", 87.44)
+    avg_daily_shopping = averages.get("shopping_expense", 80.53)
+    avg_daily_transport = averages.get("travel_expense", 92.93)
+    avg_daily_utilities = averages.get("utilities_expense", 80.50)
     
     scenarios = [
         {"action": "Increase Income by ₹3000", "daily_savings": 3000 / 30},
         {"action": "Reduce Shopping by 30%", "daily_savings": avg_daily_shopping * 0.30},
         {"action": "Reduce Food Spending by 20%", "daily_savings": avg_daily_food * 0.20},
         {"action": "Increase Income by ₹5000", "daily_savings": 5000 / 30},
-        {"action": "Reduce Transportation by 20%", "daily_savings": 200 * 0.20}
+        {"action": "Reduce Transportation by 20%", "daily_savings": avg_daily_transport * 0.20},
+        {"action": "Reduce Utilities by 15%", "daily_savings": avg_daily_utilities * 0.15}
     ]
     
     # Calculate 90 day savings for each
@@ -130,3 +136,4 @@ def optimize_finance(req: OptimizeRequest):
     return {
         "optimizations": top_3
     }
+
