@@ -45,22 +45,33 @@ export function useGamification(): GamificationData {
 
     const fetchAllLogs = async () => {
       try {
-        const [healthRes, financeRes, careerRes] = await Promise.all([
+        const [healthRes, financeRes, careerRes, goalsRes] = await Promise.all([
           axios.get("http://localhost:5000/api/health"),
           axios.get("http://localhost:5000/api/finance"),
           axios.get("http://localhost:5000/api/career"),
+          axios.get("http://localhost:5000/api/goals"),
         ]);
 
         const healthLogs = Array.isArray(healthRes.data) ? healthRes.data : [];
         const financeLogs = Array.isArray(financeRes.data) ? financeRes.data : [];
         const careerLogs = Array.isArray(careerRes.data) ? careerRes.data : [];
+        const goals = Array.isArray(goalsRes.data) ? goalsRes.data : [];
 
         const hCount = healthLogs.length;
         const fCount = financeLogs.length;
         const cCount = careerLogs.length;
 
+        // XP from goals: +200 XP for each goal, plus 1 XP per ₹10 saved in Finance goals
+        let goalsXp = 0;
+        goals.forEach((g: any) => {
+          goalsXp += 200; // creation
+          if (g.domain === "Finance" && g.currentValue > 0) {
+            goalsXp += Math.floor(g.currentValue / 10); // 1 XP per ₹10 saved
+          }
+        });
+
         // Base XP calculation
-        const totalXp = (hCount * 150) + (fCount * 100) + (cCount * 250);
+        const totalXp = (hCount * 150) + (fCount * 100) + (cCount * 250) + goalsXp;
         const level = Math.floor(totalXp / 5000) + 1;
         const xp = totalXp % 5000;
         

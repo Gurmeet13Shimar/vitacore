@@ -218,18 +218,11 @@ export default function Health() {
         return {
           videos: [
             {
-              id: "aEqlQvczMJQ",
-              title: "10-Min Guided Meditation for Sleep & Calm Mind",
-              duration: "10 min",
-              channel: "Headspace",
-              desc: "Deep, soothing voice that guides you to release body tension and silence racing thoughts."
-            },
-            {
-              id: "mPZkdNFkNps",
-              title: "Cozy ASMR Rain Sounds for Instantly Falling Asleep",
-              duration: "8 hours",
-              channel: "Ambient Sounds",
-              desc: "Gentle rain and soft wind-masking frequencies to slow down overactive brainwaves."
+              id: "inpok4MKVLM",
+              title: "5-Min Guided Meditation for Insomnia & Deep Sleep",
+              duration: "5 min",
+              channel: "Goodful",
+              desc: "A calming guided meditation to quiet racing thoughts and ease you into restful sleep. Perfect for insomnia."
             }
           ],
           activities: [
@@ -252,18 +245,11 @@ export default function Health() {
         return {
           videos: [
             {
-              id: "N-0_165Qlyo",
-              title: "Myofunctional Therapy Airway & Tongue Exercises",
-              duration: "7 min",
-              channel: "Doctor Sleep",
-              desc: "Strengthen throat, tongue, and soft palate muscles to keep your airway open overnight."
-            },
-            {
-              id: "K4wAOk7xIek",
-              title: "Pranayama Breathing Yoga for Sleep Apnea Recovery",
-              duration: "12 min",
-              channel: "Yoga Oasis",
-              desc: "Deep yogic breathing exercise to expand lung vital capacity and improve nighttime oxygenation."
+              id: "inpok4MKVLM",
+              title: "5-Min Breathing Meditation for Better Sleep",
+              duration: "5 min",
+              channel: "Goodful",
+              desc: "Guided diaphragmatic breathing to expand lung capacity, relax airway muscles, and improve overnight oxygenation."
             }
           ],
           activities: [
@@ -285,18 +271,11 @@ export default function Health() {
         return {
           videos: [
             {
-              id: "v7AYKjSoHy0",
-              title: "Evening Wind Down Yoga - Full Body Stretch",
-              duration: "10 min",
-              channel: "Yoga With Adriene",
-              desc: "A gentle somatic stretch routine to release physical strain and prepare the body for deep REM sleep."
-            },
-            {
-              id: "jZ_yP2k_lpg",
-              title: "5-Minute High Energy Zumba Workout Break",
+              id: "inpok4MKVLM",
+              title: "5-Min Mindfulness Meditation — Reduce Stress & Sleep Better",
               duration: "5 min",
-              channel: "DanceFit",
-              desc: "A quick, fun dancing routine to boost dopamine, burn calories, and reset your daily stress."
+              channel: "Goodful",
+              desc: "A quick mindfulness reset to release daytime tension, lower cortisol, and prepare your mind for deep, quality sleep."
             }
           ],
           activities: [
@@ -1134,7 +1113,10 @@ export default function Health() {
                                       
                                       {activeVideoId ? (
                                         <div className="flex flex-col gap-2">
-                                          <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-black">
+                                          <div 
+                                            className="relative w-full rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-black"
+                                            style={{ position: "relative", width: "100%", paddingBottom: "56.25%", height: 0 }}
+                                          >
                                             <iframe
                                               src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1`}
                                               title="Yoga/Meditation therapy player"
@@ -1142,6 +1124,7 @@ export default function Health() {
                                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                               allowFullScreen
                                               className="absolute inset-0 w-full h-full"
+                                              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
                                             />
                                           </div>
                                           <div className="flex justify-between items-center bg-slate-950/20 p-2 rounded-xl border border-slate-800/40">
@@ -1155,7 +1138,7 @@ export default function Health() {
                                               </Button>
                                               <Button 
                                                 onClick={() => setActiveVideoId(null)}
-                                                className="bg-slate-850 hover:bg-slate-850 text-white font-bold text-[9px] h-6 px-2 rounded-md border border-slate-700 cursor-pointer"
+                                                className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-[9px] h-6 px-2 rounded-md border border-slate-700 cursor-pointer"
                                               >
                                                 Close Video
                                               </Button>
@@ -1166,7 +1149,7 @@ export default function Health() {
                                         therapy.videos.map((vid) => (
                                           <div 
                                             key={vid.id}
-                                            className="p-3 bg-slate-950/20 border border-slate-850 hover:border-slate-800 hover:bg-slate-800/10 rounded-xl flex items-start justify-between gap-3 transition-all"
+                                            className="p-3 bg-slate-950/20 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/10 rounded-xl flex items-start justify-between gap-3 transition-all"
                                           >
                                             <div className="flex-1">
                                               <div className="flex items-center gap-1.5">
@@ -1195,7 +1178,7 @@ export default function Health() {
                                       {therapy.activities.map((act, i) => (
                                         <div 
                                           key={i}
-                                          className="p-3 bg-slate-950/20 border border-slate-850 rounded-xl flex flex-col gap-2.5"
+                                          className="p-3 bg-slate-950/20 border border-slate-800 rounded-xl flex flex-col gap-2.5"
                                         >
                                           <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1">

@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Load trained ML model
-model = joblib.load("vitacore_model.pkl")
+model = joblib.load("vitacore_simulator.pkl")
 
 
 class UserData(BaseModel):

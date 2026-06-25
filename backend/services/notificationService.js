@@ -3,7 +3,13 @@ const User = require('../models/User');
 const { getIO } = require('../config/socket');
 const { Novu } = require('@novu/node');
 
-const novu = new Novu(process.env.NOVU_SECRET_KEY);
+let _novu = null;
+const getNovu = () => {
+  const key = process.env.NOVU_SECRET_KEY;
+  if (!key || key === 'your_novu_api_secret_key_here') return null;
+  if (!_novu) _novu = new Novu(key);
+  return _novu;
+};
 
 /**
  * Core notification creator — saves to MongoDB, pushes in real-time via Socket.IO,
@@ -38,9 +44,10 @@ const createNotification = async (
     const user = await User.findById(userId);
 
     // 3. Trigger Novu workflow for external emails/push notifications
-    if (user && process.env.NOVU_SECRET_KEY && process.env.NOVU_WORKFLOW_ID) {
+    const novuClient = getNovu();
+    if (user && novuClient && process.env.NOVU_WORKFLOW_ID) {
       try {
-        await novu.trigger(process.env.NOVU_WORKFLOW_ID, {
+        await novuClient.trigger(process.env.NOVU_WORKFLOW_ID, {
           to: {
             subscriberId: userId.toString(),
             email: user.email,

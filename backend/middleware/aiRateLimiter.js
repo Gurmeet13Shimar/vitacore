@@ -11,8 +11,10 @@ const aiRateLimiter = rateLimit({
   standardHeaders: true,     // return rate limit info in RateLimit-* headers
   legacyHeaders: false,
 
-  // Key by authenticated user ID (set by protect middleware)
-  keyGenerator: (req) => req.user?.id || req.ip,
+  // Disable IP-related validations — we key by userId, never by IP
+  validate: { xForwardedForHeader: false, trustProxy: false },
+
+  keyGenerator: (req) => req.user?.id || 'anonymous',
 
   // Consistent error response shape
   handler: (req, res) => {

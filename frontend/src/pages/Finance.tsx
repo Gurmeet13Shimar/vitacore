@@ -234,13 +234,19 @@ export default function Finance() {
   const safeLogs = Array.isArray(logs) ? logs : [];
 
   // Dynamically calculate metrics
-  const userIncome = user?.income || 0;
+  // Sum up all logged Income transactions from the ledger
+  let loggedIncome = 0;
   let expenses = 0;
   safeLogs.forEach((item) => {
-    if (item.type === "Expense") {
+    if (item.type === "Income") {
+      loggedIncome += item.amount;
+    } else if (item.type === "Expense") {
       expenses += item.amount;
     }
   });
+
+  // Use logged income if any transactions exist, otherwise fall back to the static profile income
+  const userIncome = loggedIncome > 0 ? loggedIncome : (user?.income || 0);
 
   const savings = userIncome - expenses;
   const savingsRate = userIncome > 0 ? Math.round((savings / userIncome) * 100) : 0;
@@ -709,7 +715,7 @@ export default function Finance() {
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="text-[11px] text-emerald-400 font-black mt-1">🎉 Milestone Achieved!</span>
+                                  <span className="text-[11px] text-emerald-400 font-black mt-1">🎉 Milestone Achieved! (+500 XP & 100 pts)</span>
                                 )}
                               </div>
                             );

@@ -22,8 +22,8 @@ import { NotificationBell } from "../notifications/NotificationBell";
 const navItems = [
   { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
   { path: "/health",       label: "Health",       icon: Heart },
-  { path: "/finance",      label: "Finance",      icon: DollarSign },
   { path: "/career",       label: "Career",       icon: Briefcase },
+  { path: "/finance",      label: "Finance",      icon: DollarSign },
   { path: "/goals",        label: "Twin Dashboard", icon: Beaker },
   { path: "/achievements", label: "Achievements", icon: Trophy },
   { path: "/settings",     label: "Settings",     icon: Settings },
